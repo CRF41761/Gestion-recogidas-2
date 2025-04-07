@@ -2,7 +2,7 @@
   "name": "Gestión de Recogidas",
   "short_name": "Recogidas",
   "description": "Aplicación para gestionar la recogida de animales",
-  "start_url": "/index.html",
+  "start_url": "https://crf41761.github.io/Gestion-recogidas-2/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0288d1",

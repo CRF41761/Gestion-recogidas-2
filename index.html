@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Recogidas - La Granja El Saler</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Leaflet (para mapas) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Script -->
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div id="container">
+        <!-- Encabezado -->
+        <header id="header">
+            <h1 class="title">Gestión de Recogidas</h1>
+            <h2 class="subtitle">La Granja El Saler</h2>
+        </header>
+
+        <!-- Formulario -->
+        <form id="recogidasForm">
+            <div class="form-group form-group-large">
+                <label for="especie">Especie:</label>
+                <input type="text" id="especie" name="especie" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="matricula">Matrícula:</label>
+                <select id="matricula" name="matricula" required>
+                    <option value="" disabled selected>Selecciona una opción</option>
+                    <option value="1242 MWX">1242 MWX</option>
+                    <option value="3220 MHH">3220 MHH</option>
+                    <option value="9647 LTY">9647 LTY</option>
+                    <option value="5030 LMZ">5030 LMZ</option>
+                    <option value="9548 LHH">9548 LHH</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" name="fecha" required>
+            </div>
+
+            <div class="form-group">
+                <label for="kilometrajeInicial">Kilometraje Inicial:</label>
+                <input type="number" id="kilometrajeInicial" name="kilometrajeInicial" required>
+            </div>
+
+            <div class="form-group">
+                <label for="kilometrajeFinal">Kilometraje Final:</label>
+                <input type="number" id="kilometrajeFinal" name="kilometrajeFinal" required>
+            </div>
+
+            <div class="form-group">
+                <label for="recorrido">Recorrido:</label>
+                <input type="text" id="recorrido" name="recorrido" required>
+            </div>
+
+            <div class="form-group">
+                <label for="conductor">Conductor:</label>
+                <input type="text" id="conductor" name="conductor" required>
+            </div>
+
+            <div class="form-group">
+                <label for="motivo">Motivo:</label>
+                <select id="motivo" name="motivo" required>
+                    <option value="" disabled selected>Selecciona una opción</option>
+                    <option value="rescate">Rescate</option>
+                    <option value="traslado">Traslado</option>
+                    <option value="liberacion">Liberación</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="repostaje">Repostaje:</label>
+                <input type="number" id="repostaje" name="repostaje">
+            </div>
+
+            <div class="form-group">
+                <label for="encontrado">Encontrado:</label>
+                <input type="text" id="encontrado" name="encontrado">
+            </div>
+
+            <div class="form-group">
+                <label for="recogido">Recogido:</label>
+                <input type="text" id="recogido" name="recogido">
+            </div>
+
+            <div class="form-group form-group-large">
+                <label for="observaciones">Observaciones:</label>
+                <textarea id="observaciones" name="observaciones" rows="4"></textarea>
+            </div>
+
+            <button type="submit">Guardar</button>
+        </form>
+
+        <!-- Mapa -->
+        <div id="map"></div>
+    </div>
+</body>
+</html>
+

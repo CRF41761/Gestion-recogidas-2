@@ -12,6 +12,13 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    <!-- Vinculación del Manifest para PWA -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Favicon e íconos -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+
     <!-- Script -->
     <script src="script.js" defer></script>
 </head>
@@ -48,13 +55,13 @@
             </div>
 
             <div class="form-group">
-                <label for="kilometrajeInicial">Kilometraje Inicial:</label>
-                <input type="number" id="kilometrajeInicial" name="kilometrajeInicial" required>
+                <label for="kilometraje_inicial">Kilometraje Inicial:</label>
+                <input type="number" id="kilometraje_inicial" name="kilometraje_inicial" required>
             </div>
 
             <div class="form-group">
-                <label for="kilometrajeFinal">Kilometraje Final:</label>
-                <input type="number" id="kilometrajeFinal" name="kilometrajeFinal" required>
+                <label for="kilometraje_final">Kilometraje Final:</label>
+                <input type="number" id="kilometraje_final" name="kilometraje_final" required>
             </div>
 
             <div class="form-group">
@@ -105,4 +112,3 @@
     </div>
 </body>
 </html>
-

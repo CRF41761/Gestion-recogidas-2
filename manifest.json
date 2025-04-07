@@ -1,24 +1,33 @@
 {
   "name": "Gestión de Recogidas",
   "short_name": "Recogidas",
-  "description": "Aplicación para gestionar la recogida de animales",
-  {
-  "start_url": "/Gestion-recogidas-2/index.html",
+  "start_url": "/Gestion-recogidas-2/",
   "display": "standalone",
-  "scope": "/Gestion-recogidas-2/"
-}
-
   "background_color": "#ffffff",
-  "theme_color": "#0288d1",
+  "theme_color": "#007bff",
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "/Gestion-recogidas-2/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/Gestion-recogidas-2/icons/icon-512x512.png",
       "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "description": "Aplicación para gestionar recogidas de fauna.",
+  "screenshots": [
+    {
+      "src": "/Gestion-recogidas-2/screenshots/screenshot-wide.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/Gestion-recogidas-2/screenshots/screenshot-mobile.png",
+      "sizes": "750x1334",
       "type": "image/png"
     }
   ]

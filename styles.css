@@ -63,9 +63,9 @@ button:hover {
 
 /* Estilos para los campos checkbox y su disposición */
 .checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas */
+    gap: 6px; /* Espacio entre los checkbox */
 }
 
 .checkbox-group input[type="checkbox"] {
@@ -86,7 +86,7 @@ legend {
 @media (max-width: 768px) {
     /* Cambia la disposición de las columnas */
     .checkbox-group {
-        flex-direction: column; /* Una sola columna */
+        grid-template-columns: 1fr; /* Una sola columna */
     }
 
     .form-group {

@@ -1,65 +1,49 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("recogidasForm");
-
-    form.addEventListener("submit", function (event) {
+    document.getElementById("recogidasForm").addEventListener("submit", async function (event) {
         event.preventDefault();
 
-        const formData = new FormData(form);
-        const data = {};
-        formData.forEach((value, key) => {
-            data[key] = value;
-        });
-
-        fetch("https://script.google.com/macros/s/TU_SCRIPT_ID/exec", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            alert("Datos enviados correctamente");
-            form.reset();
-        })
-        .catch(error => {
-            console.error("Error al enviar los datos:", error);
-            alert("Hubo un problema al enviar los datos");
-        });
-    });
-
-    // Inicializar mapa con Leaflet
-    const map = L.map('map').setView([39.4699, -0.3763], 10); // Coordenadas de Valencia
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    let marker;
-    map.on('click', function (e) {
-        if (marker) {
-            marker.setLatLng(e.latlng);
-        } else {
-            marker = L.marker(e.latlng).addTo(map);
+        // Función para obtener valores de los checkboxes seleccionados
+        function getCheckedValues(name) {
+            return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`))
+                .map(input => input.value)
+                .join(", ");
         }
-        document.getElementById("coordenadas_mapa").value = `${e.latlng.lat}, ${e.latlng.lng}`;
+
+        // Obtener valores del formulario
+        const formData = {
+            especie_comun: document.getElementById("especie_comun").value,
+            especie_cientifico: document.getElementById("especie_cientifico").value,
+            fecha: document.getElementById("fecha").value,
+            municipio: document.getElementById("municipio").value,
+            posible_causa: getCheckedValues("posible_causa"),
+            posible_causa_otras: document.querySelector("input[name='posible_causa_otras']")?.value || "",
+            remitente: getCheckedValues("remitente"),
+            remitente_otras: document.querySelector("input[name='remitente_otras']")?.value || "",
+            estado_animal: getCheckedValues("estado_animal")
+        };
+
+        try {
+            const response = await fetch("URL_DE_TU_WEB_APP_GOOGLE_SHEETS", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert("Datos enviados correctamente");
+                document.getElementById("recogidasForm").reset();
+            } else {
+                alert("Error al enviar los datos");
+            }
+        } catch (error) {
+            console.error("Error al enviar los datos:", error);
+            alert("Hubo un problema al enviar el formulario.");
+        }
     });
-
-    // Obtener ubicación actual y colocar marcador
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            map.setView([lat, lng], 15);
-            marker = L.marker([lat, lng]).addTo(map);
-            document.getElementById("coordenadas_mapa").value = `${lat}, ${lng}`;
-        }, function (error) {
-            console.error("Error obteniendo la ubicación: ", error);
-        });
-    } else {
-        console.log("Geolocalización no soportada por este navegador.");
-    }
 });
-
 
 
 

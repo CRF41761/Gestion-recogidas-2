@@ -1,37 +1,51 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Inicializar mapa con Leaflet
-    var map = L.map('map').setView([39.4699, -0.3763], 10);
+    var map = L.map("map").setView([39.4699, -0.3763], 10); // Coordenadas de Valencia por defecto
 
-    // Capa de OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors"
     }).addTo(map);
 
-    // Evento para capturar coordenadas
     var marker;
-    map.on('click', function (e) {
+
+    function onMapClick(e) {
         if (marker) {
-            map.removeLayer(marker);
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(map);
         }
-        marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
         document.getElementById("coordenadas_mapa").value = e.latlng.lat + ", " + e.latlng.lng;
-    });
+    }
 
-    // Capturar el formulario y enviarlo a Google Sheets
-    document.getElementById("recogidasForm").addEventListener("submit", function (e) {
-        e.preventDefault();
+    map.on("click", onMapClick);
 
+    document.getElementById("formulario").addEventListener("submit", function (event) {
+        event.preventDefault();
+        
         var formData = new FormData(this);
+        var data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
 
-        fetch("https://script.google.com/macros/s/AKfycbzUmVu-dKTNUu-L8tVFKkEFUrzAy5sKXPKYZ3JMw4tyCm7NS7MGRW3gP7qPleZgwX0/exec", {
+        fetch("URL_DE_TU_WEB_APP_GOOGLE_SHEETS", {
             method: "POST",
-            body: formData
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
         })
-        .then(response => response.text())
-        .then(data => alert("Datos enviados correctamente"))
-        .catch(error => console.error("Error al enviar:", error));
+        .then(response => response.json())
+        .then(result => {
+            alert("Datos enviados correctamente");
+            document.getElementById("formulario").reset();
+        })
+        .catch(error => {
+            console.error("Error al enviar datos:", error);
+        });
     });
 });
+
 
 
 

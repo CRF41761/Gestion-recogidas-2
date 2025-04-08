@@ -3,112 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Recogidas - La Granja El Saler</title>
-
-    <!-- Estilos -->
+    <title>Formulario de Recogidas</title>
     <link rel="stylesheet" href="styles.css">
-
-    <!-- Leaflet (para mapas) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <!-- Vinculación del Manifest para PWA -->
-    <link rel="manifest" href="manifest.json">
-
-    <!-- Favicon e íconos -->
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
-
-    <!-- Script -->
-    <script src="script.js" defer></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
-    <div id="container">
-        <!-- Encabezado -->
-        <header id="header">
-            <h1 class="title">Gestión de Recogidas</h1>
-            <h2 class="subtitle">La Granja El Saler</h2>
-        </header>
+    <h1>Formulario de Recogidas</h1>
+    <form id="recogidasForm">
+        <label for="especie_comun">Especie (nombre común):</label>
+        <input type="text" id="especie_comun" name="ESPECIE (nombre común)" required>
 
-        <!-- Formulario -->
-        <form id="recogidasForm">
-            <div class="form-group form-group-large">
-                <label for="especie">Especie:</label>
-                <input type="text" id="especie" name="especie" required autocomplete="off">
-            </div>
+        <label for="especie_cientifico">Especie (nombre científico):</label>
+        <input type="text" id="especie_cientifico" name="ESPECIE (nombre científico)" required>
 
-            <div class="form-group">
-                <label for="matricula">Matrícula:</label>
-                <select id="matricula" name="matricula" required>
-                    <option value="" disabled selected>Selecciona una opción</option>
-                    <option value="1242 MWX">1242 MWX</option>
-                    <option value="3220 MHH">3220 MHH</option>
-                    <option value="9647 LTY">9647 LTY</option>
-                    <option value="5030 LMZ">5030 LMZ</option>
-                    <option value="9548 LHH">9548 LHH</option>
-                </select>
-            </div>
+        <label for="fecha">Fecha:</label>
+        <input type="date" id="fecha" name="FECHA" required>
 
-            <div class="form-group">
-                <label for="fecha">Fecha:</label>
-                <input type="date" id="fecha" name="fecha" required>
-            </div>
+        <label for="municipio">Municipio:</label>
+        <input type="text" id="municipio" name="MUNICIPIO" required>
 
-            <div class="form-group">
-                <label for="kilometraje_inicial">Kilometraje Inicial:</label>
-                <input type="number" id="kilometraje_inicial" name="kilometraje_inicial" required>
-            </div>
+        <label for="posible_causa">Posible causa:</label>
+        <input type="text" id="posible_causa" name="POSIBLE CAUSA">
 
-            <div class="form-group">
-                <label for="kilometraje_final">Kilometraje Final:</label>
-                <input type="number" id="kilometraje_final" name="kilometraje_final" required>
-            </div>
+        <label for="remitente">Remitente:</label>
+        <input type="text" id="remitente" name="REMITENTE" required>
 
-            <div class="form-group">
-                <label for="recorrido">Recorrido:</label>
-                <input type="text" id="recorrido" name="recorrido" required>
-            </div>
+        <label for="estado_animal">Estado del animal:</label>
+        <input type="text" id="estado_animal" name="ESTADO DEL ANIMAL">
 
-            <div class="form-group">
-                <label for="conductor">Conductor:</label>
-                <input type="text" id="conductor" name="conductor" required>
-            </div>
+        <label for="coordenadas">Coordenadas:</label>
+        <input type="text" id="coordenadas" name="COORDENADAS" readonly>
 
-            <div class="form-group">
-                <label for="motivo">Motivo:</label>
-                <select id="motivo" name="motivo" required>
-                    <option value="" disabled selected>Selecciona una opción</option>
-                    <option value="rescate">Rescate</option>
-                    <option value="traslado">Traslado</option>
-                    <option value="liberacion">Liberación</option>
-                </select>
-            </div>
+        <label for="coordenadas_mapa">Coordenadas del mapa:</label>
+        <input type="text" id="coordenadas_mapa" name="COORDENADAS DEL MAPA" readonly>
 
-            <div class="form-group">
-                <label for="repostaje">Repostaje:</label>
-                <input type="number" id="repostaje" name="repostaje">
-            </div>
+        <div id="map" style="height: 300px;"></div>
 
-            <div class="form-group">
-                <label for="encontrado">Encontrado:</label>
-                <input type="text" id="encontrado" name="encontrado">
-            </div>
+        <label for="apoyo">Apoyo:</label>
+        <input type="text" id="apoyo" name="APOYO">
 
-            <div class="form-group">
-                <label for="recogido">Recogido:</label>
-                <input type="text" id="recogido" name="recogido">
-            </div>
+        <label for="cra_km">CRA y KM:</label>
+        <input type="text" id="cra_km" name="CRA Y KM">
 
-            <div class="form-group form-group-large">
-                <label for="observaciones">Observaciones:</label>
-                <textarea id="observaciones" name="observaciones" rows="4"></textarea>
-            </div>
+        <label for="observaciones">Observaciones:</label>
+        <textarea id="observaciones" name="OBSERVACIONES"></textarea>
 
-            <button type="submit">Guardar</button>
-        </form>
+        <label for="cumplimentado_por">Cumplimentado por:</label>
+        <input type="text" id="cumplimentado_por" name="CUMPLIMENTADO POR" required>
 
-        <!-- Mapa -->
-        <div id="map"></div>
-    </div>
+        <label for="telefono_remitente">Teléfono remitente:</label>
+        <input type="tel" id="telefono_remitente" name="TELÉFONO REMITENTE" required>
+
+        <button type="submit">Enviar</button>
+    </form>
+
+    <script src="script.js"></script>
 </body>
 </html>
+

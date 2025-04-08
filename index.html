@@ -1,82 +1,51 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Recogidas</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-</head>
-<body>
-    <h1>Gestión de Recogidas</h1>
-    <form id="formulario">
-        <label for="especie_comun">Especie (nombre común):</label>
-        <input type="text" id="especie_comun" name="especie_comun" required>
+document.addEventListener("DOMContentLoaded", function () {
+    var map = L.map("map").setView([39.4699, -0.3763], 10); // Coordenadas de Valencia por defecto
 
-        <label for="especie_cientifico">Especie (nombre científico):</label>
-        <input type="text" id="especie_cientifico" name="especie_cientifico" required>
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors"
+    }).addTo(map);
 
-        <label for="fecha">Fecha:</label>
-        <input type="date" id="fecha" name="fecha" required>
+    var marker;
 
-        <label for="municipio">Municipio:</label>
-        <input type="text" id="municipio" name="municipio" required>
+    function onMapClick(e) {
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(map);
+        }
+        document.getElementById("coordenadas_mapa").value = e.latlng.lat + ", " + e.latlng.lng;
+    }
 
-        <fieldset>
-            <legend>Posible Causa</legend>
-            <div class="column">
-                <label><input type="checkbox" name="posible_causa" value="Ahogamiento"> Ahogamiento</label>
-                <label><input type="checkbox" name="posible_causa" value="Atrapado"> Atrapado</label>
-                <label><input type="checkbox" name="posible_causa" value="Atropello"> Atropello</label>
-                <label><input type="checkbox" name="posible_causa" value="Cría"> Cría</label>
-                <label><input type="checkbox" name="posible_causa" value="Decomiso"> Decomiso</label>
-                <label><input type="checkbox" name="posible_causa" value="Depredación"> Depredación</label>
-                <label><input type="checkbox" name="posible_causa" value="Desnutrición"> Desnutrición</label>
-                <label><input type="checkbox" name="posible_causa" value="Disparo"> Disparo</label>
-                <label><input type="checkbox" name="posible_causa" value="Electrocución"> Electrocución</label>
-            </div>
-            <div class="column">
-                <label><input type="checkbox" name="posible_causa" value="Cautividad"> Cautividad</label>
-                <label><input type="checkbox" name="posible_causa" value="Hallazgo"> Hallazgo</label>
-                <label><input type="checkbox" name="posible_causa" value="Indeterminada"> Indeterminada</label>
-                <label><input type="checkbox" name="posible_causa" value="Infecciosa"> Infecciosa</label>
-                <label><input type="checkbox" name="posible_causa" value="Intoxicación"> Intoxicación</label>
-                <label><input type="checkbox" name="posible_causa" value="Nacido en el centro"> Nacido en el centro</label>
-                <label><input type="checkbox" name="posible_causa" value="Trampeo"> Trampeo</label>
-                <label><input type="checkbox" name="posible_causa" value="Traumatismo"> Traumatismo</label>
-                <label>Otras: <input type="text" name="posible_causa_otras"></label>
-            </div>
-        </fieldset>
+    map.on("click", onMapClick);
 
-        <fieldset>
-            <legend>Remitente</legend>
-            <div class="column">
-                <label><input type="checkbox" name="remitente" value="A. Medioambiental"> A. Medioambiental</label>
-                <label><input type="checkbox" name="remitente" value="Ayuntamiento"> Ayuntamiento</label>
-                <label><input type="checkbox" name="remitente" value="CRF Forn del Vidre"> CRF Forn del Vidre</label>
-                <label><input type="checkbox" name="remitente" value="CRF Santa Faz"> CRF Santa Faz</label>
-                <label><input type="checkbox" name="remitente" value="Cruz Roja"> Cruz Roja</label>
-            </div>
-            <div class="column">
-                <label><input type="checkbox" name="remitente" value="Guardia Civil"> Guardia Civil</label>
-                <label><input type="checkbox" name="remitente" value="Iberdrola"> Iberdrola</label>
-                <label><input type="checkbox" name="remitente" value="Personal de Conselleria"> Personal de Conselleria</label>
-                <label><input type="checkbox" name="remitente" value="Particular"> Particular</label>
-                <label>Otras: <input type="text" name="remitente_otras"></label>
-            </div>
-        </fieldset>
+    document.getElementById("formulario").addEventListener("submit", function (event) {
+        event.preventDefault();
+        
+        var formData = new FormData(this);
+        var data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
 
-        <label for="coordenadas_mapa">Coordenadas del mapa:</label>
-        <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
+        fetch("URL_DE_TU_WEB_APP_GOOGLE_SHEETS", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            alert("Datos enviados correctamente");
+            document.getElementById("formulario").reset();
+        })
+        .catch(error => {
+            console.error("Error al enviar datos:", error);
+        });
+    });
+});
 
-        <div id="map" style="height: 300px;"></div>
-
-        <button type="submit">Enviar</button>
-    </form>
-    <script src="script.js"></script>
-</body>
-</html>
 
 
 

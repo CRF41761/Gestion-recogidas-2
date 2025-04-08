@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Recogidas</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css"> <!-- Enlace al archivo CSS -->
 </head>
 <body>
     <h1>Gestión de Recogidas</h1>
@@ -33,84 +33,121 @@
         
         <fieldset>
             <legend>Posible Causa</legend>
-            <div class="checkbox-group">
-                <input type="checkbox" id="ahogamiento" name="posible_causa" value="Ahogamiento">
-                <label for="ahogamiento">Ahogamiento</label>
-
-                <input type="checkbox" id="atrapado" name="posible_causa" value="Atrapado">
-                <label for="atrapado">Atrapado</label>
-
-                <input type="checkbox" id="atropello" name="posible_causa" value="Atropello">
-                <label for="atropello">Atropello</label>
-
-                <input type="checkbox" id="cria" name="posible_causa" value="Cría">
-                <label for="cria">Cría</label>
-
-                <input type="checkbox" id="decomiso" name="posible_causa" value="Decomiso">
-                <label for="decomiso">Decomiso</label>
-
-                <input type="checkbox" id="cautividad" name="posible_causa" value="Cautividad">
-                <label for="cautividad">Cautividad</label>
-
-                <input type="checkbox" id="hallazgo" name="posible_causa" value="Hallazgo">
-                <label for="hallazgo">Hallazgo</label>
-
-                <input type="checkbox" id="indeterminada" name="posible_causa" value="Indeterminada">
-                <label for="indeterminada">Indeterminada</label>
-
-                <input type="checkbox" id="otras" name="posible_causa" value="Otras">
-                <label for="otras">Otras</label>
-                <input type="text" id="otras_texto" name="otras_texto">
+            <div class="checkbox-grid">
+                <div>
+                    <input type="checkbox" id="ahogamiento" name="posible_causa" value="Ahogamiento">
+                    <label for="ahogamiento">Ahogamiento</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="atrapado" name="posible_causa" value="Atrapado">
+                    <label for="atrapado">Atrapado</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="atropello" name="posible_causa" value="Atropello">
+                    <label for="atropello">Atropello</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="cria" name="posible_causa" value="Cría">
+                    <label for="cria">Cría</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="decomiso" name="posible_causa" value="Decomiso">
+                    <label for="decomiso">Decomiso</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="cautividad" name="posible_causa" value="Cautividad">
+                    <label for="cautividad">Cautividad</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="hallazgo" name="posible_causa" value="Hallazgo">
+                    <label for="hallazgo">Hallazgo</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="indeterminada" name="posible_causa" value="Indeterminada">
+                    <label for="indeterminada">Indeterminada</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="otras" name="posible_causa" value="Otras">
+                    <label for="otras">Otras</label>
+                    <input type="text" id="otras_texto" name="otras_texto">
+                </div>
             </div>
         </fieldset>
         
         <fieldset>
             <legend>Remitente</legend>
-            <div class="checkbox-group">
-                <input type="checkbox" id="medioambiental" name="remitente" value="A. Medioambiental">
-                <label for="medioambiental">A. Medioambiental</label>
-
-                <input type="checkbox" id="ayuntamiento" name="remitente" value="Ayuntamiento">
-                <label for="ayuntamiento">Ayuntamiento</label>
-
-                <input type="checkbox" id="crf_forn" name="remitente" value="CRF Forn del Vidre">
-                <label for="crf_forn">CRF Forn del Vidre</label>
-
-                <input type="checkbox" id="guardia_civil" name="remitente" value="Guardia Civil">
-                <label for="guardia_civil">Guardia Civil</label>
-
-                <input type="checkbox" id="personal_conselleria" name="remitente" value="Personal de Conselleria">
-                <label for="personal_conselleria">Personal de Conselleria</label>
-
-                <input type="checkbox" id="otras_remitente" name="remitente" value="Otras">
-                <label for="otras_remitente">Otras</label>
-                <input type="text" id="otras_remitente_texto" name="otras_remitente_texto">
+            <div class="checkbox-grid">
+                <div>
+                    <input type="checkbox" id="medioambiental" name="remitente" value="A. Medioambiental">
+                    <label for="medioambiental">A. Medioambiental</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="ayuntamiento" name="remitente" value="Ayuntamiento">
+                    <label for="ayuntamiento">Ayuntamiento</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="crf_forn" name="remitente" value="CRF Forn del Vidre">
+                    <label for="crf_forn">CRF Forn del Vidre</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="guardia_civil" name="remitente" value="Guardia Civil">
+                    <label for="guardia_civil">Guardia Civil</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="personal_conselleria" name="remitente" value="Personal de Conselleria">
+                    <label for="personal_conselleria">Personal de Conselleria</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="otras_remitente" name="remitente" value="Otras">
+                    <label for="otras_remitente">Otras</label>
+                    <input type="text" id="otras_remitente_texto" name="otras_remitente_texto">
+                </div>
             </div>
         </fieldset>
         
         <fieldset>
             <legend>Estado del Animal</legend>
-            <div class="checkbox-group">
-                <input type="checkbox" id="animal_vivo" name="estado_animal" value="Animal Vivo">
-                <label for="animal_vivo">Animal Vivo</label>
-
-                <input type="checkbox" id="cadaver" name="estado_animal" value="Cadáver">
-                <label for="cadaver">Cadáver</label>
-
-                <input type="checkbox" id="recoge_centro" name="estado_animal" value="Recoge Centro">
-                <label for="recoge_centro">Recoge Centro</label>
-
-                <input type="checkbox" id="recuperacion" name="estado_animal" value="Recuperación">
-                <label for="recuperacion">Recuperación</label>
+            <div class="checkbox-grid">
+                <div>
+                    <input type="checkbox" id="animal_vivo" name="estado_animal" value="Animal Vivo">
+                    <label for="animal_vivo">Animal Vivo</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="cadaver" name="estado_animal" value="Cadáver">
+                    <label for="cadaver">Cadáver</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="recoge_centro" name="estado_animal" value="Recoge Centro">
+                    <label for="recoge_centro">Recoge Centro</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="recuperacion" name="estado_animal" value="Recuperación">
+                    <label for="recuperacion">Recuperación</label>
+                </div>
             </div>
         </fieldset>
-        
-        <div id="map" style="height: 300px;"></div>
-        
+
         <div class="form-group">
             <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
             <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
         </div>
+
+        <div class="form-group">
+            <label for="observaciones">Observaciones:</label>
+            <textarea id="observaciones" name="observaciones"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="cumplimentado_por">Cumplimentado por:</label>
+            <input type="text" id="cumplimentado_por" name="cumplimentado_por">
+        </div>
+
+        <div class="form-group">
+            <label for="telefono_remitente">Teléfono remitente:</label>
+            <input type="text" id="telefono_remitente" name="telefono_remitente">
+        </div>
+
+        <div id="map" style="height: 300px;"></div>
 
         <button type="submit">Enviar</button>
     </form>
@@ -118,6 +155,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 

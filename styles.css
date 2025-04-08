@@ -1,146 +1,113 @@
-/* Estilos básicos */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-    color: #333;
-}
+<style>
+    /* Estilos generales */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
 
-/* Estilos generales del formulario */
-form {
-    background-color: #fff;
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 900px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-}
+    h1 {
+        text-align: center;
+        margin-top: 20px;
+    }
 
-h1 {
-    text-align: center;
-    color: #333;
-    font-size: 24px;
-}
-
-/* Estilos para los grupos de campos */
-.form-group {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
-}
-
-input[type="text"], input[type="date"], input[type="number"], input[type="checkbox"], textarea {
-    width: 100%;
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-/* Estilo para los botones */
-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    width: 100%;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-/* Estilos para los campos checkbox y su disposición */
-.checkbox-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Dividir en dos columnas */
-    gap: 10px; /* Espacio entre los elementos */
-}
-
-.checkbox-grid label {
-    margin-left: 5px; /* Espacio entre el checkbox y el texto */
-}
-
-/* Para cada tabla de checkbox (Posible Causa, Remitente, Estado del Animal) */
-fieldset {
-    margin-bottom: 20px;
-}
-
-legend {
-    font-weight: bold;
-    color: #333;
-}
-
-/* Medias query para pantallas pequeñas (tablets y móviles) */
-@media (max-width: 768px) {
-    /* Cambia la disposición de las columnas */
-    .checkbox-grid {
-        grid-template-columns: 1fr; /* Una sola columna en pantallas pequeñas */
+    #formulario {
+        width: 90%;
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     .form-group {
-        width: 100%;
+        margin-bottom: 15px;
     }
 
-    /* Ajustes en el tamaño de la fuente */
-    h1 {
-        font-size: 20px;
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="tel"],
+    textarea {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
     }
 
     button {
-        width: 100%; /* El botón ocupará todo el ancho */
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
     }
-}
 
-/* Estilo para el mapa */
-#map {
-    width: 100%;
-    height: 300px;
-    margin-bottom: 20px;
-}
+    button:hover {
+        background-color: #45a049;
+    }
 
-/* Estilo para el campo de coordenadas */
-#coordenadas_mapa {
-    width: 100%;
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-}
+    fieldset {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
 
-/* Estilo para campos adicionales (Observaciones, Cumplimentado por, Teléfono remitente) */
-textarea {
-    width: 100%;
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    resize: vertical;
-}
+    legend {
+        font-weight: bold;
+        padding: 0 10px;
+    }
 
-input[type="text"], input[type="date"], input[type="number"], input[type="checkbox"], textarea {
-    box-sizing: border-box;
-}
+    .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
 
-/* Asegura que los elementos del formulario tengan un buen espaciado en pantallas pequeñas */
-.form-group {
-    margin-bottom: 15px;
-}
+    .form-group input[type="checkbox"] {
+        margin-right: 5px;
+        margin-top: 3px; /* Ajuste de margen para bajar los checkbox */
+    }
 
+    /* Estilos para hacer en negrita los campos principales */
+    label {
+        font-weight: normal;
+    }
 
+    label[for="especie_comun"],
+    label[for="especie_cientifico"],
+    label[for="fecha"],
+    label[for="municipio"],
+    label[for="coordenadas"],
+    label[for="apoyo"],
+    label[for="cra_km"],
+    label[for="observaciones"],
+    label[for="cumplimentado_por"],
+    label[for="telefono_remitente"] {
+        font-weight: bold;
+    }
 
+    /* Estilo para el mapa */
+    #map {
+        height: 300px;
+        margin-bottom: 20px;
+    }
+</style>
 
 
 

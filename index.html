@@ -23,7 +23,7 @@
                 <label for="municipio">Municipio:</label>
                 <input type="text" id="municipio" name="municipio" required>
             </div>
-            
+
             <div class="column">
                 <label>Posible Causa:</label>
                 <table>
@@ -91,27 +91,15 @@
             </tr>
         </table>
 
-        <label>Estado del Animal:</label>
-        <table>
-            <tr>
-                <td><input type="checkbox" name="estado_animal" value="Animal Vivo"> Animal Vivo</td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" name="estado_animal" value="Cadáver"> Cadáver</td>
-            </tr>
-            <tr>
-                <td></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" name="estado_animal" value="Recoge Centro"> Recoge Centro</td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" name="estado_animal" value="Recuperación"> Recuperación</td>
-            </tr>
-        </table>
-        
+        <label>Coordenadas del Mapa:</label>
+        <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
+
+        <div id="map" style="width: 100%; height: 400px;"></div>
+
         <button type="submit">Enviar</button>
     </form>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY&callback=initMap"></script>
 </body>
 </html>
 

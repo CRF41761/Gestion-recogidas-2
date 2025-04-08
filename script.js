@@ -1,49 +1,53 @@
 document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("recogidasForm").addEventListener("submit", async function (event) {
-        event.preventDefault();
+    initMap(); // Inicia el mapa cuando se carga la página
 
-        // Función para obtener valores de los checkboxes seleccionados
-        function getCheckedValues(name) {
-            return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`))
-                .map(input => input.value)
-                .join(", ");
-        }
+    document.getElementById("recogidasForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Evita el envío por defecto
 
-        // Obtener valores del formulario
-        const formData = {
-            especie_comun: document.getElementById("especie_comun").value,
-            especie_cientifico: document.getElementById("especie_cientifico").value,
-            fecha: document.getElementById("fecha").value,
-            municipio: document.getElementById("municipio").value,
-            posible_causa: getCheckedValues("posible_causa"),
-            posible_causa_otras: document.querySelector("input[name='posible_causa_otras']")?.value || "",
-            remitente: getCheckedValues("remitente"),
-            remitente_otras: document.querySelector("input[name='remitente_otras']")?.value || "",
-            estado_animal: getCheckedValues("estado_animal")
-        };
+        const formData = new FormData(this);
+        const data = {};
 
-        try {
-            const response = await fetch("https://script.google.com/macros/s/AKfycbzUmVu-dKTNUu-L8tVFKkEFUrzAy5sKXPKYZ3JMw4tyCm7NS7MGRW3gP7qPleZgwX0/exec", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                alert("Datos enviados correctamente");
-                document.getElementById("recogidasForm").reset();
+        formData.forEach((value, key) => {
+            if (data[key]) {
+                data[key] += `, ${value}`;
             } else {
-                alert("Error al enviar los datos");
+                data[key] = value;
             }
-        } catch (error) {
-            console.error("Error al enviar los datos:", error);
-            alert("Hubo un problema al enviar el formulario.");
-        }
+        });
+
+        fetch("URL_DE_TU_WEB_APP_GOOGLE_SHEETS", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(result => {
+            alert("Datos enviados correctamente");
+            document.getElementById("recogidasForm").reset();
+        })
+        .catch(error => console.error("Error al enviar datos:", error));
     });
 });
+
+function initMap() {
+    const map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 39.4657792, lng: -0.3964928 },
+        zoom: 10,
+    });
+
+    const marker = new google.maps.Marker({
+        position: { lat: 39.4657792, lng: -0.3964928 },
+        map: map,
+        draggable: true,
+    });
+
+    google.maps.event.addListener(marker, 'dragend', function(event) {
+        document.getElementById("coordenadas_mapa").value = event.latLng.lat() + "," + event.latLng.lng();
+    });
+}
 
 
 

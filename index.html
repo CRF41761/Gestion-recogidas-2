@@ -7,6 +7,115 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #formulario {
+            width: 90%;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="tel"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        fieldset {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        legend {
+            font-weight: bold;
+            padding: 0 10px;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .form-group input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        /* Estilos para hacer en negrita los campos principales */
+        label {
+            font-weight: normal;
+        }
+
+        label[for="especie_comun"],
+        label[for="especie_cientifico"],
+        label[for="fecha"],
+        label[for="municipio"],
+        label[for="coordenadas"],
+        label[for="apoyo"],
+        label[for="cra_km"],
+        label[for="observaciones"],
+        label[for="cumplimentado_por"],
+        label[for="telefono_remitente"] {
+            font-weight: bold;
+        }
+
+        /* Estilo para el mapa */
+        #map {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <h1>Gestión de Recogidas</h1>
@@ -144,7 +253,6 @@
     <script src="script.js"></script>
 </body>
 </html>
-
 
 
 

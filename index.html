@@ -100,13 +100,19 @@
                 </div>
             </div>
         </fieldset>
-        
+
+        <!-- Campo Coordenadas -->
+        <div class="form-group">
+            <label for="coordenadas">Coordenadas:</label>
+            <input type="text" id="coordenadas" name="coordenadas" readonly>
+        </div>
+
+        <div id="map" style="height: 300px;"></div>
         <div class="form-group">
             <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
             <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
         </div>
-
-        <!-- Nuevos campos -->
+        
         <div class="form-group">
             <label for="apoyo">Apoyo:</label>
             <input type="text" id="apoyo" name="apoyo">
@@ -131,9 +137,7 @@
             <label for="telefono_remitente">Teléfono Remitente:</label>
             <input type="tel" id="telefono_remitente" name="telefono_remitente">
         </div>
-        
-        <div id="map" style="height: 300px;"></div>
-        
+
         <button type="submit">Enviar</button>
     </form>
 

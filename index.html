@@ -7,141 +7,32 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <style>
-        /* Estilos generales */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        h1 {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        #formulario {
-            width: 90%;
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input[type="text"],
-        input[type="date"],
-        input[type="tel"],
-        textarea {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        fieldset {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-
-        legend {
-            font-weight: bold;
-            padding: 0 10px;
-        }
-
-        .checkbox-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .form-group input[type="checkbox"] {
-            margin-right: 5px;
-        }
-
-        /* Estilos para hacer en negrita los campos principales */
-        label {
-            font-weight: normal;
-        }
-
-        label[for="especie_comun"],
-        label[for="especie_cientifico"],
-        label[for="fecha"],
-        label[for="municipio"],
-        label[for="coordenadas"],
-        label[for="apoyo"],
-        label[for="cra_km"],
-        label[for="observaciones"],
-        label[for="cumplimentado_por"],
-        label[for="telefono_remitente"] {
-            font-weight: bold;
-        }
-
-        /* Estilo para el mapa */
-        #map {
-            height: 300px;
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 <body>
     <h1>Gestión de Recogidas</h1>
     <form id="formulario">
         <div class="form-group">
-            <label for="especie_comun">Especie (nombre común):</label>
+            <label for="especie_comun"><strong>Especie (nombre común):</strong></label>
             <input type="text" id="especie_comun" name="especie_comun" required>
         </div>
         
         <div class="form-group">
-            <label for="especie_cientifico">Especie (nombre científico):</label>
+            <label for="especie_cientifico"><strong>Especie (nombre científico):</strong></label>
             <input type="text" id="especie_cientifico" name="especie_cientifico" required>
         </div>
         
         <div class="form-group">
-            <label for="fecha">Fecha:</label>
+            <label for="fecha"><strong>Fecha:</strong></label>
             <input type="date" id="fecha" name="fecha" required>
         </div>
         
         <div class="form-group">
-            <label for="municipio">Municipio:</label>
+            <label for="municipio"><strong>Municipio:</strong></label>
             <input type="text" id="municipio" name="municipio" required>
         </div>
         
         <fieldset>
-            <legend>Posible Causa</legend>
+            <legend><strong>Posible Causa</strong></legend>
             <div class="checkbox-grid">
                 <div>
                     <input type="checkbox" id="ahogamiento" name="posible_causa" value="Ahogamiento">
@@ -170,7 +61,7 @@
         </fieldset>
         
         <fieldset>
-            <legend>Remitente</legend>
+            <legend><strong>Remitente</strong></legend>
             <div class="checkbox-grid">
                 <div>
                     <input type="checkbox" id="medioambiental" name="remitente" value="A. Medioambiental">
@@ -193,7 +84,7 @@
         </fieldset>
         
         <fieldset>
-            <legend>Estado del Animal</legend>
+            <legend><strong>Estado del Animal</strong></legend>
             <div class="checkbox-grid">
                 <div>
                     <input type="checkbox" id="animal_vivo" name="estado_animal" value="Animal Vivo">
@@ -212,38 +103,38 @@
 
         <!-- Campo Coordenadas -->
         <div class="form-group">
-            <label for="coordenadas">Coordenadas:</label>
+            <label for="coordenadas"><strong>Coordenadas:</strong></label>
             <input type="text" id="coordenadas" name="coordenadas" readonly>
         </div>
 
         <div id="map" style="height: 300px;"></div>
         <div class="form-group">
-            <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
+            <label for="coordenadas_mapa"><strong>Coordenadas del Mapa:</strong></label>
             <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
         </div>
         
         <div class="form-group">
-            <label for="apoyo">Apoyo:</label>
+            <label for="apoyo"><strong>Apoyo:</strong></label>
             <input type="text" id="apoyo" name="apoyo">
         </div>
 
         <div class="form-group">
-            <label for="cra_km">CRA y KM:</label>
+            <label for="cra_km"><strong>CRA y KM:</strong></label>
             <input type="text" id="cra_km" name="cra_km">
         </div>
 
         <div class="form-group">
-            <label for="observaciones">Observaciones:</label>
+            <label for="observaciones"><strong>Observaciones:</strong></label>
             <textarea id="observaciones" name="observaciones"></textarea>
         </div>
 
         <div class="form-group">
-            <label for="cumplimentado_por">Cumplimentado por:</label>
+            <label for="cumplimentado_por"><strong>Cumplimentado por:</strong></label>
             <input type="text" id="cumplimentado_por" name="cumplimentado_por">
         </div>
 
         <div class="form-group">
-            <label for="telefono_remitente">Teléfono Remitente:</label>
+            <label for="telefono_remitente"><strong>Teléfono Remitente:</strong></label>
             <input type="tel" id="telefono_remitente" name="telefono_remitente">
         </div>
 

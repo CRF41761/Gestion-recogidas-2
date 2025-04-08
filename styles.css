@@ -28,16 +28,11 @@ label {
     display: block;
 }
 
-input[type="text"], input[type="date"], input[type="checkbox"], input[type="text"].checkbox {
+input[type="text"], input[type="date"], input[type="text"].checkbox {
     width: 100%;
     padding: 8px;
     margin: 5px 0;
     font-size: 14px;
-}
-
-input[type="checkbox"] {
-    width: auto;
-    margin-right: 8px;
 }
 
 fieldset {
@@ -53,6 +48,7 @@ legend {
 .checkbox-grid {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 .checkbox-grid div {
@@ -60,12 +56,16 @@ legend {
     flex-wrap: wrap;
 }
 
-.checkbox-grid label {
-    margin-right: 15px;
+.checkbox-grid div label {
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 8px;
+    font-weight: normal;
 }
 
-.checkbox-grid input[type="checkbox"] {
-    margin-top: 0;
+.checkbox-grid div input[type="checkbox"] {
+    display: inline-block;
+    margin-right: 5px;
 }
 
 button {
@@ -88,6 +88,7 @@ button:hover {
     margin-top: 20px;
     border-radius: 8px;
 }
+
 
 
 

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Recogidas</title>
-    <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css"> <!-- Enlace al archivo CSS -->
 </head>
 <body>
     <h1>Gestión de Recogidas</h1>
@@ -105,26 +105,11 @@
             </div>
         </fieldset>
         
-        <div class="form-group">
-            <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
-            <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
-        </div>
-
         <div id="map" style="height: 300px;"></div>
         
         <div class="form-group">
-            <label for="observaciones">Observaciones:</label>
-            <textarea id="observaciones" name="observaciones"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="cumplimentado_por">Cumplimentado por:</label>
-            <input type="text" id="cumplimentado_por" name="cumplimentado_por" required>
-        </div>
-
-        <div class="form-group">
-            <label for="telefono_remitente">Teléfono Remitente:</label>
-            <input type="text" id="telefono_remitente" name="telefono_remitente" required>
+            <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
+            <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
         </div>
 
         <button type="submit">Enviar</button>
@@ -133,6 +118,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 

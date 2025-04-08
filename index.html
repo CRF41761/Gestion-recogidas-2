@@ -3,66 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Recogidas</title>
+    <title>Registro de Recogidas</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
-    <h1>Formulario de Recogida</h1>
+    <h1>Registro de Recogidas</h1>
     <form id="formulario">
-        <label for="especie_comun">ESPECIE (nombre común):</label>
+        <label for="especie_comun">Especie (nombre común):</label>
         <input type="text" id="especie_comun" name="especie_comun" required>
         
-        <label for="especie_cientifico">ESPECIE (nombre científico):</label>
+        <label for="especie_cientifico">Especie (nombre científico):</label>
         <input type="text" id="especie_cientifico" name="especie_cientifico" required>
         
-        <label for="fecha">FECHA:</label>
+        <label for="fecha">Fecha:</label>
         <input type="date" id="fecha" name="fecha" required>
         
-        <label for="municipio">MUNICIPIO:</label>
+        <label for="municipio">Municipio:</label>
         <input type="text" id="municipio" name="municipio" required>
         
         <fieldset>
-            <legend>Posible Causa</legend>
-            <div class="checkbox-grid">
-                <div>
-                    <label><input type="checkbox" name="posible_causa" value="Ahogamiento"> Ahogamiento</label>
-                    <label><input type="checkbox" name="posible_causa" value="Atrapado"> Atrapado</label>
-                    <label><input type="checkbox" name="posible_causa" value="Atropello"> Atropello</label>
-                    <label><input type="checkbox" name="posible_causa" value="Cría"> Cría</label>
-                    <label><input type="checkbox" name="posible_causa" value="Decomiso"> Decomiso</label>
-                    <label><input type="checkbox" name="posible_causa" value="Depredación"> Depredación</label>
-                    <label><input type="checkbox" name="posible_causa" value="Desnutrición"> Desnutrición</label>
-                    <label><input type="checkbox" name="posible_causa" value="Disparo"> Disparo</label>
-                    <label><input type="checkbox" name="posible_causa" value="Electrocución"> Electrocución</label>
-                </div>
-                <div>
-                    <label><input type="checkbox" name="posible_causa" value="Cautividad"> Cautividad</label>
-                    <label><input type="checkbox" name="posible_causa" value="Hallazgo"> Hallazgo</label>
-                    <label><input type="checkbox" name="posible_causa" value="Indeterminada"> Indeterminada</label>
-                    <label><input type="checkbox" name="posible_causa" value="Infecciosa"> Infecciosa</label>
-                    <label><input type="checkbox" name="posible_causa" value="Intoxicación"> Intoxicación</label>
-                    <label><input type="checkbox" name="posible_causa" value="Nacido en el centro"> Nacido en el centro</label>
-                    <label><input type="checkbox" name="posible_causa" value="Trampeo"> Trampeo</label>
-                    <label><input type="checkbox" name="posible_causa" value="Traumatismo"> Traumatismo</label>
-                    <label>Otras: <input type="text" name="posible_causa_otras"></label>
-                </div>
+            <legend>Posible Causa:</legend>
+            <div class="column">
+                <label><input type="checkbox" name="posible_causa" value="Ahogamiento"> Ahogamiento</label>
+                <label><input type="checkbox" name="posible_causa" value="Atrapado"> Atrapado</label>
+                <label><input type="checkbox" name="posible_causa" value="Atropello"> Atropello</label>
+                <label><input type="checkbox" name="posible_causa" value="Cría"> Cría</label>
+                <label><input type="checkbox" name="posible_causa" value="Decomiso"> Decomiso</label>
+                <label><input type="checkbox" name="posible_causa" value="Depredación"> Depredación</label>
+                <label><input type="checkbox" name="posible_causa" value="Desnutrición"> Desnutrición</label>
+                <label><input type="checkbox" name="posible_causa" value="Disparo"> Disparo</label>
+                <label><input type="checkbox" name="posible_causa" value="Electrocución"> Electrocución</label>
+            </div>
+            <div class="column">
+                <label><input type="checkbox" name="posible_causa" value="Cautividad"> Cautividad</label>
+                <label><input type="checkbox" name="posible_causa" value="Hallazgo"> Hallazgo</label>
+                <label><input type="checkbox" name="posible_causa" value="Indeterminada"> Indeterminada</label>
+                <label><input type="checkbox" name="posible_causa" value="Infecciosa"> Infecciosa</label>
+                <label><input type="checkbox" name="posible_causa" value="Intoxicación"> Intoxicación</label>
+                <label><input type="checkbox" name="posible_causa" value="Nacido en el centro"> Nacido en el centro</label>
+                <label><input type="checkbox" name="posible_causa" value="Trampeo"> Trampeo</label>
+                <label><input type="checkbox" name="posible_causa" value="Traumatismo"> Traumatismo</label>
+                <label><input type="checkbox" name="posible_causa" value="Otras"> Otras <input type="text" name="posible_causa_otras"></label>
             </div>
         </fieldset>
-        
+
         <label for="coordenadas_mapa">Coordenadas del mapa:</label>
         <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
-        
+
         <div id="map" style="height: 300px;"></div>
+        
+        <label for="apoyo">Apoyo:</label>
+        <input type="text" id="apoyo" name="apoyo">
+        
+        <label for="cra_km">CRA y KM:</label>
+        <input type="text" id="cra_km" name="cra_km">
+        
+        <label for="observaciones">Observaciones:</label>
+        <textarea id="observaciones" name="observaciones"></textarea>
+        
+        <label for="cumplimentado_por">Cumplimentado por:</label>
+        <input type="text" id="cumplimentado_por" name="cumplimentado_por" required>
+        
+        <label for="telefono_remitente">Teléfono remitente:</label>
+        <input type="tel" id="telefono_remitente" name="telefono_remitente">
         
         <button type="submit">Enviar</button>
     </form>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 

@@ -1,13 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Inicializar mapa con Leaflet
-    var map = L.map('map').setView([39.4699, -0.3763], 10); // Centrado en Valencia
+    var map = L.map('map').setView([39.4699, -0.3763], 10);
 
-    // Añadir capa de OpenStreetMap (gratuita)
+    // Capa de OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Evento para capturar coordenadas al hacer clic en el mapa
+    // Evento para capturar coordenadas
     var marker;
     map.on('click', function (e) {
         if (marker) {
@@ -20,9 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Capturar el formulario y enviarlo a Google Sheets
     document.getElementById("recogidasForm").addEventListener("submit", function (e) {
         e.preventDefault();
+
         var formData = new FormData(this);
 
-        fetch("https://script.google.com/macros/s/AKfycbzUmVu-dKTNUu-L8tVFKkEFUrzAy5sKXPKYZ3JMw4tyCm7NS7MGRW3gP7qPleZgwX0/exec", {
+        fetch("URL_DE_TU_WEB_APP_GOOGLE_SHEETS", {
             method: "POST",
             body: formData
         })

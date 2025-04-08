@@ -3,75 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Recogidas</title>
+    <title>Gestión de Recogidas</title>
     <link rel="stylesheet" href="styles.css">
-    <script defer src="script.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <link rel="manifest" href="manifest.json">
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 </head>
 <body>
-    <form id="recogidasForm">
-        <div class="form-container">
-            <div class="column">
-                <label for="especie_comun">Especie (Nombre Común):</label>
-                <input type="text" id="especie_comun" name="especie_comun" required>
-
-                <label for="especie_cientifico">Especie (Nombre Científico):</label>
-                <input type="text" id="especie_cientifico" name="especie_cientifico" required>
-
-                <label for="fecha">Fecha:</label>
-                <input type="date" id="fecha" name="fecha" required>
-
-                <label for="municipio">Municipio:</label>
-                <input type="text" id="municipio" name="municipio" required>
+    <h1>Formulario de Recogida</h1>
+    <form id="formulario">
+        <label>Especie (nombre común): <input type="text" name="especie_comun" required></label>
+        <label>Especie (nombre científico): <input type="text" name="especie_cientifico"></label>
+        <label>Fecha: <input type="date" name="fecha" required></label>
+        <label>Municipio: <input type="text" name="municipio"></label>
+        
+        <h3>Posible Causa</h3>
+        <div class="checkbox-grid">
+            <div>
+                <label><input type="checkbox" name="posible_causa" value="Ahogamiento"> Ahogamiento</label>
+                <label><input type="checkbox" name="posible_causa" value="Atrapado"> Atrapado</label>
+                <label><input type="checkbox" name="posible_causa" value="Atropello"> Atropello</label>
+                <label><input type="checkbox" name="posible_causa" value="Cría"> Cría</label>
+                <label><input type="checkbox" name="posible_causa" value="Decomiso"> Decomiso</label>
+                <label><input type="checkbox" name="posible_causa" value="Depredación"> Depredación</label>
+                <label><input type="checkbox" name="posible_causa" value="Desnutrición"> Desnutrición</label>
+                <label><input type="checkbox" name="posible_causa" value="Disparo"> Disparo</label>
+                <label><input type="checkbox" name="posible_causa" value="Electrocución"> Electrocución</label>
             </div>
-
-            <div class="column">
-                <label>Posible Causa:</label>
-                <table>
-                    <tr><td><input type="checkbox" name="posible_causa" value="Ahogamiento"> Ahogamiento</td>
-                        <td><input type="checkbox" name="posible_causa" value="Cautividad"> Cautividad</td></tr>
-                    <tr><td><input type="checkbox" name="posible_causa" value="Atrapado"> Atrapado</td>
-                        <td><input type="checkbox" name="posible_causa" value="Hallazgo"> Hallazgo</td></tr>
-                    <tr><td><input type="checkbox" name="posible_causa" value="Atropello"> Atropello</td>
-                        <td><input type="checkbox" name="posible_causa" value="Indeterminada"> Indeterminada</td></tr>
-                    <tr><td><input type="checkbox" name="posible_causa" value="Cría"> Cría</td>
-                        <td><input type="checkbox" name="posible_causa" value="Infecciosa"> Infecciosa</td></tr>
-                    <tr><td><input type="checkbox" name="posible_causa" value="Decomiso"> Decomiso</td>
-                        <td><input type="checkbox" name="posible_causa" value="Intoxicación"> Intoxicación</td></tr>
-                    <tr><td><input type="checkbox" name="posible_causa" value="Depredación"> Depredación</td>
-                        <td><input type="checkbox" name="posible_causa" value="Nacido en el centro"> Nacido en el centro</td></tr>
-                    <tr><td><input type="checkbox" name="posible_causa" value="Desnutrición"> Desnutrición</td>
-                        <td><input type="checkbox" name="posible_causa" value="Trampeo"> Trampeo</td></tr>
-                    <tr><td><input type="checkbox" name="posible_causa" value="Disparo"> Disparo</td>
-                        <td><input type="checkbox" name="posible_causa" value="Traumatismo"> Traumatismo</td></tr>
-                    <tr><td><input type="checkbox" name="posible_causa" value="Electrocución"> Electrocución</td>
-                        <td><input type="checkbox" name="posible_causa" value="Otras"> Otras <input type="text" name="posible_causa_otras"></td></tr>
-                </table>
+            <div>
+                <label><input type="checkbox" name="posible_causa" value="Cautividad"> Cautividad</label>
+                <label><input type="checkbox" name="posible_causa" value="Hallazgo"> Hallazgo</label>
+                <label><input type="checkbox" name="posible_causa" value="Indeterminada"> Indeterminada</label>
+                <label><input type="checkbox" name="posible_causa" value="Infecciosa"> Infecciosa</label>
+                <label><input type="checkbox" name="posible_causa" value="Intoxicación"> Intoxicación</label>
+                <label><input type="checkbox" name="posible_causa" value="Nacido en el centro"> Nacido en el centro</label>
+                <label><input type="checkbox" name="posible_causa" value="Trampeo"> Trampeo</label>
+                <label><input type="checkbox" name="posible_causa" value="Traumatismo"> Traumatismo</label>
+                <label>Otras: <input type="text" name="otras_causas"></label>
             </div>
         </div>
+        
+        <h3>Remitente</h3>
+        <div class="checkbox-grid">
+            <div>
+                <label><input type="checkbox" name="remitente" value="A. Medioambiental"> A. Medioambiental</label>
+                <label><input type="checkbox" name="remitente" value="Ayuntamiento"> Ayuntamiento</label>
+                <label><input type="checkbox" name="remitente" value="CRF Forn del Vidre"> CRF Forn del Vidre</label>
+                <label><input type="checkbox" name="remitente" value="CRF Santa Faz"> CRF Santa Faz</label>
+                <label><input type="checkbox" name="remitente" value="Cruz Roja"> Cruz Roja</label>
+            </div>
+            <div>
+                <label><input type="checkbox" name="remitente" value="Guardia Civil"> Guardia Civil</label>
+                <label><input type="checkbox" name="remitente" value="Iberdrola"> Iberdrola</label>
+                <label><input type="checkbox" name="remitente" value="Personal de Conselleria"> Personal de Conselleria</label>
+                <label><input type="checkbox" name="remitente" value="Particular"> Particular</label>
+                <label>Otras: <input type="text" name="otras_remitente"></label>
+            </div>
+        </div>
+        
+        <h3>Estado del Animal</h3>
+        <label><input type="checkbox" name="estado_animal" value="Animal vivo"> Animal vivo</label>
+        <label><input type="checkbox" name="estado_animal" value="Cadáver"> Cadáver</label>
+        <label><input type="checkbox" name="estado_animal" value="Recoge centro"> Recoge centro</label>
+        <label><input type="checkbox" name="estado_animal" value="Recuperación"> Recuperación</label>
 
-        <label>Remitente:</label>
-        <table>
-            <tr><td><input type="checkbox" name="remitente" value="A. Medioambiental"> A. Medioambiental</td>
-                <td><input type="checkbox" name="remitente" value="Guardia Civil"> Guardia Civil</td></tr>
-            <tr><td><input type="checkbox" name="remitente" value="Ayuntamiento"> Ayuntamiento</td>
-                <td><input type="checkbox" name="remitente" value="Iberdrola"> Iberdrola</td></tr>
-            <tr><td><input type="checkbox" name="remitente" value="CRF Forn del Vidre"> CRF Forn del Vidre</td>
-                <td><input type="checkbox" name="remitente" value="Personal de Conselleria"> Personal de Conselleria</td></tr>
-            <tr><td><input type="checkbox" name="remitente" value="CRF Santa Faz"> CRF Santa Faz</td>
-                <td><input type="checkbox" name="remitente" value="Particular"> Particular</td></tr>
-            <tr><td><input type="checkbox" name="remitente" value="Cruz Roja"> Cruz Roja</td>
-                <td><input type="checkbox" name="remitente" value="Otras"> Otras <input type="text" name="remitente_otras"></td></tr>
-        </table>
-
-        <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
-        <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
-
+        <h3>Mapa</h3>
         <div id="map" style="height: 300px;"></div>
-
+        <input type="hidden" id="coordenadas_mapa" name="coordenadas_mapa">
+        
         <button type="submit">Enviar</button>
     </form>
+
+    <script src="script.js"></script>
 </body>
 </html>
 

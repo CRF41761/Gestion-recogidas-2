@@ -2,7 +2,6 @@ body {
     font-family: Arial, sans-serif;
     margin: 20px;
     padding: 20px;
-    background-color: #f4f4f4;
 }
 
 h1 {
@@ -10,12 +9,12 @@ h1 {
 }
 
 form {
-    background: white;
+    max-width: 800px;
+    margin: auto;
+    background: #f9f9f9;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    margin: auto;
 }
 
 .form-group {
@@ -24,11 +23,14 @@ form {
 
 label {
     display: block;
-    margin-bottom: 5px;
     font-weight: bold;
+    margin-bottom: 5px;
 }
 
-input[type="text"], input[type="date"] {
+input[type="text"],
+input[type="date"],
+input[type="number"],
+select {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
@@ -37,7 +39,7 @@ input[type="text"], input[type="date"] {
 
 fieldset {
     border: 1px solid #ccc;
-    padding: 10px;
+    padding: 15px;
     margin-bottom: 15px;
     border-radius: 4px;
 }
@@ -47,31 +49,46 @@ legend {
 }
 
 .checkbox-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.checkbox-grid div {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 45%;
+}
+
+.checkbox-grid label {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+#map {
+    height: 300px;
+    margin-bottom: 15px;
 }
 
 button {
-    display: block;
     width: 100%;
     padding: 10px;
     background: #28a745;
     color: white;
     border: none;
     border-radius: 4px;
-    cursor: pointer;
     font-size: 16px;
+    cursor: pointer;
 }
 
 button:hover {
     background: #218838;
 }
 
-#map {
-    height: 300px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-}
 
 

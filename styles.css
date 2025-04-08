@@ -1,100 +1,81 @@
-body {
+/* Estilo básico para el formulario */
+form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
 }
 
 h1 {
     text-align: center;
-    margin: 20px;
+    color: #333;
 }
 
-form {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f4f4f4;
-    border-radius: 8px;
-}
-
+/* Asegura que todos los campos estén alineados correctamente */
 .form-group {
     margin-bottom: 15px;
 }
 
-label {
+.form-group label {
+    display: block;
     font-weight: bold;
     margin-bottom: 5px;
-    display: block;
 }
 
-input[type="text"], input[type="date"], input[type="text"].checkbox {
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="tel"],
+.form-group textarea {
     width: 100%;
-    padding: 8px;
-    margin: 5px 0;
-    font-size: 14px;
-}
-
-fieldset {
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
     padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
-legend {
-    font-weight: bold;
+textarea {
+    resize: vertical;
+    height: 100px;
 }
 
+/* Estilo para los checkbox, poniéndolos en línea */
 .checkbox-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    gap: 10px;
 }
 
 .checkbox-grid div {
+    flex: 1;
     display: flex;
-    flex-direction: column;
-    margin-right: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.checkbox-grid div label {
-    display: inline-block;
-    margin-bottom: 8px;
-    font-weight: normal;
-}
-
-.checkbox-grid div input[type="checkbox"] {
-    display: inline-block;
+/* Alineación de los checkbox con las etiquetas */
+.checkbox-grid input[type="checkbox"] {
     margin-right: 5px;
-    margin-bottom: 5px;
 }
 
-.checkbox-grid div input[type="text"] {
+/* Alineación de los campos de texto en el formulario */
+input[type="text"], input[type="date"], input[type="tel"], textarea {
     width: 100%;
-    margin-top: 5px;
+    box-sizing: border-box;
 }
 
 button {
-    display: block;
-    width: 100%;
-    padding: 10px;
+    padding: 10px 15px;
     background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
     cursor: pointer;
+    border-radius: 5px;
 }
 
 button:hover {
     background-color: #45a049;
 }
 
-#map {
-    margin-top: 20px;
-    height: 300px;
-    border-radius: 8px;
-}
 
 
 

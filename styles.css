@@ -1,80 +1,102 @@
-/* Estilo básico para el formulario */
-form {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+/* Reset de estilos para evitar inconsistencias */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
     font-family: Arial, sans-serif;
+}
+
+body {
+    padding: 20px;
+    background-color: #f4f4f4;
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    margin-bottom: 20px;
 }
 
-/* Asegura que todos los campos estén alineados correctamente */
+form {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
 .form-group {
     margin-bottom: 15px;
 }
 
-.form-group label {
-    display: block;
-    font-weight: bold;
+label {
+    display: inline-block;
     margin-bottom: 5px;
 }
 
-.form-group input[type="text"],
-.form-group input[type="date"],
-.form-group input[type="tel"],
-.form-group textarea {
+input[type="text"],
+input[type="date"],
+textarea {
     width: 100%;
-    padding: 10px;
-    margin: 5px 0;
+    padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
 
-textarea {
-    resize: vertical;
-    height: 100px;
+fieldset {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
 }
 
-/* Estilo para los checkbox, poniéndolos en línea */
+legend {
+    font-weight: bold;
+}
+
 .checkbox-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    justify-content: space-between;
 }
 
 .checkbox-grid div {
-    flex: 1;
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    flex-direction: column;
+    width: 48%;
 }
 
-/* Alineación de los checkbox con las etiquetas */
+.checkbox-grid label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
 .checkbox-grid input[type="checkbox"] {
-    margin-right: 5px;
+    width: auto;
 }
 
-/* Alineación de los campos de texto en el formulario */
-input[type="text"], input[type="date"], input[type="tel"], textarea {
-    width: 100%;
-    box-sizing: border-box;
+#map {
+    height: 300px;
+    margin-bottom: 15px;
 }
 
 button {
-    padding: 10px 15px;
-    background-color: #4CAF50;
+    background-color: #28a745;
     color: white;
+    padding: 10px;
     border: none;
+    border-radius: 4px;
     cursor: pointer;
-    border-radius: 5px;
+    display: block;
+    width: 100%;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #218838;
 }
+
 
 
 

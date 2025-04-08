@@ -1,53 +1,36 @@
 document.addEventListener("DOMContentLoaded", function () {
-    initMap(); // Inicia el mapa cuando se carga la página
+    // Inicializar mapa con Leaflet
+    var map = L.map('map').setView([39.4699, -0.3763], 10); // Centrado en Valencia
 
-    document.getElementById("recogidasForm").addEventListener("submit", function (event) {
-        event.preventDefault(); // Evita el envío por defecto
+    // Añadir capa de OpenStreetMap (gratuita)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-        const formData = new FormData(this);
-        const data = {};
+    // Evento para capturar coordenadas al hacer clic en el mapa
+    var marker;
+    map.on('click', function (e) {
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+        document.getElementById("coordenadas_mapa").value = e.latlng.lat + ", " + e.latlng.lng;
+    });
 
-        formData.forEach((value, key) => {
-            if (data[key]) {
-                data[key] += `, ${value}`;
-            } else {
-                data[key] = value;
-            }
-        });
+    // Capturar el formulario y enviarlo a Google Sheets
+    document.getElementById("recogidasForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var formData = new FormData(this);
 
-        fetch("https://script.google.com/macros/s/AKfycbzUmVu-dKTNUu-L8tVFKkEFUrzAy5sKXPKYZ3JMw4tyCm7NS7MGRW3gP7qPleZgwX0/exec", {
+        fetch("URL_DE_TU_WEB_APP_GOOGLE_SHEETS", {
             method: "POST",
-            mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
+            body: formData
         })
-        .then(response => response.json())
-        .then(result => {
-            alert("Datos enviados correctamente");
-            document.getElementById("recogidasForm").reset();
-        })
-        .catch(error => console.error("Error al enviar datos:", error));
+        .then(response => response.text())
+        .then(data => alert("Datos enviados correctamente"))
+        .catch(error => console.error("Error al enviar:", error));
     });
 });
-
-function initMap() {
-    const map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 39.4657792, lng: -0.3964928 },
-        zoom: 10,
-    });
-
-    const marker = new google.maps.Marker({
-        position: { lat: 39.4657792, lng: -0.3964928 },
-        map: map,
-        draggable: true,
-    });
-
-    google.maps.event.addListener(marker, 'dragend', function(event) {
-        document.getElementById("coordenadas_mapa").value = event.latLng.lat() + "," + event.latLng.lng();
-    });
-}
 
 
 

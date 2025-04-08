@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Recogidas</title>
+    <title>Gestión de Recogidas</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 </head>
 <body>
-    <h1>Registro de Recogidas</h1>
+    <h1>Gestión de Recogidas</h1>
     <form id="formulario">
         <label for="especie_comun">Especie (nombre común):</label>
         <input type="text" id="especie_comun" name="especie_comun" required>
-        
+
         <label for="especie_cientifico">Especie (nombre científico):</label>
         <input type="text" id="especie_cientifico" name="especie_cientifico" required>
-        
+
         <label for="fecha">Fecha:</label>
         <input type="date" id="fecha" name="fecha" required>
-        
+
         <label for="municipio">Municipio:</label>
         <input type="text" id="municipio" name="municipio" required>
-        
+
         <fieldset>
-            <legend>Posible Causa:</legend>
+            <legend>Posible Causa</legend>
             <div class="column">
                 <label><input type="checkbox" name="posible_causa" value="Ahogamiento"> Ahogamiento</label>
                 <label><input type="checkbox" name="posible_causa" value="Atrapado"> Atrapado</label>
@@ -45,7 +45,25 @@
                 <label><input type="checkbox" name="posible_causa" value="Nacido en el centro"> Nacido en el centro</label>
                 <label><input type="checkbox" name="posible_causa" value="Trampeo"> Trampeo</label>
                 <label><input type="checkbox" name="posible_causa" value="Traumatismo"> Traumatismo</label>
-                <label><input type="checkbox" name="posible_causa" value="Otras"> Otras <input type="text" name="posible_causa_otras"></label>
+                <label>Otras: <input type="text" name="posible_causa_otras"></label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Remitente</legend>
+            <div class="column">
+                <label><input type="checkbox" name="remitente" value="A. Medioambiental"> A. Medioambiental</label>
+                <label><input type="checkbox" name="remitente" value="Ayuntamiento"> Ayuntamiento</label>
+                <label><input type="checkbox" name="remitente" value="CRF Forn del Vidre"> CRF Forn del Vidre</label>
+                <label><input type="checkbox" name="remitente" value="CRF Santa Faz"> CRF Santa Faz</label>
+                <label><input type="checkbox" name="remitente" value="Cruz Roja"> Cruz Roja</label>
+            </div>
+            <div class="column">
+                <label><input type="checkbox" name="remitente" value="Guardia Civil"> Guardia Civil</label>
+                <label><input type="checkbox" name="remitente" value="Iberdrola"> Iberdrola</label>
+                <label><input type="checkbox" name="remitente" value="Personal de Conselleria"> Personal de Conselleria</label>
+                <label><input type="checkbox" name="remitente" value="Particular"> Particular</label>
+                <label>Otras: <input type="text" name="remitente_otras"></label>
             </div>
         </fieldset>
 
@@ -53,28 +71,13 @@
         <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
 
         <div id="map" style="height: 300px;"></div>
-        
-        <label for="apoyo">Apoyo:</label>
-        <input type="text" id="apoyo" name="apoyo">
-        
-        <label for="cra_km">CRA y KM:</label>
-        <input type="text" id="cra_km" name="cra_km">
-        
-        <label for="observaciones">Observaciones:</label>
-        <textarea id="observaciones" name="observaciones"></textarea>
-        
-        <label for="cumplimentado_por">Cumplimentado por:</label>
-        <input type="text" id="cumplimentado_por" name="cumplimentado_por" required>
-        
-        <label for="telefono_remitente">Teléfono remitente:</label>
-        <input type="tel" id="telefono_remitente" name="telefono_remitente">
-        
+
         <button type="submit">Enviar</button>
     </form>
-
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 

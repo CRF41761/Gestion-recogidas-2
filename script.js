@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("recogidasForm");
+
     form.addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -8,9 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.forEach((value, key) => {
             data[key] = value;
         });
-
-        // Agregar coordenadas del mapa al envío de datos
-        data["coordenadas del mapa"] = document.getElementById("coordenadas_mapa").value;
 
         fetch("https://script.google.com/macros/s/TU_SCRIPT_ID/exec", {
             method: "POST",
@@ -45,7 +43,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         document.getElementById("coordenadas_mapa").value = `${e.latlng.lat}, ${e.latlng.lng}`;
     });
+
+    // Obtener ubicación actual y colocar marcador
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            map.setView([lat, lng], 15);
+            marker = L.marker([lat, lng]).addTo(map);
+            document.getElementById("coordenadas_mapa").value = `${lat}, ${lng}`;
+        }, function (error) {
+            console.error("Error obteniendo la ubicación: ", error);
+        });
+    } else {
+        console.log("Geolocalización no soportada por este navegador.");
+    }
 });
+
 
 
 

@@ -62,23 +62,14 @@ button:hover {
 }
 
 /* Estilos para los campos checkbox y su disposición */
-.checkbox-grid {
-    display: grid;
-    grid-template-columns: 6px 1fr; /* Columna de 6px para el checkbox y 1fr para el texto */
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-/* Ajustes para las columnas en las tablas de opciones */
-.checkbox-grid div {
+.checkbox-group {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
-.checkbox-grid label {
-    margin-left: 8px; /* Deja espacio entre el checkbox y el texto */
+.checkbox-group input[type="checkbox"] {
+    margin-right: 8px; /* Espacio entre checkbox y el texto */
 }
 
 /* Para cada tabla de checkbox (Posible Causa, Remitente, Estado del Animal) */
@@ -94,8 +85,8 @@ legend {
 /* Medias query para pantallas pequeñas (tablets y móviles) */
 @media (max-width: 768px) {
     /* Cambia la disposición de las columnas */
-    .checkbox-grid {
-        grid-template-columns: 1fr; /* Una sola columna */
+    .checkbox-group {
+        flex-direction: column; /* Una sola columna */
     }
 
     .form-group {
@@ -147,6 +138,7 @@ input[type="text"], input[type="date"], input[type="number"], input[type="checkb
 .form-group {
     margin-bottom: 15px;
 }
+
 
 
 

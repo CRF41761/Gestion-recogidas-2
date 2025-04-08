@@ -47,18 +47,18 @@ legend {
 
 .checkbox-grid {
     display: flex;
-    justify-content: space-between;
     flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 .checkbox-grid div {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    margin-right: 15px;
 }
 
 .checkbox-grid div label {
     display: inline-block;
-    margin-right: 10px;
     margin-bottom: 8px;
     font-weight: normal;
 }
@@ -66,6 +66,12 @@ legend {
 .checkbox-grid div input[type="checkbox"] {
     display: inline-block;
     margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.checkbox-grid div input[type="text"] {
+    width: 100%;
+    margin-top: 5px;
 }
 
 button {
@@ -86,6 +92,7 @@ button:hover {
 
 #map {
     margin-top: 20px;
+    height: 300px;
     border-radius: 8px;
 }
 

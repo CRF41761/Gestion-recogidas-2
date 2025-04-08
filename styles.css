@@ -64,22 +64,31 @@ button:hover {
 /* Estilos para los campos checkbox y su disposición */
 .checkbox-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Utiliza 2 o más columnas dependiendo del espacio disponible */
+    grid-template-columns: 6px 1fr; /* Columna de 6px para el checkbox y 1fr para el texto */
     gap: 10px;
     align-items: center;
+    margin-bottom: 10px;
 }
 
-/* Para cada columna de checkbox */
+/* Ajustes para las columnas en las tablas de opciones */
 .checkbox-grid div {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 10px;
-    align-items: center;
 }
 
-/* Alineación de las etiquetas */
 .checkbox-grid label {
-    margin-right: 5px;
+    margin-left: 8px; /* Deja espacio entre el checkbox y el texto */
+}
+
+/* Para cada tabla de checkbox (Posible Causa, Remitente, Estado del Animal) */
+fieldset {
+    margin-bottom: 20px;
+}
+
+legend {
+    font-weight: bold;
+    color: #333;
 }
 
 /* Medias query para pantallas pequeñas (tablets y móviles) */

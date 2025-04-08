@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        fetch("URL_DE_TU_WEB_APP_GOOGLE_SHEETS", {
+        fetch("https://script.google.com/macros/s/AKfycbzUmVu-dKTNUu-L8tVFKkEFUrzAy5sKXPKYZ3JMw4tyCm7NS7MGRW3gP7qPleZgwX0/exec", {
             method: "POST",
             mode: "cors",
             headers: {

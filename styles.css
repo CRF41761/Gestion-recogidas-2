@@ -1,95 +1,85 @@
-/* Diseño general de la página */
-body {
-    font-family: Arial, sans-serif;
+/* Reset de estilos para evitar inconsistencias */
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    background-color: #f4f4f9;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    padding: 20px;
+    background-color: #f4f4f4;
 }
 
 h1 {
     text-align: center;
-    color: #333;
-    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 form {
-    max-width: 900px;
-    margin: 30px auto;
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
     padding: 20px;
-    background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.fieldset {
-    margin-bottom: 20px;
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="date"],
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+fieldset {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
 }
 
 legend {
-    font-size: 1.2em;
     font-weight: bold;
-    color: #333;
 }
 
-/* Estilo para los campos de entrada */
-input, textarea, select {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-/* Estilo para las opciones de checkbox */
 .checkbox-grid {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
 }
 
-.checkbox-item {
+.checkbox-grid div {
+    display: flex;
+    flex-direction: column;
+    width: 48%;
+}
+
+.checkbox-grid label {
     display: flex;
     align-items: center;
-    width: 48%; /* Cada elemento ocupa el 48% del ancho disponible */
-    margin-bottom: 10px;
-    box-sizing: border-box;
+    gap: 5px;
+    margin-bottom: 5px;
 }
 
-.checkbox-item input {
-    margin-right: 8px;
-    margin-top: 0; /* Alinea el checkbox al centro del contenedor */
+.checkbox-grid input[type="checkbox"] {
+    width: auto;
 }
 
-/* Campo de coordenadas */
 #map {
     height: 300px;
-    margin-bottom: 20px;
-}
-
-/* Estilo de los botones */
-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-/* Asegura que el formulario sea adecuado para pantallas pequeñas */
-@media (max-width: 600px) {
-    .checkbox-grid {
-        flex-direction: column;
-    }
-
-    .checkbox-item {
-        width: 100%;
-    }
+    margin-bottom: 15px;
 }
 
 

@@ -1,100 +1,142 @@
-/* Reset de estilos para evitar inconsistencias */
-* {
-    box-sizing: border-box;
+/* Estilos básicos */
+body {
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
 }
 
-body {
+/* Estilos generales del formulario */
+form {
+    background-color: #fff;
     padding: 20px;
-    background-color: #f4f4f4;
+    margin: 20px auto;
+    max-width: 900px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
 h1 {
     text-align: center;
-    margin-bottom: 20px;
+    color: #333;
+    font-size: 24px;
 }
 
-form {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
+/* Estilos para los grupos de campos */
 .form-group {
     margin-bottom: 15px;
 }
 
 label {
-    display: inline-block;
+    display: block;
+    font-weight: bold;
     margin-bottom: 5px;
+    color: #333;
 }
 
-input[type="text"],
-input[type="date"],
-textarea {
+input[type="text"], input[type="date"], input[type="number"], input[type="checkbox"], textarea {
     width: 100%;
     padding: 8px;
-    border: 1px solid #ccc;
+    margin: 5px 0;
+    border: 1px solid #ddd;
     border-radius: 4px;
+    box-sizing: border-box;
 }
 
-fieldset {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-}
-
-legend {
-    font-weight: bold;
-}
-
-.checkbox-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-
-.checkbox-grid div {
-    display: flex;
-    flex-direction: column;
-    width: 48%;
-}
-
-.checkbox-grid label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 5px;
-}
-
-.checkbox-grid input[type="checkbox"] {
-    width: auto;
-}
-
-#map {
-    height: 300px;
-    margin-bottom: 15px;
-}
-
+/* Estilo para los botones */
 button {
-    background-color: #28a745;
+    background-color: #4CAF50;
     color: white;
-    padding: 10px;
+    padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    display: block;
+    font-size: 16px;
     width: 100%;
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: #45a049;
+}
+
+/* Estilos para los campos checkbox y su disposición */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Utiliza 2 o más columnas dependiendo del espacio disponible */
+    gap: 10px;
+    align-items: center;
+}
+
+/* Para cada columna de checkbox */
+.checkbox-grid div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Alineación de las etiquetas */
+.checkbox-grid label {
+    margin-right: 5px;
+}
+
+/* Medias query para pantallas pequeñas (tablets y móviles) */
+@media (max-width: 768px) {
+    /* Cambia la disposición de las columnas */
+    .checkbox-grid {
+        grid-template-columns: 1fr; /* Una sola columna */
+    }
+
+    .form-group {
+        width: 100%;
+    }
+
+    /* Ajustes en el tamaño de la fuente */
+    h1 {
+        font-size: 20px;
+    }
+
+    button {
+        width: 100%; /* El botón ocupará todo el ancho */
+    }
+}
+
+/* Estilo para el mapa */
+#map {
+    width: 100%;
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+/* Estilo para el campo de coordenadas */
+#coordenadas_mapa {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+/* Estilo para campos adicionales (Observaciones, Cumplimentado por, Teléfono remitente) */
+textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+input[type="text"], input[type="date"], input[type="number"], input[type="checkbox"], textarea {
+    box-sizing: border-box;
+}
+
+/* Asegura que los elementos del formulario tengan un buen espaciado en pantallas pequeñas */
+.form-group {
+    margin-bottom: 15px;
 }
 
 

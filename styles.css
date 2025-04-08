@@ -1,114 +1,96 @@
-<style>
-    /* Estilos generales */
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f4;
-    }
+/* Diseño general de la página */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #f4f4f9;
+}
 
-    h1 {
-        text-align: center;
-        margin-top: 20px;
-    }
+h1 {
+    text-align: center;
+    color: #333;
+    margin-top: 20px;
+}
 
-    #formulario {
-        width: 90%;
-        max-width: 800px;
-        margin: 30px auto;
-        padding: 20px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+form {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-    .form-group {
-        margin-bottom: 15px;
-    }
+.fieldset {
+    margin-bottom: 20px;
+}
 
-    label {
-        display: block;
-        margin-bottom: 5px;
-    }
+legend {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
 
-    input[type="text"],
-    input[type="date"],
-    input[type="tel"],
-    textarea {
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
+/* Estilo para los campos de entrada */
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
 
-    textarea {
-        resize: vertical;
-        min-height: 100px;
-    }
+/* Estilo para las opciones de checkbox */
+.checkbox-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
 
-    button {
-        padding: 10px 20px;
-        font-size: 16px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    width: 48%; /* Cada elemento ocupa el 48% del ancho disponible */
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
 
-    button:hover {
-        background-color: #45a049;
-    }
+.checkbox-item input {
+    margin-right: 8px;
+    margin-top: 0; /* Alinea el checkbox al centro del contenedor */
+}
 
-    fieldset {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 10px;
-        margin-bottom: 20px;
-    }
+/* Campo de coordenadas */
+#map {
+    height: 300px;
+    margin-bottom: 20px;
+}
 
-    legend {
-        font-weight: bold;
-        padding: 0 10px;
-    }
+/* Estilo de los botones */
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
+button:hover {
+    background-color: #45a049;
+}
+
+/* Asegura que el formulario sea adecuado para pantallas pequeñas */
+@media (max-width: 600px) {
     .checkbox-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        flex-direction: column;
     }
 
-    .form-group input[type="checkbox"] {
-        margin-right: 5px;
-        margin-top: 3px; /* Ajuste de margen para bajar los checkbox */
+    .checkbox-item {
+        width: 100%;
     }
-
-    /* Estilos para hacer en negrita los campos principales */
-    label {
-        font-weight: normal;
-    }
-
-    label[for="especie_comun"],
-    label[for="especie_cientifico"],
-    label[for="fecha"],
-    label[for="municipio"],
-    label[for="coordenadas"],
-    label[for="apoyo"],
-    label[for="cra_km"],
-    label[for="observaciones"],
-    label[for="cumplimentado_por"],
-    label[for="telefono_remitente"] {
-        font-weight: bold;
-    }
-
-    /* Estilo para el mapa */
-    #map {
-        height: 300px;
-        margin-bottom: 20px;
-    }
-</style>
-
+}
 
 
 

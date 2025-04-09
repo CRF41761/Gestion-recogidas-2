@@ -44,22 +44,23 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Error al enviar datos:", error);
         });
     });
+});
 document.addEventListener("DOMContentLoaded", () => {
-    const municipioSelect = document.getElementById("municipio");
+    const municipiosList = document.getElementById("municipios-list");
 
-    // Cargar municipios desde el archivo municipios.json
+    // Cargar municipios desde el archivo JSON
     fetch("municipios.json")
         .then(response => response.json())
         .then(data => {
             data.municipios.forEach(municipio => {
                 const option = document.createElement("option");
                 option.value = municipio;
-                option.textContent = municipio;
-                municipioSelect.appendChild(option);
+                municipiosList.appendChild(option);
             });
         })
         .catch(error => console.error("Error al cargar los municipios:", error));
 });
+
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js')
         .then(() => console.log('Service Worker registrado correctamente'))

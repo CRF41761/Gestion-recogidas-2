@@ -60,37 +60,33 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => console.error("Error al cargar los municipios:", error));
 
-    // Cargar especies desde Google Sheets
+    // Cargar especies desde el archivo JSON
     const especiesComunList = document.getElementById("especies-comun");
     const especiesCientificoList = document.getElementById("especies-cientifico");
 
-    // URL de la API pública de Google Sheets (reemplaza <ID_DE_TU_SHEET>)
-    const googleSheetURL = "https://script.google.com/macros/s/AKfycbygxbJgzKE-HNK8lQ80vN3xlkyRpDsckVEHfCyRG3OloCxqwqVzbrkPzWvFcrC2m30upQ/exec";
-    fetch(googleSheetURL)
+    // URL del archivo especies.json
+    const jsonURL = "./especies.json"; // Cambia la ruta si está en otra ubicación (ej.: ./data/especies.json)
+
+    fetch(jsonURL)
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Error al cargar las especies: ${response.status}`);
+                throw new Error(`Error al cargar el archivo JSON: ${response.status}`);
             }
-            return response.json();
+            return response.json(); // Convertir la respuesta a JSON
         })
         .then(data => {
-            const entries = data.feed.entry;
-            entries.forEach(entry => {
-                const comun = entry.gsx$nombrecomún.$t; // Nombre de la columna "Nombre Común"
-                const cientifico = entry.gsx$nombrecientífico.$t; // Nombre de la columna "Nombre Científico"
-
-                // Añadir al datalist de nombres comunes
+            // Rellenar los desplegables con los datos obtenidos
+            data.forEach(especie => {
                 const optionComun = document.createElement("option");
-                optionComun.value = especie.nombreComun;
+                optionComun.value = especie.nombreComun; // Campo nombre común
                 especiesComunList.appendChild(optionComun);
 
-                // Añadir al datalist de nombres científicos
                 const optionCientifico = document.createElement("option");
-                optionCientifico.value = especie.nombreCientifico;
+                optionCientifico.value = especie.nombreCientifico; // Campo nombre científico
                 especiesCientificoList.appendChild(optionCientifico);
             });
         })
-        .catch(error => console.error("Error al cargar las especies:", error));
+        .catch(error => console.error("Error al cargar los datos dinámicos:", error));
 });
 
 // Registrar el Service Worker

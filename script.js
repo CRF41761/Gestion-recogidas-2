@@ -81,12 +81,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 // Añadir al datalist de nombres comunes
                 const optionComun = document.createElement("option");
-                optionComun.value = comun;
+                optionComun.value = especie.nombreComun;
                 especiesComunList.appendChild(optionComun);
 
                 // Añadir al datalist de nombres científicos
                 const optionCientifico = document.createElement("option");
-                optionCientifico.value = cientifico;
+                optionCientifico.value = especie.nombreCientifico;
                 especiesCientificoList.appendChild(optionCientifico);
             });
         })

@@ -6,7 +6,8 @@ const urlsToCache = [
     "/Gestion-recogidas-2/script.js",
     "/Gestion-recogidas-2/manifest.json",
     "/Gestion-recogidas-2/icons/icon-192x192.png",
-    "/Gestion-recogidas-2/icons/icon-512x512.png"
+    "/Gestion-recogidas-2/icons/icon-512x512.png",
+    "/Gestion-recogidas-2/municipios.json" // Añadimos el archivo JSON de municipios
 ];
 
 self.addEventListener("install", event => {
@@ -34,4 +35,5 @@ self.addEventListener("activate", event => {
         })
     );
 });
+
 

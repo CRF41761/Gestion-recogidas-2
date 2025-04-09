@@ -13,14 +13,20 @@
     <form id="formulario">
         <!-- Campo: Especie común -->
         <div class="form-group">
-            <label for="especie_comun">Especie (nombre común):</label>
-            <input type="text" id="especie_comun" name="especie_comun" required>
+             <label for="especie-comun">Especie (nombre común):</label>
+            <input list="especies-comun" id="especie-comun" name="especie-comun" required>
+            <datalist id="especies-comun">
+                <!-- Las opciones se llenarán dinámicamente desde Google Sheets -->
+            </datalist>
         </div>
 
-        <!-- Campo: Especie científica -->
+        <!-- Campo: Especie científica (Actualizado con datalist) -->
         <div class="form-group">
-            <label for="especie_cientifico">Especie (nombre científico):</label>
-            <input type="text" id="especie_cientifico" name="especie_cientifico" required>
+            <label for="especie-cientifico">Especie (nombre científico):</label>
+            <input list="especies-cientifico" id="especie-cientifico" name="especie-cientifico" required>
+            <datalist id="especies-cientifico">
+                <!-- Las opciones se llenarán dinámicamente desde Google Sheets -->
+            </datalist>
         </div>
 
         <!-- Campo: Fecha -->

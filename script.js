@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const especiesCientificoList = document.getElementById("especies-cientifico");
 
     // URL de la API pública de Google Sheets (reemplaza <ID_DE_TU_SHEET>)
-    const googleSheetURL = "https://spreadsheets.google.com/feeds/list/<https://docs.google.com/spreadsheets/d/e/2PACX-1vTavKxDoIA034GrYK8e8vXOw-96_VbJfvGSpi6EKpMwvFpAkN7BfRrHdhOSPtvfSECSxK2x8ZtH7yBg/pubhtml>/1/public/values?alt=json";
+    const googleSheetURL = "https://spreadsheets.google.com/feeds/list/<2PACX-1vTavKxDoIA034GrYK8e8vXOw-96_VbJfvGSpi6EKpMwvFpAkN7BfRrHdhOSPtvfSECSxK2x8ZtH7yBg/pubhtml>/1/public/values?alt=json";
 
     fetch(googleSheetURL)
         .then(response => {

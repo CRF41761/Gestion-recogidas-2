@@ -34,9 +34,15 @@ label {
     margin-bottom: 5px;
 }
 
+/* Títulos principales en negrita */
+.form-group label {
+    font-weight: bold;
+}
+
 input[type="text"],
 input[type="date"],
-textarea {
+textarea,
+input[type="tel"] {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
@@ -52,35 +58,67 @@ fieldset {
 
 legend {
     font-weight: bold;
+    margin-bottom: 10px;
 }
 
+/* Estilo para las opciones secundarias (las de los checkboxes) */
 .checkbox-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    gap: 15px;
 }
 
 .checkbox-grid div {
+    width: 48%;
     display: flex;
     flex-direction: column;
-    width: 48%;
+    gap: 5px;
+}
+
+.checkbox-grid input[type="checkbox"] {
+    margin: 0;
+    width: auto;
 }
 
 .checkbox-grid label {
     display: flex;
     align-items: center;
-    gap: 5px;
-    margin-bottom: 5px;
+    gap: 10px;
+    font-weight: normal; /* Las etiquetas de opciones secundarias NO están en negrita */
 }
 
-.checkbox-grid input[type="checkbox"] {
-    width: auto;
+.checkbox-grid input[type="text"] {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
+/* Ajuste para el mapa */
 #map {
     height: 300px;
     margin-bottom: 15px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
 }
+
+/* Botón de Enviar */
+button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
 
 
 

@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
             data[key] = value;
         });
 
-        fetch("https://script.google.com/macros/s/AKfycbzUmVu-dKTNUu-L8tVFKkEFUrzAy5sKXPKYZ3JMw4tyCm7NS7MGRW3gP7qPleZgwX0/exec", {
+        fetch("https://https://script.google.com/macros/s/AKfycbyno2e8E_u3pPKdJbfOwb3mjkBsXk7Uw5L0vO0RhximhTpSxd7YS01O928lmIZc02wh/exec", {
             method: "POST",
             mode: "cors",
             headers: {

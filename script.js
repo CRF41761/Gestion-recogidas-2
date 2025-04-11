@@ -46,7 +46,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Crear y agregar el botón justo después del mapa
     const locateButton = document.createElement("button");
     locateButton.textContent = "Volver a mi ubicación";
+    locateButton.type = "button"; // Evitar que el botón actúe como "submit"
     locateButton.style.marginTop = "10px";
+    locateButton.style.marginBottom = "15px"; // Añadir margen inferior para separar del texto
     locateButton.style.padding = "10px";
     locateButton.style.backgroundColor = "#28a745";
     locateButton.style.color = "white";
@@ -55,9 +57,12 @@ document.addEventListener("DOMContentLoaded", function () {
     locateButton.style.cursor = "pointer";
     locateButton.style.fontSize = "16px";
 
-    locateButton.addEventListener("click", locateUser);
+    locateButton.addEventListener("click", function (event) {
+        event.preventDefault(); // Evitar cualquier comportamiento predeterminado
+        locateUser(); // Llamar a la función para geolocalizar
+    });
 
-    // Insertar el botón después del mapa, pero antes del formulario
+    // Insertar el botón después del mapa
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 

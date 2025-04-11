@@ -1,13 +1,13 @@
 const CACHE_NAME = "gestion-recogidas-v1";
 const urlsToCache = [
-    "/",  
-    "/index.html",
-    "/styles.css",
-    "/script.js",
-    "/manifest.json",
-    "/icons/icon-192x192.png",
-    "/icons/icon-512x512.png",
-    "/municipios.json"
+    "/Gestion-recogidas-2/",  
+    "/Gestion-recogidas-2/index.html",
+    "/Gestion-recogidas-2/styles.css",
+    "/Gestion-recogidas-2/script.js",
+    "/Gestion-recogidas-2/manifest.json",
+    "/Gestion-recogidas-2/icons/icon-192x192.png",
+    "/Gestion-recogidas-2/icons/icon-512x512.png",
+    "/Gestion-recogidas-2/municipios.json"
 ];
 
 // Instalar el Service Worker y cachear archivos

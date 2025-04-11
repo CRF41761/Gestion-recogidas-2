@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Configuración del mapa con Leaflet.js
     var map = L.map("map").setView([39.4699, -0.3763], 10); // Coordenadas de Valencia por defecto
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -19,7 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     map.on("click", onMapClick);
 
-    // Envío de datos del formulario
     document.getElementById("formulario").addEventListener("submit", function (event) {
         event.preventDefault();
         
@@ -46,9 +44,11 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Error al enviar datos:", error);
         });
     });
+});
+document.addEventListener("DOMContentLoaded", () => {
+    const municipiosList = document.getElementById("municipios-list");
 
     // Cargar municipios desde el archivo JSON
-    const municipiosList = document.getElementById("municipios-list");
     fetch("municipios.json")
         .then(response => response.json())
         .then(data => {
@@ -59,43 +59,11 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         })
         .catch(error => console.error("Error al cargar los municipios:", error));
-
-    // Cargar especies desde el archivo JSON
-    const especiesComunList = document.getElementById("especies-comun");
-    const especiesCientificoList = document.getElementById("especies-cientifico");
-
-    // URL del archivo especies.json
-    const jsonURL = "./especies.json"; // Cambia la ruta si está en otra ubicación (ej.: ./data/especies.json)
-
-    fetch(jsonURL)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Error al cargar el archivo JSON: ${response.status}`);
-            }
-            return response.json(); // Convertir la respuesta a JSON
-        })
-        .then(data => {
-            // Rellenar los desplegables con los datos obtenidos
-            data.forEach(especie => {
-                const optionComun = document.createElement("option");
-                optionComun.value = especie.nombreComun; // Campo nombre común
-                especiesComunList.appendChild(optionComun);
-
-                const optionCientifico = document.createElement("option");
-                optionCientifico.value = especie.nombreCientifico; // Campo nombre científico
-                especiesCientificoList.appendChild(optionCientifico);
-            });
-        })
-        .catch(error => console.error("Error al cargar los datos dinámicos:", error));
 });
 
-// Registrar el Service Worker
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js')
-        .then(() => console.log('Service Worker registrado correctamente'))
-        .catch(error => console.error('Error al registrar el Service Worker:', error));
-}
-
+    
 
 
 

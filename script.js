@@ -8,21 +8,29 @@ document.addEventListener("DOMContentLoaded", function () {
     var marker;
 
     // Intentar obtener la ubicación del usuario
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function (position) {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                map.setView([lat, lng], 13); // Centrar el mapa en la ubicación del usuario
-                marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-            },
-            function (error) {
-                console.error("Error al obtener la geolocalización:", error);
-            }
-        );
-    } else {
-        console.error("La geolocalización no está soportada por este navegador.");
+    function locateUser() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    map.setView([lat, lng], 13); // Centrar el mapa en la ubicación del usuario
+                    if (marker) {
+                        marker.setLatLng([lat, lng]);
+                    } else {
+                        marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+                    }
+                },
+                function (error) {
+                    console.error("Error al obtener la geolocalización:", error);
+                }
+            );
+        } else {
+            console.error("La geolocalización no está soportada por este navegador.");
+        }
     }
+
+    locateUser(); // Llamar a la función para geolocalizar al cargar la página
 
     function onMapClick(e) {
         if (marker) {
@@ -34,6 +42,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     map.on("click", onMapClick);
+
+    // Crear y agregar el botón justo después del mapa
+    const locateButton = document.createElement("button");
+    locateButton.textContent = "Volver a mi ubicación";
+    locateButton.style.marginTop = "10px";
+    locateButton.style.padding = "10px";
+    locateButton.style.backgroundColor = "#28a745";
+    locateButton.style.color = "white";
+    locateButton.style.border = "none";
+    locateButton.style.borderRadius = "4px";
+    locateButton.style.cursor = "pointer";
+    locateButton.style.fontSize = "16px";
+
+    locateButton.addEventListener("click", locateUser);
+
+    // Insertar el botón después del mapa, pero antes del formulario
+    const mapElement = document.getElementById("map");
+    mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
     document.getElementById("formulario").addEventListener("submit", function (event) {
         event.preventDefault();
@@ -84,5 +110,4 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
-
 

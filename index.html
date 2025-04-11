@@ -13,20 +13,14 @@
     <form id="formulario">
         <!-- Campo: Especie común -->
         <div class="form-group">
-             <label for="especie-comun">Especie (nombre común):</label>
-            <input list="especies-comun" id="especie-comun" name="especie-comun" required>
-            <datalist id="especies-comun">
-                <!-- Las opciones se llenarán dinámicamente desde el archivo JSON -->
-            </datalist>
+            <label for="especie_comun">Especie (nombre común):</label>
+            <input type="text" id="especie_comun" name="especie_comun" required>
         </div>
 
-        <!-- Campo: Especie científica (Actualizado con datalist) -->
+        <!-- Campo: Especie científica -->
         <div class="form-group">
-            <label for="especie-cientifico">Especie (nombre científico):</label>
-            <input list="especies-cientifico" id="especie-cientifico" name="especie-cientifico" required>
-            <datalist id="especies-cientifico">
-                <!-- Las opciones se llenarán dinámicamente desde el archivo JSON -->
-            </datalist>
+            <label for="especie_cientifico">Especie (nombre científico):</label>
+            <input type="text" id="especie_cientifico" name="especie_cientifico" required>
         </div>
 
         <!-- Campo: Fecha -->
@@ -196,11 +190,9 @@
         <!-- Botón de Envío -->
         <button type="submit">Enviar</button>
     </form>
-    <script src="script.js" defer></script>
+    <script src="script.js"></script>
 </body>
 </html>
-
-
 
 
 

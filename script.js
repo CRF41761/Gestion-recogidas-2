@@ -72,51 +72,54 @@ document.addEventListener("DOMContentLoaded", function () {
         const fotoInput = document.getElementById("foto"); // Campo para la imagen
         const file = fotoInput.files[0]; // Obtén el archivo seleccionado
 
+        const data = {
+            especie_comun: formData.get("especie_comun"),
+            especie_cientifico: formData.get("especie_cientifico"),
+            fecha: formData.get("fecha"),
+            municipio: formData.get("municipio"),
+            posible_causa: formData.getAll("posible_causa"),
+            remitente: formData.getAll("remitente"),
+            estado_animal: formData.getAll("estado_animal"),
+            coordenadas: formData.get("coordenadas"),
+            coordenadas_mapa: formData.get("coordenadas_mapa"),
+            apoyo: formData.get("apoyo"),
+            cra_km: formData.get("cra_km"),
+            observaciones: formData.get("observaciones"),
+            cumplimentado_por: formData.get("cumplimentado_por"),
+            telefono_remitente: formData.get("telefono_remitente"),
+            foto: file ? event.target.result : "" // Si hay una foto, incluye el Base64; si no, envía una cadena vacía
+        };
+
         if (file) {
             const reader = new FileReader();
             reader.onload = function (event) {
-                const base64Image = event.target.result; // Imagen convertida a base64
-
-                const data = {
-                    especie_comun: formData.get("especie_comun"),
-                    especie_cientifico: formData.get("especie_cientifico"),
-                    fecha: formData.get("fecha"),
-                    municipio: formData.get("municipio"),
-                    posible_causa: formData.getAll("posible_causa"),
-                    remitente: formData.getAll("remitente"),
-                    estado_animal: formData.getAll("estado_animal"),
-                    coordenadas: formData.get("coordenadas"),
-                    coordenadas_mapa: formData.get("coordenadas_mapa"),
-                    apoyo: formData.get("apoyo"),
-                    cra_km: formData.get("cra_km"),
-                    observaciones: formData.get("observaciones"),
-                    cumplimentado_por: formData.get("cumplimentado_por"),
-                    telefono_remitente: formData.get("telefono_remitente"),
-                    foto: base64Image
-                };
-
-                fetch("https://script.google.com/macros/s/AKfycbxGlwmnY29vRmWA1tnD0ouOr0MreiPGO29Pc9fx7tA2Db_p_CceXKF7xQstyLs7UqLV/exec", {
-                    method: "POST",
-                    mode: "no-cors", // Configuración para evitar restricciones de CORS
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(() => {
-                    alert("Datos enviados correctamente");
-                    document.getElementById("formulario").reset(); // Limpiar el formulario después de enviar
-                })
-                .catch(error => {
-                    console.error("Error al enviar datos:", error);
-                    alert("Error al enviar los datos. Verifique la conexión.");
-                });
+                data.foto = event.target.result; // Imagen convertida a Base64
+                enviarDatos(data);
             };
-            reader.readAsDataURL(file); // Convertir la imagen a base64
+            reader.readAsDataURL(file); // Convertir la imagen a Base64
         } else {
-            alert("Por favor, toma una foto antes de enviar.");
+            enviarDatos(data); // Enviar directamente si no hay imagen
         }
     });
+
+    function enviarDatos(data) {
+        fetch("https://script.google.com/macros/s/AKfycbxGlwmnY29vRmWA1tnD0ouOr0MreiPGO29Pc9fx7tA2Db_p_CceXKF7xQstyLs7UqLV/exec", {
+            method: "POST",
+            mode: "no-cors", // Configuración para evitar restricciones de CORS
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+        .then(() => {
+            alert("Datos enviados correctamente");
+            document.getElementById("formulario").reset(); // Limpiar el formulario después de enviar
+        })
+        .catch(error => {
+            console.error("Error al enviar datos:", error);
+            alert("Error al enviar los datos. Verifique la conexión.");
+        });
+    }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -139,4 +142,5 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+
 

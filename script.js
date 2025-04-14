@@ -103,10 +103,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     body: JSON.stringify(data)
                 })
-                    .catch(error => {
-                        console.error("Error al enviar datos:", error);
-                        alert("Error al enviar los datos. Verifique la conexión.");
-                    });
+                .then(() => {
+                    alert("Datos enviados correctamente");
+                    document.getElementById("formulario").reset(); // Limpiar el formulario después de enviar
+                })
+                .catch(error => {
+                    console.error("Error al enviar datos:", error);
+                    alert("Error al enviar los datos. Verifique la conexión.");
+                });
             };
             reader.readAsDataURL(file); // Convertir la imagen a base64
         } else {

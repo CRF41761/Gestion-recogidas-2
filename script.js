@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
     locateButton.textContent = "Volver a mi ubicación";
     locateButton.type = "button"; // Evitar que el botón actúe como "submit"
     locateButton.style.marginTop = "10px";
-    locateButton.style.marginBottom = "15px"; // Añadir margen inferior para separar del texto
+    locateButton.style.marginBottom = "15px";
     locateButton.style.padding = "10px";
     locateButton.style.backgroundColor = "#28a745";
     locateButton.style.color = "white";
@@ -62,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
         locateUser(); // Llamar a la función para geolocalizar
     });
 
-    // Insertar el botón después del mapa
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
@@ -78,15 +77,14 @@ document.addEventListener("DOMContentLoaded", function () {
             reader.onload = function (event) {
                 const base64Image = event.target.result; // Imagen convertida a base64
 
-                // Construir el objeto con todos los datos del formulario
                 const data = {
                     especie_comun: formData.get("especie_comun"),
                     especie_cientifico: formData.get("especie_cientifico"),
                     fecha: formData.get("fecha"),
                     municipio: formData.get("municipio"),
-                    posible_causa: formData.getAll("posible_causa"), // Captura múltiples valores de checkbox
-                    remitente: formData.getAll("remitente"), // Captura múltiples valores de checkbox
-                    estado_animal: formData.getAll("estado_animal"), // Captura múltiples valores de checkbox
+                    posible_causa: formData.getAll("posible_causa"),
+                    remitente: formData.getAll("remitente"),
+                    estado_animal: formData.getAll("estado_animal"),
                     coordenadas: formData.get("coordenadas"),
                     coordenadas_mapa: formData.get("coordenadas_mapa"),
                     apoyo: formData.get("apoyo"),
@@ -94,22 +92,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     observaciones: formData.get("observaciones"),
                     cumplimentado_por: formData.get("cumplimentado_por"),
                     telefono_remitente: formData.get("telefono_remitente"),
-                    foto: base64Image // Imagen en formato base64
+                    foto: base64Image
                 };
 
-                // Enviar datos al servidor usando fetch
                 fetch("https://script.google.com/macros/s/AKfycbxGlwmnY29vRmWA1tnD0ouOr0MreiPGO29Pc9fx7tA2Db_p_CceXKF7xQstyLs7UqLV/exec", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(data) // Convertir datos a JSON
+                    body: JSON.stringify(data)
                 })
                     .then(response => response.json())
                     .then(result => {
                         if (result.result === "success") {
                             alert("Datos enviados correctamente");
-                            document.getElementById("formulario").reset(); // Reiniciar formulario
+                            document.getElementById("formulario").reset();
                         } else {
                             alert("Ocurrió un error en el servidor: " + result.message);
                         }
@@ -129,7 +126,6 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", () => {
     const municipiosList = document.getElementById("municipios-list");
 
-    // Cargar municipios desde el archivo JSON
     fetch("municipios.json")
         .then(response => response.json())
         .then(data => {
@@ -147,4 +143,5 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+
 

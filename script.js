@@ -97,20 +97,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 fetch("https://script.google.com/macros/s/AKfycbxGlwmnY29vRmWA1tnD0ouOr0MreiPGO29Pc9fx7tA2Db_p_CceXKF7xQstyLs7UqLV/exec", {
                     method: "POST",
+                    mode: "no-cors", // Configuración para evitar restricciones de CORS
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify(data)
                 })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.result === "success") {
-                            alert("Datos enviados correctamente");
-                            document.getElementById("formulario").reset();
-                        } else {
-                            alert("Ocurrió un error en el servidor: " + result.message);
-                        }
-                    })
                     .catch(error => {
                         console.error("Error al enviar datos:", error);
                         alert("Error al enviar los datos. Verifique la conexión.");
@@ -143,5 +135,4 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
-
 

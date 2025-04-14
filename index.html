@@ -143,10 +143,10 @@
         </fieldset>
 
         <!-- Campos adicionales -->
-       <div class="form-group">
-    <label for="coordenadas">Coordenadas:</label>
-    <input type="text" id="coordenadas" name="coordenadas">
-</div>
+        <div class="form-group">
+            <label for="coordenadas">Coordenadas:</label>
+            <input type="text" id="coordenadas" name="coordenadas">
+        </div>
 
         <!-- Mapa -->
         <div id="map" style="height: 300px;"></div>
@@ -187,14 +187,18 @@
             <input type="tel" id="telefono_remitente" name="telefono_remitente">
         </div>
 
+        <!-- Campo para tomar una foto -->
+        <div class="form-group">
+            <label for="foto">Tomar una foto:</label>
+            <input type="file" id="foto" name="foto" accept="image/*" capture="environment">
+        </div>
+
         <!-- Botón de Envío -->
         <button type="submit">Enviar</button>
     </form>
     <script src="script.js"></script>
 </body>
 </html>
-
-
 
 
 

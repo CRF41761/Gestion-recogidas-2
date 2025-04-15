@@ -43,25 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     map.on("click", onMapClick);
 
-    // Crear y agregar el botón justo después del mapa
-    const locateButton = document.createElement("button");
-    locateButton.textContent = "Volver a mi ubicación";
-    locateButton.type = "button"; // Evitar que el botón actúe como "submit"
-    locateButton.style.marginTop = "10px";
-    locateButton.style.marginBottom = "15px";
-    locateButton.style.padding = "10px";
-    locateButton.style.backgroundColor = "#28a745";
-    locateButton.style.color = "white";
-    locateButton.style.border = "none";
-    locateButton.style.borderRadius = "4px";
-    locateButton.style.cursor = "pointer";
-    locateButton.style.fontSize = "16px";
-
-    locateButton.addEventListener("click", function (event) {
-        event.preventDefault(); // Evitar cualquier comportamiento predeterminado
-        locateUser(); // Llamar a la función para geolocalizar
-    });
-
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
@@ -87,25 +68,25 @@ document.addEventListener("DOMContentLoaded", function () {
             observaciones: formData.get("observaciones"),
             cumplimentado_por: formData.get("cumplimentado_por"),
             telefono_remitente: formData.get("telefono_remitente"),
-            foto: file ? event.target.result : "" // Si hay una foto, incluye el Base64; si no, envía una cadena vacía
+            foto: ""
         };
 
         if (file) {
             const reader = new FileReader();
             reader.onload = function (event) {
-                data.foto = event.target.result; // Imagen convertida a Base64
+                data.foto = event.target.result;
                 enviarDatos(data);
             };
-            reader.readAsDataURL(file); // Convertir la imagen a Base64
+            reader.readAsDataURL(file);
         } else {
-            enviarDatos(data); // Enviar directamente si no hay imagen
+            enviarDatos(data);
         }
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycbxGlwmnY29vRmWA1tnD0ouOr0MreiPGO29Pc9fx7tA2Db_p_CceXKF7xQstyLs7UqLV/exec", {
+        fetch("https://script.google.com/macros/s/.../exec", {
             method: "POST",
-            mode: "no-cors", // Configuración para evitar restricciones de CORS
+            mode: "no-cors",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -113,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(() => {
             alert("Datos enviados correctamente");
-            document.getElementById("formulario").reset(); // Limpiar el formulario después de enviar
+            document.getElementById("formulario").reset();
         })
         .catch(error => {
             console.error("Error al enviar datos:", error);
@@ -122,25 +103,5 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const municipiosList = document.getElementById("municipios-list");
-
-    fetch("municipios.json")
-        .then(response => response.json())
-        .then(data => {
-            data.municipios.forEach(municipio => {
-                const option = document.createElement("option");
-                option.value = municipio;
-                municipiosList.appendChild(option);
-            });
-        })
-        .catch(error => console.error("Error al cargar los municipios:", error));
-});
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/Gestion-recogidas-2/service-worker.js')
-        .then(() => console.log('Service Worker registrado correctamente'))
-        .catch(error => console.error('Error al registrar el Service Worker:', error));
-}
 
 

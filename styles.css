@@ -49,6 +49,22 @@ input[type="tel"] {
     border-radius: 4px;
 }
 
+/* Ajustes para compatibilidad de selección de texto */
+.user-selectable {
+    -moz-user-select: text;       /* Firefox */
+    -webkit-user-select: text;    /* Safari y Chrome */
+    -ms-user-select: text;        /* Edge */
+    user-select: text;            /* Estándar moderno */
+}
+
+/* Si necesitas bloquear la selección de texto */
+.no-select {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 fieldset {
     border: 1px solid #ccc;
     padding: 10px;
@@ -102,7 +118,7 @@ legend {
     border: 1px solid #ccc;
 }
 
-/* Botón de Enviar */
+/* Botón de Enviar con prefijos de compatibilidad */
 button {
     background-color: #28a745;
     color: white;
@@ -113,11 +129,16 @@ button {
     display: block;
     width: 100%;
     font-size: 16px;
+
+    /* Compatibilidad para bordes redondeados */
+    -moz-border-radius: 4px;      /* Firefox */
+    -webkit-border-radius: 4px;   /* Safari y Chrome */
 }
 
 button:hover {
     background-color: #218838;
 }
+
 
 
 

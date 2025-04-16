@@ -93,8 +93,13 @@ document.addEventListener("DOMContentLoaded", function () {
             body: JSON.stringify(data)
         })
         .then(() => {
-            alert("Datos enviados correctamente");
-            document.getElementById("formulario").reset();
+            console.log("Datos enviados correctamente.");
+
+            // Esperamos 2 segundos antes de limpiar el formulario
+            setTimeout(() => {
+                document.getElementById("formulario").reset();
+                console.log("Formulario reiniciado después de 2 segundos.");
+            }, 2000);
         })
         .catch(error => {
             console.error("Error al enviar datos:", error);
@@ -102,6 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
 
 
 

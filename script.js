@@ -85,19 +85,19 @@ document.addEventListener("DOMContentLoaded", function () {
     function enviarDatos(data) {
         fetch("https://script.google.com/macros/s/AKfycby0h3TU7Olv5o4hjDhZndAqKWcb4mpHGHk_aqqFZQ36dsXG6M89C1y-wzCDOKPEhQ25", {
             method: "POST",
-            mode: "no-cors",  // Cambiado a "no-cors" para evitar bloqueos por CORS
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/x-www-form-urlencoded" // Alternativa para evitar bloqueos de CORS
             },
-            body: JSON.stringify(data)
+            body: new URLSearchParams(data).toString() // Convierte JSON a formato aceptado sin restricciones
         })
-        .then(() => console.log("Datos enviados correctamente (no-cors, sin respuesta del servidor)."))
+        .then(() => console.log("Datos enviados correctamente (sin-cors, formato URL-encoded)."))
         .catch(error => {
             console.error("Error en la solicitud de envío:", error);
             alert("Error al enviar los datos. Verifique la conexión.");
         });
     }
 });
+
 
 
 

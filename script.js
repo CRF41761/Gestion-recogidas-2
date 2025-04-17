@@ -43,9 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     map.on("click", onMapClick);
 
-    const mapElement = document.getElementById("map");
-    mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
-
     document.getElementById("formulario").addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -71,6 +68,8 @@ document.addEventListener("DOMContentLoaded", function () {
             foto: ""
         };
 
+        console.log("Datos recopilados antes de enviar:", data); // <-- Depuración previa al envío
+
         if (file) {
             const reader = new FileReader();
             reader.onload = function (event) {
@@ -86,23 +85,29 @@ document.addEventListener("DOMContentLoaded", function () {
     function enviarDatos(data) {
         fetch("https://script.google.com/macros/s/.../exec", {
             method: "POST",
-            mode: "no-cors",
+            mode: "cors", // Cambiado de "no-cors" a "cors" para obtener respuestas del servidor
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(data)
         })
-        .then(() => {
-            console.log("Datos enviados correctamente.");
+        .then(response => response.json())  // <-- Depuración de la respuesta
+        .then(result => {
+            console.log("Respuesta del servidor:", result);
 
-            // Esperamos 2 segundos antes de limpiar el formulario
-            setTimeout(() => {
-                document.getElementById("formulario").reset();
-                console.log("Formulario reiniciado después de 2 segundos.");
-            }, 2000);
+            if (result.result === "success") {
+                alert("Datos enviados correctamente.");
+                setTimeout(() => {
+                    document.getElementById("formulario").reset();
+                    console.log("Formulario reiniciado después de 2 segundos.");
+                }, 2000);
+            } else {
+                console.error("Error del servidor:", result.message);
+                alert("Error al enviar los datos: " + result.message);
+            }
         })
         .catch(error => {
-            console.error("Error al enviar datos:", error);
+            console.error("Error en la solicitud de envío:", error);
             alert("Error al enviar los datos. Verifique la conexión.");
         });
     }

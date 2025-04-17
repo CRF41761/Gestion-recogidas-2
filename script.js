@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycbwBWZioe9fva2Z_Ta-wzSVeQP4MXg3o4HVM-BdF2v9v0ZBha-nxGtWHTjtmrj3EdgNc", {
+        fetch("https://script.google.com/macros/s/AKfycby0h3TU7Olv5o4hjDhZndAqKWcb4mpHGHk_aqqFZQ36dsXG6M89C1y-wzCDOKPEhQ25", {
             method: "POST",
             mode: "cors", // Ya podemos usar CORS
             headers: {

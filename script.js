@@ -46,57 +46,39 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("formulario").addEventListener("submit", function (event) {
         event.preventDefault();
 
-        const formData = new FormData(this);
-        const fotoInput = document.getElementById("foto"); // Campo para la imagen
-        const file = fotoInput.files[0]; // Obtén el archivo seleccionado
-
-        const data = {
-            especie_comun: formData.get("especie_comun"),
-            especie_cientifico: formData.get("especie_cientifico"),
-            fecha: formData.get("fecha"),
-            municipio: formData.get("municipio"),
-            posible_causa: formData.getAll("posible_causa"),
-            remitente: formData.getAll("remitente"),
-            estado_animal: formData.getAll("estado_animal"),
-            coordenadas: formData.get("coordenadas"),
-            coordenadas_mapa: formData.get("coordenadas_mapa"),
-            apoyo: formData.get("apoyo"),
-            cra_km: formData.get("cra_km"),
-            observaciones: formData.get("observaciones"),
-            cumplimentado_por: formData.get("cumplimentado_por"),
-            telefono_remitente: formData.get("telefono_remitente"),
-            foto: ""
-        };
+        var formData = new FormData(this);
+        var data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
 
         console.log("Datos recopilados antes de enviar:", data); // <-- Depuración previa al envío
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                data.foto = event.target.result;
-                enviarDatos(data);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            enviarDatos(data);
-        }
+        enviarDatos(data);
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycby0h3TU7Olv5o4hjDhZndAqKWcb4mpHGHk_aqqFZQ36dsXG6M89C1y-wzCDOKPEhQ25", {
+        fetch("https://script.google.com/macros/s/AKfycbzUmVu-dKTNUu-L8tVFKkEFUrzAy5sKXPKYZ3JMw4tyCm7NS7MGRW3gP7qPleZgwX0/exec", {
             method: "POST",
+            mode: "cors",  // Restauramos CORS para recibir respuesta del servidor
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded" // Alternativa para evitar bloqueos de CORS
+                "Content-Type": "application/json"
             },
-            body: new URLSearchParams(data).toString() // Convierte JSON a formato aceptado sin restricciones
+            body: JSON.stringify(data) // Volvemos a JSON como en el código anterior que funcionaba
         })
-        .then(() => console.log("Datos enviados correctamente (sin-cors, formato URL-encoded)."))
+        .then(response => response.json())
+        .then(result => {
+            console.log("Respuesta del servidor:", result);
+            alert("Datos enviados correctamente");
+            document.getElementById("formulario").reset();
+        })
         .catch(error => {
-            console.error("Error en la solicitud de envío:", error);
+            console.error("Error al enviar datos:", error);
             alert("Error al enviar los datos. Verifique la conexión.");
         });
     }
 });
+
 
 
 

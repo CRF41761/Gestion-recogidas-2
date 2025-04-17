@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycbzUmVu-dKTNUu-L8tVFKkEFUrzAy5sKXPKYZ3JMw4tyCm7NS7MGRW3gP7qPleZgwX0/exec", {
+        fetch("https://script.google.com/macros/s/AKfycby0h3TU7Olv5o4hjDhZndAqKWcb4mpHGHk_aqqFZQ36dsXG6M89C1y-wzCDOKPEhQ25/exec", {
             method: "POST",
             mode: "cors",  // Restauramos CORS para recibir respuesta del servidor
             headers: {

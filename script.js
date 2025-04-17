@@ -85,33 +85,20 @@ document.addEventListener("DOMContentLoaded", function () {
     function enviarDatos(data) {
         fetch("https://script.google.com/macros/s/AKfycby0h3TU7Olv5o4hjDhZndAqKWcb4mpHGHk_aqqFZQ36dsXG6M89C1y-wzCDOKPEhQ25", {
             method: "POST",
-            mode: "cors", // Ya podemos usar CORS
+            mode: "no-cors",  // Cambiado a "no-cors" para evitar bloqueos por CORS
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())  // <-- Depuración de la respuesta
-        .then(result => {
-            console.log("Respuesta del servidor:", result);
-
-            if (result.result === "success") {
-                alert("Datos enviados correctamente.");
-                setTimeout(() => {
-                    document.getElementById("formulario").reset();
-                    console.log("Formulario reiniciado después de 2 segundos.");
-                }, 2000);
-            } else {
-                console.error("Error del servidor:", result.message);
-                alert("Error al enviar los datos: " + result.message);
-            }
-        })
+        .then(() => console.log("Datos enviados correctamente (no-cors, sin respuesta del servidor)."))
         .catch(error => {
             console.error("Error en la solicitud de envío:", error);
             alert("Error al enviar los datos. Verifique la conexión.");
         });
     }
 });
+
 
 
 

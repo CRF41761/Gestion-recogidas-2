@@ -83,9 +83,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/.../exec", {
+        fetch("https://script.google.com/macros/s/AKfycbwz7r2FIHElMc92iIh8UnawbG0UHq2JcXmHpKm3c5CuohEtwLJtc-kO5tbr-XnXs8zq/exec", {
             method: "POST",
-            mode: "cors", // Cambiado de "no-cors" a "cors" para obtener respuestas del servidor
+            mode: "cors", // Ya podemos usar CORS
             headers: {
                 "Content-Type": "application/json"
             },
@@ -112,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
 
 
 

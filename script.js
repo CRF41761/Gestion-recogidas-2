@@ -43,6 +43,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     map.on("click", onMapClick);
 
+    // Crear y agregar el botón justo después del mapa
+    const locateButton = document.createElement("button");
+    locateButton.textContent = "Volver a mi ubicación";
+    locateButton.type = "button"; // Evitar que el botón actúe como "submit"
+    locateButton.style.marginTop = "10px";
+    locateButton.style.marginBottom = "15px";
+    locateButton.style.padding = "10px";
+    locateButton.style.backgroundColor = "#28a745";
+    locateButton.style.color = "white";
+    locateButton.style.border = "none";
+    locateButton.style.borderRadius = "4px";
+    locateButton.style.cursor = "pointer";
+    locateButton.style.fontSize = "16px";
+
+    locateButton.addEventListener("click", function (event) {
+        event.preventDefault(); // Evitar cualquier comportamiento predeterminado
+        locateUser(); // Llamar a la función para geolocalizar
+    });
+
+    const mapElement = document.getElementById("map");
+    mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+
     document.getElementById("formulario").addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -69,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycbzYKXE409GWjU2TCWnmHs7bjnfUj-bdEZ0VkmadkvOSYyeaFt0mczI5YgYe_vgRkL_s/exec", {
+        fetch("https://script.google.com/macros/s/NUEVA_ID_DE_IMPLEMENTACION/exec", {
             method: "POST",
             mode: "no-cors",  // Evita bloqueos de CORS
             headers: {
@@ -110,6 +132,7 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+
 
 
 

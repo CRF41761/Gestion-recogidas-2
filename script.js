@@ -2,8 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var map = L.map("map").setView([39.4699, -0.3763], 10); // Coordenadas de Valencia por defecto
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
-        cacheControl: "public, max-age=86400" // Optimización de caché
+        attribution: "© OpenStreetMap contributors"
     }).addTo(map);
 
     var marker;
@@ -47,32 +46,40 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("formulario").addEventListener("submit", function (event) {
         event.preventDefault();
 
-        var formData = new FormData(this);
-        var data = {};
+        const formData = new FormData(this);
+        const data = {};
         formData.forEach((value, key) => {
             data[key] = value;
         });
 
-        console.log("Datos recopilados antes de enviar:", data); // <-- Depuración previa al envío
+        // Obtener imagen y convertirla en Base64 si existe
+        const fotoInput = document.getElementById("foto");
+        const file = fotoInput.files[0];
 
-        enviarDatos(data);
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                data.foto = event.target.result; // Imagen convertida a Base64
+                enviarDatos(data);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            enviarDatos(data); // Enviar directamente si no hay imagen
+        }
     });
 
     function enviarDatos(data) {
         fetch("https://script.google.com/macros/s/AKfycbzYKXE409GWjU2TCWnmHs7bjnfUj-bdEZ0VkmadkvOSYyeaFt0mczI5YgYe_vgRkL_s/exec", {
             method: "POST",
-            mode: "cors",  // Restauramos CORS para recibir respuesta del servidor
+            mode: "no-cors",  // Evita bloqueos de CORS
             headers: {
-                "Content-Type": "application/json",
-                "Cache-Control": "public, max-age=86400" // Optimización de caché
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify(data) // Volvemos a JSON como en el código anterior que funcionaba
+            body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(result => {
-            console.log("Respuesta del servidor:", result);
+        .then(() => {
             alert("Datos enviados correctamente");
-            document.getElementById("formulario").reset();
+            document.getElementById("formulario").reset(); // Limpiar el formulario después de enviar
         })
         .catch(error => {
             console.error("Error al enviar datos:", error);
@@ -80,6 +87,30 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+// Restaurar la carga del desplegable de municipios
+document.addEventListener("DOMContentLoaded", () => {
+    const municipiosList = document.getElementById("municipios-list");
+
+    fetch("municipios.json")
+        .then(response => response.json())
+        .then(data => {
+            data.municipios.forEach(municipio => {
+                const option = document.createElement("option");
+                option.value = municipio;
+                municipiosList.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error al cargar los municipios:", error));
+});
+
+// Registrar el Service Worker si es compatible
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/Gestion-recogidas-2/service-worker.js')
+        .then(() => console.log('Service Worker registrado correctamente'))
+        .catch(error => console.error('Error al registrar el Service Worker:', error));
+}
+
 
 
 

@@ -134,20 +134,26 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("especies.json")
         .then(response => response.json())
         .then(data => {
+            if (data.length === 0) {
+                console.error("El archivo especies.json está vacío o no se ha cargado correctamente.");
+                return;
+            }
+
             data.forEach(especie => {
-                // Agregar opciones al desplegable de nombre común
                 const optionComun = document.createElement("option");
                 optionComun.value = especie.nombreComun;
                 especieComunList.appendChild(optionComun);
 
-                // Agregar opciones al desplegable de nombre científico
                 const optionCientifico = document.createElement("option");
                 optionCientifico.value = especie.nombreCientifico;
                 especieCientificoList.appendChild(optionCientifico);
             });
+
+            console.log("Especies cargadas correctamente.");
         })
         .catch(error => console.error("Error al cargar las especies:", error));
 });
+
 
 
 // Registrar el Service Worker si es compatible

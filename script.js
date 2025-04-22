@@ -128,19 +128,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 🔹 Restaurar la carga del desplegable de especies
 document.addEventListener("DOMContentLoaded", () => {
-    const especieComunList = document.getElementById("especie_comun");
-    const especieCientificoList = document.getElementById("especie_cientifico");
+    const especieComunList = document.getElementById("especies-comun-list");
+    const especieCientificoList = document.getElementById("especies-cientifico-list");
 
     fetch("especies.json")
         .then(response => response.json())
         .then(data => {
             data.forEach(especie => {
-                // Agregar opciones al campo de nombre común
+                // Agregar opciones al desplegable de nombre común
                 const optionComun = document.createElement("option");
                 optionComun.value = especie.nombreComun;
                 especieComunList.appendChild(optionComun);
 
-                // Agregar opciones al campo de nombre científico
+                // Agregar opciones al desplegable de nombre científico
                 const optionCientifico = document.createElement("option");
                 optionCientifico.value = especie.nombreCientifico;
                 especieCientificoList.appendChild(optionCientifico);
@@ -148,6 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => console.error("Error al cargar las especies:", error));
 });
+
 
 // Registrar el Service Worker si es compatible
 if ('serviceWorker' in navigator) {

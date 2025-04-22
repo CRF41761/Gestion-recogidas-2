@@ -128,16 +128,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 🔹 Restaurar la carga del desplegable de especies
 document.addEventListener("DOMContentLoaded", () => {
-    const especieComunList = document.getElementById("especies-comun-list");
-    const especieCientificoList = document.getElementById("especies-cientifico-list");
+    const especieComunInput = document.getElementById("especie_comun");
+    const especieCientificoInput = document.getElementById("especie_cientifico");
 
+    let especiesData = [];
+
+    // Cargar datos de especies
     fetch("especies.json")
         .then(response => response.json())
         .then(data => {
-            if (data.length === 0) {
-                console.error("El archivo especies.json está vacío o no se ha cargado correctamente.");
-                return;
-            }
+            especiesData = data; // Guardar los datos en una variable para usarlos más tarde
+
+            // Llenar el desplegable de nombres comunes
+            const especieComunList = document.getElementById("especies-comun-list");
+            const especieCientificoList = document.getElementById("especies-cientifico-list");
 
             data.forEach(especie => {
                 const optionComun = document.createElement("option");
@@ -148,11 +152,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 optionCientifico.value = especie.nombreCientifico;
                 especieCientificoList.appendChild(optionCientifico);
             });
-
-            console.log("Especies cargadas correctamente.");
         })
         .catch(error => console.error("Error al cargar las especies:", error));
+
+    // Evento para completar automáticamente el nombre científico
+    especieComunInput.addEventListener("input", () => {
+        const seleccion = especieComunInput.value;
+        const especieEncontrada = especiesData.find(especie => especie.nombreComun === seleccion);
+
+        if (especieEncontrada) {
+            especieCientificoInput.value = especieEncontrada.nombreCientifico;
+        } else {
+            especieCientificoInput.value = ""; // Limpiar si no coincide
+        }
+    });
 });
+
 
 
 

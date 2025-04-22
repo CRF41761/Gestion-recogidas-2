@@ -162,6 +162,7 @@ button {
 button:hover {
     background-color: #218838;
 }
+
 input[list] {
     width: 100%;
     max-width: 500px; /* Ajusta este valor si necesitas más ancho */

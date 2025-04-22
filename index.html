@@ -11,17 +11,20 @@
 <body>
     <h1>Gestión de Recogidas</h1>
     <form id="formulario">
-        <!-- Campo: Especie común -->
-        <div class="form-group">
-            <label for="especie_comun">Especie (nombre común):</label>
-            <input type="text" id="especie_comun" name="especie_comun" required>
-        </div>
+     <!-- Campo: Especie común -->
+<div class="form-group">
+    <label for="especie_comun">Especie (nombre común):</label>
+    <input list="especies-comun-list" id="especie_comun" name="especie_comun" required>
+    <datalist id="especies-comun-list"></datalist>
+</div>
 
-        <!-- Campo: Especie científica -->
-        <div class="form-group">
-            <label for="especie_cientifico">Especie (nombre científico):</label>
-            <input type="text" id="especie_cientifico" name="especie_cientifico" required>
-        </div>
+<!-- Campo: Especie científica -->
+<div class="form-group">
+    <label for="especie_cientifico">Especie (nombre científico):</label>
+    <input list="especies-cientifico-list" id="especie_cientifico" name="especie_cientifico" required>
+    <datalist id="especies-cientifico-list"></datalist>
+</div>
+
 
         <!-- Campo: Fecha -->
         <div class="form-group">

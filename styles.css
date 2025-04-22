@@ -50,7 +50,10 @@ input[type="tel"] {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    /* Corrección de orden en border-radius */
+    -webkit-border-radius: 4px;   /* Safari y Chrome */
+    -moz-border-radius: 4px;      /* Firefox */
+    border-radius: 4px;           /* Estándar moderno */
     -moz-user-select: auto;
     -webkit-user-select: auto;
     -ms-user-select: auto;
@@ -77,6 +80,9 @@ fieldset {
     border: 1px solid #ccc;
     padding: 10px;
     margin-bottom: 15px;
+    /* Corrección de orden en border-radius */
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
     border-radius: 4px;
 }
 
@@ -115,6 +121,9 @@ legend {
     width: 100%;
     padding: 6px;
     border: 1px solid #ccc;
+    /* Corrección de orden en border-radius */
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
     border-radius: 4px;
     -moz-user-select: auto;
     -webkit-user-select: auto;
@@ -126,8 +135,11 @@ legend {
 #map {
     height: 300px;
     margin-bottom: 15px;
-    border-radius: 4px;
     border: 1px solid #ccc;
+    /* Corrección de orden en border-radius */
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
 }
 
 /* Botón de Enviar con prefijos de compatibilidad */
@@ -136,21 +148,21 @@ button {
     color: white;
     padding: 10px;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
     display: block;
     width: 100%;
     font-size: 16px;
 
-    /* Compatibilidad para bordes redondeados */
-    -moz-border-radius: 4px;      /* Firefox */
-    -webkit-border-radius: 4px;   /* Safari y Chrome */
+    /* Corrección de orden en border-radius */
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
     border-radius: 4px;
 }
 
 button:hover {
     background-color: #218838;
 }
+
 
 
 

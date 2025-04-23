@@ -94,30 +94,27 @@ legend {
 /* Estilo para las opciones secundarias (las de los checkboxes) */
 .checkbox-grid {
     display: flex;
-    flex-wrap: wrap; /* Mantener las columnas */
+    flex-wrap: wrap; /* Mantiene las dos columnas */
     gap: 20px; /* Espacio entre columnas */
 }
 
 .checkbox-grid div {
     width: 48%; /* Cada columna ocupa la mitad del contenedor */
     display: flex;
-    flex-direction: column; /* Opciones alineadas verticalmente */
-    gap: 10px; /* Espacio entre las opciones */
+    flex-direction: column; /* Asegura disposición vertical dentro de cada columna */
+    gap: 5px; /* Espacio entre el texto y la casilla */
 }
 
 .checkbox-grid label {
-    display: block; /* Cambia las etiquetas a bloque para que ocupen toda la fila */
-    text-align: center; /* Centrar el texto para claridad visual */
+    display: block; /* Coloca el texto como un bloque separado */
+    text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+    margin-bottom: 5px; /* Espacio entre el texto y la casilla */
 }
 
 .checkbox-grid input[type="checkbox"] {
     display: block; /* Casillas en bloque para estar debajo del texto */
-    margin-top: 5px; /* Espacio entre el texto y la casilla */
-    margin-bottom: 10px; /* Espacio inferior para separación entre opciones */
-    width: 18px; /* Tamaño uniforme de las casillas */
-    height: 18px; /* Tamaño uniforme de las casillas */
-    margin-left: auto; /* Centrar la casilla */
-    margin-right: auto; /* Centrar la casilla */
+    margin-left: 0; /* Asegura que estén alineadas a la izquierda */
+    margin-top: 0; /* Elimina cualquier margen superior que esté causando deslocalización */
 }
 
 

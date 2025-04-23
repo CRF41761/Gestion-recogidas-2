@@ -95,29 +95,29 @@ legend {
 .checkbox-grid {
     display: flex;
     flex-wrap: wrap; /* Mantener las columnas */
-    gap: 15px; /* Espacio entre columnas */
+    gap: 20px; /* Espacio entre columnas */
 }
 
 .checkbox-grid div {
-    width: 48%; /* Cada columna ocupa la mitad del espacio */
+    width: 48%; /* Cada columna ocupa la mitad del contenedor */
     display: flex;
-    flex-direction: column; /* Opciones alineadas verticalmente dentro de la columna */
+    flex-direction: column; /* Opciones alineadas verticalmente */
     gap: 10px; /* Espacio entre las opciones */
 }
 
 .checkbox-grid label {
-    display: inline-flex; /* Cambia a inline-flex para mantener los elementos en línea */
-    align-items: center; /* Centra la casilla verticalmente con el texto */
-    gap: 10px; /* Espacio entre la casilla y el texto */
-    line-height: 1.4; /* Mantener una altura consistente */
-    font-weight: normal; /* Asegura que no esté en negrita */
+    display: block; /* Cambia las etiquetas a bloque para que ocupen toda la fila */
+    text-align: center; /* Centrar el texto para claridad visual */
 }
 
 .checkbox-grid input[type="checkbox"] {
-    margin: 0; /* Elimina márgenes predeterminados */
-    flex-shrink: 0; /* Evita que las casillas cambien de tamaño */
+    display: block; /* Casillas en bloque para estar debajo del texto */
+    margin-top: 5px; /* Espacio entre el texto y la casilla */
+    margin-bottom: 10px; /* Espacio inferior para separación entre opciones */
     width: 18px; /* Tamaño uniforme de las casillas */
     height: 18px; /* Tamaño uniforme de las casillas */
+    margin-left: auto; /* Centrar la casilla */
+    margin-right: auto; /* Centrar la casilla */
 }
 
 

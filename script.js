@@ -68,11 +68,26 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("formulario").addEventListener("submit", function (event) {
         event.preventDefault();
 
-        const formData = new FormData(this);
-        const data = {};
-        formData.forEach((value, key) => {
-            data[key] = value;
-        });
+      const formData = new FormData(this);
+
+        // Construcción del objeto "data"
+        const data = {
+            especie_comun: formData.get("especie_comun"),
+            especie_cientifico: formData.get("especie_cientifico"),
+            fecha: formData.get("fecha"),
+            municipio: formData.get("municipio"),
+            posible_causa: formData.getAll("posible_causa").join(", "), // Convertir valores a cadena separada por comas
+            remitente: formData.getAll("remitente").join(", "), // Convertir valores a cadena separada por comas
+            estado_animal: formData.getAll("estado_animal").join(", "), // Convertir valores a cadena separada por comas
+            coordenadas: formData.get("coordenadas"),
+            coordenadas_mapa: formData.get("coordenadas_mapa"),
+            apoyo: formData.get("apoyo"),
+            cra_km: formData.get("cra_km"),
+            observaciones: formData.get("observaciones"),
+            cumplimentado_por: formData.get("cumplimentado_por"),
+            telefono_remitente: formData.get("telefono_remitente"),
+            foto: ""
+        };
 
         // Obtener imagen y convertirla en Base64 si existe
         const fotoInput = document.getElementById("foto");

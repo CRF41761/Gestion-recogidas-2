@@ -100,25 +100,31 @@ legend {
 
 .checkbox-grid div {
     width: 48%; /* Cada columna ocupa la mitad del contenedor */
-    display: grid;
-    grid-template-columns: auto 1fr; /* Columna para casilla y columna para texto */
-    align-items: center; /* Asegura que las casillas y texto estén alineados verticalmente */
-    gap: 10px; /* Espacio entre las casillas y los textos */
+    display: flex;
+    flex-direction: column; /* Opciones alineadas verticalmente dentro de la columna */
+    gap: 10px; /* Espacio entre las opciones */
+}
+
+.checkbox-grid div > div {
+    display: flex;
+    flex-direction: row; /* Texto y casillas en la misma fila */
+    align-items: center; /* Alinear verticalmente la casilla con el texto */
+    gap: 10px; /* Espacio entre la casilla y el texto */
 }
 
 .checkbox-grid label {
+    font-weight: normal; /* Asegura que el texto no sea negrita innecesariamente */
     text-align: left; /* Asegura que el texto esté alineado a la izquierda */
-    margin: 0; /* Elimina márgenes adicionales */
-    font-weight: normal; /* Evita que el texto esté en negrita innecesariamente */
-    cursor: pointer; /* Mejora la interacción visual al clicar en el texto */
+    cursor: pointer; /* Mejora la interacción visual al clic en el texto */
 }
 
 .checkbox-grid input[type="checkbox"] {
-    margin: 0; /* Elimina márgenes adicionales */
+    flex-shrink: 0; /* Evita que las casillas cambien de tamaño */
     width: 18px; /* Tamaño uniforme de las casillas */
     height: 18px; /* Tamaño uniforme de las casillas */
-    justify-self: start; /* Alinea las casillas al inicio de su columna */
+    margin: 0; /* Elimina márgenes predeterminados */
 }
+
 
 
 

@@ -102,20 +102,30 @@ legend {
     width: 48%; /* Cada columna ocupa la mitad del contenedor */
     display: flex;
     flex-direction: column; /* Asegura disposición vertical dentro de cada columna */
+    gap: 10px; /* Espacio entre las opciones */
+}
+
+.checkbox-grid div > div {
+    display: flex;
+    flex-direction: column; /* Garantiza que el texto esté encima de la casilla */
+    align-items: flex-start; /* Asegura que todo esté alineado a la izquierda */
     gap: 5px; /* Espacio entre el texto y la casilla */
 }
 
 .checkbox-grid label {
-    display: block; /* Coloca el texto como un bloque separado */
-    text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+    display: block; /* Coloca el texto como un bloque independiente */
     margin-bottom: 5px; /* Espacio entre el texto y la casilla */
+    font-weight: normal; /* Asegura que el texto no sea negrita innecesariamente */
+    text-align: left; /* Alínea el texto a la izquierda */
 }
 
 .checkbox-grid input[type="checkbox"] {
     display: block; /* Casillas en bloque para estar debajo del texto */
-    margin-left: 0; /* Asegura que estén alineadas a la izquierda */
-    margin-top: 0; /* Elimina cualquier margen superior que esté causando deslocalización */
+    width: 18px; /* Tamaño uniforme de las casillas */
+    height: 18px; /* Tamaño uniforme de las casillas */
+    margin: 0; /* Elimina márgenes predefinidos */
 }
+
 
 
 

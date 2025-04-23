@@ -94,36 +94,39 @@ legend {
 /* Estilo para las opciones secundarias (las de los checkboxes) */
 .checkbox-grid {
     display: flex;
-    flex-wrap: wrap; /* Mantiene las dos columnas */
+    flex-wrap: wrap; /* Mantiene las dos columnas y permite opciones dinámicas */
     gap: 20px; /* Espacio entre columnas */
 }
 
 .checkbox-grid div {
     width: 48%; /* Cada columna ocupa la mitad del contenedor */
     display: flex;
-    flex-direction: column; /* Opciones alineadas verticalmente dentro de la columna */
+    flex-direction: column; /* Opciones alineadas verticalmente dentro de cada columna */
     gap: 10px; /* Espacio entre las opciones */
 }
 
 .checkbox-grid div > div {
     display: flex;
-    flex-direction: row; /* Texto y casillas en la misma fila */
-    align-items: center; /* Alinear verticalmente la casilla con el texto */
+    flex-direction: row; /* Texto y casilla en la misma fila horizontal */
+    align-items: center; /* Centra verticalmente el texto con la casilla */
     gap: 10px; /* Espacio entre la casilla y el texto */
+    flex: 1; /* Asegura que las opciones ocupen el espacio disponible */
 }
 
 .checkbox-grid label {
-    font-weight: normal; /* Asegura que el texto no sea negrita innecesariamente */
-    text-align: left; /* Asegura que el texto esté alineado a la izquierda */
-    cursor: pointer; /* Mejora la interacción visual al clic en el texto */
+    font-weight: normal; /* Evita que el texto esté en negrita innecesaria */
+    text-align: left; /* Texto alineado a la izquierda */
+    margin: 0; /* Elimina cualquier margen predeterminado */
+    cursor: pointer; /* Mejora la interacción visual al clicar en el texto */
 }
 
 .checkbox-grid input[type="checkbox"] {
     flex-shrink: 0; /* Evita que las casillas cambien de tamaño */
     width: 18px; /* Tamaño uniforme de las casillas */
     height: 18px; /* Tamaño uniforme de las casillas */
-    margin: 0; /* Elimina márgenes predeterminados */
+    margin: 0; /* Elimina márgenes adicionales */
 }
+
 
 
 

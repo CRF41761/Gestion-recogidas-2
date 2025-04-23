@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             especiesData = data; // Guardar los datos en una variable para usarlos más tarde
 
-            // Llenar el desplegable de nombres comunes
+            // Llenar los desplegables de nombres comunes y científicos
             const especieComunList = document.getElementById("especies-comun-list");
             const especieCientificoList = document.getElementById("especies-cientifico-list");
 
@@ -155,10 +155,12 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => console.error("Error al cargar las especies:", error));
 
-    // Evento para completar automáticamente el nombre científico
+    // Evento para completar automáticamente el nombre científico al ingresar nombre común
     especieComunInput.addEventListener("input", () => {
-        const seleccion = especieComunInput.value;
-        const especieEncontrada = especiesData.find(especie => especie.nombreComun === seleccion);
+        const seleccion = especieComunInput.value.trim();
+        const especieEncontrada = especiesData.find(
+            especie => especie.nombreComun === seleccion
+        );
 
         if (especieEncontrada) {
             especieCientificoInput.value = especieEncontrada.nombreCientifico;
@@ -166,7 +168,22 @@ document.addEventListener("DOMContentLoaded", () => {
             especieCientificoInput.value = ""; // Limpiar si no coincide
         }
     });
+
+    // Evento para completar automáticamente el nombre común al ingresar nombre científico
+    especieCientificoInput.addEventListener("input", () => {
+        const seleccion = especieCientificoInput.value.trim();
+        const especieEncontrada = especiesData.find(
+            especie => especie.nombreCientifico === seleccion
+        );
+
+        if (especieEncontrada) {
+            especieComunInput.value = especieEncontrada.nombreComun;
+        } else {
+            especieComunInput.value = ""; // Limpiar si no coincide
+        }
+    });
 });
+
 
 
 

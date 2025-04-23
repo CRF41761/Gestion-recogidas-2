@@ -98,38 +98,32 @@ legend {
     gap: 15px;
 }
 
-.checkbox-grid div {
-    width: 48%;
+.checkbox-grid {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
+    flex-wrap: wrap; /* Mantener las columnas */
+    gap: 15px; /* Espacio entre columnas y opciones */
 }
 
-.checkbox-grid input[type="checkbox"] {
-    margin: 0;
-    width: auto;
+.checkbox-grid div {
+    width: 48%; /* Cada columna ocupa aproximadamente la mitad del contenedor */
+    display: flex;
+    flex-direction: column; /* Opciones en formato vertical */
+    gap: 5px; /* Espacio entre las casillas en cada columna */
 }
 
 .checkbox-grid label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: normal; /* Las etiquetas de opciones secundarias NO están en negrita */
+    display: flex; /* Alinear la casilla y el texto en la misma línea */
+    align-items: center; /* Centrar verticalmente la casilla con el texto */
+    gap: 10px; /* Espacio entre la casilla y el texto */
+    font-weight: normal; /* Asegura que el texto no esté en negrita */
 }
 
-.checkbox-grid input[type="text"] {
-    width: 100%;
-    padding: 6px;
-    border: 1px solid #ccc;
-    /* Corrección de orden en border-radius */
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    -moz-user-select: auto;
-    -webkit-user-select: auto;
-    -ms-user-select: auto;
-    user-select: auto;
+.checkbox-grid input[type="checkbox"] {
+    margin: 0; /* Resetea márgenes predeterminados */
+    width: auto; /* Asegura el tamaño correcto de las casillas */
+    height: auto; /* Asegura el tamaño correcto de las casillas */
 }
+
 
 /* Ajuste para el mapa */
 #map {

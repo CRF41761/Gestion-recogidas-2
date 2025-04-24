@@ -69,6 +69,10 @@ document.addEventListener("DOMContentLoaded", function () {
     event.preventDefault();
 
     const formData = new FormData(this);
+         // Depuración: Mostrar todas las claves y valores recolectados del formulario
+    for (let [key, value] of formData.entries()) {
+        console.log(`Clave: ${key}, Valor: ${value}`);
+    }
     const data = {
         especie_comun: formData.get("especie_comun"),
         especie_cientifico: formData.get("especie_cientifico"),

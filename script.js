@@ -65,14 +65,27 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    document.getElementById("formulario").addEventListener("submit", function (event) {
-        event.preventDefault();
+   document.getElementById("formulario").addEventListener("submit", function (event) {
+    event.preventDefault();
 
-        const formData = new FormData(this);
-        const data = {};
-        formData.forEach((value, key) => {
-            data[key] = value;
-        });
+    const formData = new FormData(this);
+    const data = {
+        especie_comun: formData.get("especie_comun"),
+        especie_cientifico: formData.get("especie_cientifico"),
+        fecha: formData.get("fecha"),
+        municipio: formData.get("municipio"),
+        posible_causa: formData.getAll("posible_causa"), // Checkboxes como arrays
+        remitente: formData.getAll("remitente"), // Checkboxes como arrays
+        estado_animal: formData.getAll("estado_animal"), // Checkboxes como arrays
+        coordenadas: formData.get("coordenadas"),
+        coordenadas_mapa: formData.get("coordenadas_mapa"),
+        apoyo: formData.get("apoyo"),
+        cra_km: formData.get("cra_km"),
+        observaciones: formData.get("observaciones"),
+        cumplimentado_por: formData.get("cumplimentado_por"),
+        telefono_remitente: formData.get("telefono_remitente"),
+        foto: "" // La imagen sigue igual
+    };
 
         // Obtener imagen y convertirla en Base64 si existe
         const fotoInput = document.getElementById("foto");

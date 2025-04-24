@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycbzYKXE409GWjU2TCWnmHs7bjnfUj-bdEZ0VkmadkvOSYyeaFt0mczI5YgYe_vgRkL_s/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbzI7oDauclh_hhBwN3d_VMCbyVaGhwTkfWVy7ml2BlFg4uikMrIRDaOzaPP84OkXZ8t/exec", {
             method: "POST",
             mode: "no-cors",  
             headers: {

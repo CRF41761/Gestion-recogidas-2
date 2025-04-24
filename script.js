@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycbzI7oDauclh_hhBwN3d_VMCbyVaGhwTkfWVy7ml2BlFg4uikMrIRDaOzaPP84OkXZ8t/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbzAWV3BFlB4jhi3DWNONdsV8SmKIdXdlS92olfjNFEv9MwsflbXVfzAfi4TSx6pcrYj/exec", {
             method: "POST",
             mode: "no-cors",  
             headers: {

@@ -88,21 +88,23 @@ document.addEventListener("DOMContentLoaded", function () {
         observaciones: formData.get("observaciones"),
         cumplimentado_por: formData.get("cumplimentado_por"),
         telefono_remitente: formData.get("telefono_remitente"),
-        foto: "" // La imagen sigue igual
+        foto: "" // Inicializar imagen
                 };
 
-        // Obtener imagen y convertirla en Base64 si existe
+        // Procesar la imagen si existe
         const fotoInput = document.getElementById("foto");
         const file = fotoInput.files[0];
 
         if (file) {
             const reader = new FileReader();
             reader.onload = function (event) {
-                data.foto = event.target.result; // Imagen convertida a Base64
+                data.foto = event.target.result; // Imagen en Base64
+                console.log("Datos enviados:", JSON.stringify(data));
                 enviarDatos(data);
             };
             reader.readAsDataURL(file);
         } else {
+            console.log("No se seleccionó ninguna imagen.");
             enviarDatos(data);
         }
     });

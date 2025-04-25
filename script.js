@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
         observaciones: formData.get("observaciones"),
         cumplimentado_por: formData.get("cumplimentado_por"),
         telefono_remitente: formData.get("telefono_remitente"),
-        foto: base64Image // Imagen en formato base64
+        foto: "" // La imagen sigue igual
                 };
 
         // Obtener imagen y convertirla en Base64 si existe

@@ -88,8 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
         observaciones: formData.get("observaciones"),
         cumplimentado_por: formData.get("cumplimentado_por"),
         telefono_remitente: formData.get("telefono_remitente"),
-        foto: "" // La imagen sigue igual
-    };
+        foto: base64Image // Imagen en formato base64
+                };
 
         // Obtener imagen y convertirla en Base64 si existe
         const fotoInput = document.getElementById("foto");

@@ -88,29 +88,27 @@ document.addEventListener("DOMContentLoaded", function () {
         observaciones: formData.get("observaciones"),
         cumplimentado_por: formData.get("cumplimentado_por"),
         telefono_remitente: formData.get("telefono_remitente"),
-        foto: "" // Inicializar imagen
-                };
+        foto: "" // La imagen sigue igual
+    };
 
-        // Procesar la imagen si existe
+        // Obtener imagen y convertirla en Base64 si existe
         const fotoInput = document.getElementById("foto");
         const file = fotoInput.files[0];
 
         if (file) {
             const reader = new FileReader();
             reader.onload = function (event) {
-                data.foto = event.target.result; // Imagen en Base64
-                console.log("Datos enviados:", JSON.stringify(data));
+                data.foto = event.target.result; // Imagen convertida a Base64
                 enviarDatos(data);
             };
             reader.readAsDataURL(file);
         } else {
-            console.log("No se seleccionó ninguna imagen.");
             enviarDatos(data);
         }
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycby9Ny_ew1Hqx3tU_ygG4toW8mElAuEMOzf030Dmr7WMGyg1liQu82BSyTp7aAh_lf0p/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbw3ExSl3V9b17n1TjGXH0ijROleSFxUcMaW3MqFd_Rfgd7IfS2KgTC8r3IUd4OPyO06/exec", {
             method: "POST",
             mode: "no-cors",  
             headers: {
@@ -213,7 +211,6 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
-
 
 
 

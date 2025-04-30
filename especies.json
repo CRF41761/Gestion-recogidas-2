@@ -153,5 +153,6 @@
     {"nombreComun":"Chotacabras pardo","nombreCientifico":"Caprimulgus ruficollis"},
     {"nombreComun":"Cárabos (coleópteros)","nombreCientifico":"Carabus (Mesocarabus) riffensis"},
     {"nombreComun":"Carpín dorado","nombreCientifico":"Carassius auratus"},
-    {"nombreComun":"Carpín","nombreCientifico":"Carassius carassius"}
+    {"nombreComun":"Carpín","nombreCientifico":"Carassius carassius"},
+    {"nombreComun":"Indeterminado","nombreCientifico":"Indeterminado"}
 ]

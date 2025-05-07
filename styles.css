@@ -171,7 +171,15 @@ input[list] {
     border-radius: 4px;
     font-size: 16px;
 }
-
+/* Ajustes específicos para Número de entrada y Cantidad de ejemplares */
+#numero_entrada, #cantidad_animales {
+    width: 120px; /* Tamaño más compacto */
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px; /* Texto más proporcionado */
+    text-align: center; /* Centrar el contenido */
+}
 
 
 

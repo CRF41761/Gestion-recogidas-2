@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
      // Generar automáticamente el número de entrada al cargar la página
-    fetch("https://script.google.com/macros/s/AKfycbzoCIz4zREMnsfS75KTgR-gJfAfAfosMUkHOm43OFYrnE066EwfGVmto7t-RzJMPmdm/exec?getNumeroEntrada") // Reemplaza con tu URL de Apps Script
+    fetch("https://script.google.com/macros/s/AKfycbz_5ROzqT8gNhY3i7MDtIFWcftYhnC5miJHPfxtyGYBxoJAdJ1GPSFGKDj5MoUcpKcH/exec?getNumeroEntrada") // Reemplaza con tu URL de Apps Script
         .then(response => response.json())
         .then(data => {
             document.getElementById("numero_entrada").value = data.numero_entrada; // Asignar el número de entrada al formulario
@@ -99,7 +99,6 @@ document.addEventListener("DOMContentLoaded", function () {
         numero_entrada: document.getElementById("numero_entrada").value, // Número generado automáticamente
         especie_comun: formData.get("especie_comun"),
         especie_cientifico: formData.get("especie_cientifico"),
-        cantidad_animales: document.getElementById("cantidad_animales").value, // Cantidad de ejemplares
         fecha: formData.get("fecha"),
         municipio: formData.get("municipio"),
         posible_causa: formData.getAll("posible_causa"), // Checkboxes como arrays
@@ -132,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycbzoCIz4zREMnsfS75KTgR-gJfAfAfosMUkHOm43OFYrnE066EwfGVmto7t-RzJMPmdm/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbz_5ROzqT8gNhY3i7MDtIFWcftYhnC5miJHPfxtyGYBxoJAdJ1GPSFGKDj5MoUcpKcH/exec", {
             method: "POST",
             mode: "no-cors",  
             headers: {

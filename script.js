@@ -1,9 +1,23 @@
 document.addEventListener("DOMContentLoaded", function () {
     var map = L.map("map").setView([39.4699, -0.3763], 10); // Coordenadas de Valencia por defecto
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    // Definir las capas de mapa
+    var osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
-    }).addTo(map);
+    });
+
+    var googleSat = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
+        attribution: "© Google Maps"
+    });
+
+    // Agregar control para elegir entre mapa estándar y ortofoto
+    var baseMaps = {
+        "Mapa estándar": osmMap,
+        "Ortofografía (satélite)": googleSat
+    };
+
+    L.control.layers(baseMaps).addTo(map);
+    osmMap.addTo(map); // Activar mapa estándar por defecto
 
     var marker;
 

@@ -99,7 +99,6 @@ document.addEventListener("DOMContentLoaded", function () {
         numero_entrada: document.getElementById("numero_entrada").value, // Número generado automáticamente
         especie_comun: formData.get("especie_comun"),
         especie_cientifico: formData.get("especie_cientifico"),
-        cantidad_animales: document.getElementById("cantidad_animales").value, // Cantidad de ejemplares
         fecha: formData.get("fecha"),
         municipio: formData.get("municipio"),
         posible_causa: formData.getAll("posible_causa"), // Checkboxes como arrays

@@ -180,7 +180,12 @@ input[list] {
     font-size: 14px; /* Texto más proporcionado */
     text-align: center; /* Centrar el contenido */
 }
-
+/* Destacar Número de entrada con borde más oscuro */
+#numero_entrada {
+    border: 2px solid #444; /* Línea más oscura para enfatizar */
+    background-color: #f9f9f9; /* Fondo ligeramente diferente */
+    font-weight: bold; /* Resalta el texto dentro del campo */
+}
 
 
 

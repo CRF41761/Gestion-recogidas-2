@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
      // Generar automáticamente el número de entrada al cargar la página
-    fetch("https://script.google.com/macros/s/AKfycbynAZ9vDI5GgNL6vwm6OQXjfpSOWvR0HRIwyig_4isJeNs1onVHEQ0XyqayPSn4QW4/exec?getNumeroEntrada") // Reemplaza con tu URL de Apps Script
+    fetch("https://script.google.com/macros/s/AKfycbzoCIz4zREMnsfS75KTgR-gJfAfAfosMUkHOm43OFYrnE066EwfGVmto7t-RzJMPmdm/exec?getNumeroEntrada") // Reemplaza con tu URL de Apps Script
         .then(response => response.json())
         .then(data => {
             document.getElementById("numero_entrada").value = data.numero_entrada; // Asignar el número de entrada al formulario
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycbynAZ9vDI5GgNL6vwm6OQXjfpSOWvR0HRIwyig_4isJeNs1onVHEQ0XyqayPSn4QW4/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbzoCIz4zREMnsfS75KTgR-gJfAfAfosMUkHOm43OFYrnE066EwfGVmto7t-RzJMPmdm/exec", {
             method: "POST",
             mode: "no-cors",  
             headers: {

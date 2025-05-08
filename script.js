@@ -89,8 +89,14 @@ document.addEventListener("DOMContentLoaded", function () {
     
    document.getElementById("formulario").addEventListener("submit", function (event) {
     event.preventDefault();
-
+       
+// Capturar el botón de envío y cambiar su estado
+    const enviarBtn = document.getElementById("enviarBtn");
+    enviarBtn.disabled = true;
+    enviarBtn.textContent = "Enviando..."; // Dar feedback al usuario
+       
     const formData = new FormData(this);
+       
          // Depuración: Mostrar todas las claves y valores recolectados del formulario
     for (let [key, value] of formData.entries()) {
         console.log(`Clave: ${key}, Valor: ${value}`);
@@ -123,11 +129,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const reader = new FileReader();
             reader.onload = function (event) {
                 data.foto = event.target.result; // Imagen convertida a Base64
-                enviarDatos(data);
+                enviarDatos(data, enviarBtn); // Enviar datos con el botón deshabilitado
             };
             reader.readAsDataURL(file);
         } else {
-            enviarDatos(data);
+           enviarDatos(data, enviarBtn);
         }
     });
 
@@ -135,18 +141,19 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch("https://script.google.com/macros/s/AKfycbwOl4PebKO72BeOZGo5DnjKaYISmYvtyJ7jj0hNF4l3Aw0_IpLgYq8V2JRyMI78ejk/exec", {
             method: "POST",
             mode: "no-cors",  
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(data)
         })
-        .then(() => {
-            alert("Datos enviados correctamente");
+        .then(() => {alert("Datos enviados correctamente");
             document.getElementById("formulario").reset();
+            enviarBtn.disabled = false; // Reactivar el botón
+            enviarBtn.textContent = "Enviar"; // Restaurar el texto
         })
         .catch(error => {
             console.error("Error al enviar datos:", error);
             alert("Error al enviar los datos. Verifique la conexión.");
+             enviarBtn.disabled = false; // Reactivar el botón en caso de error
+             enviarBtn.textContent = "Enviar"; // Restaurar el texto
         });
     }
 });

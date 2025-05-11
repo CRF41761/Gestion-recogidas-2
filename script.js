@@ -1,4 +1,3 @@
-<script>
 document.addEventListener("DOMContentLoaded", function () {
     var map = L.map("map").setView([39.4699, -0.3763], 10); // Coordenadas de Valencia por defecto
 
@@ -89,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 });
-</script>
+
 
 
      // Generar automáticamente el número de entrada al cargar la página

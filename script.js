@@ -1,3 +1,4 @@
+<script>
 document.addEventListener("DOMContentLoaded", function () {
     var map = L.map("map").setView([39.4699, -0.3763], 10); // Coordenadas de Valencia por defecto
 
@@ -10,25 +11,29 @@ document.addEventListener("DOMContentLoaded", function () {
         attribution: "© Google Maps"
     });
 
-    // Agregar control para elegir entre mapa estándar y ortofoto
     var baseMaps = {
         "Mapa estándar": osmMap,
         "Ortofografía (satélite)": googleSat
     };
 
     L.control.layers(baseMaps).addTo(map);
-    osmMap.addTo(map); // Activar mapa estándar por defecto
+    osmMap.addTo(map);
 
     var marker;
+    var watchId = null;
 
-    // Intentar obtener la ubicación del usuario
-    function locateUser() {
+    // Función para iniciar el seguimiento de ubicación
+    function startLocationTracking() {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+
+            watchId = navigator.geolocation.watchPosition(
                 function (position) {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    map.setView([lat, lng], 13); // Centrar el mapa en la ubicación del usuario
+                    map.setView([lat, lng], 13);
                     if (marker) {
                         marker.setLatLng([lat, lng]);
                     } else {
@@ -37,6 +42,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 function (error) {
                     console.error("Error al obtener la geolocalización:", error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
                 }
             );
         } else {
@@ -44,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    locateUser(); // Llamar a la función para geolocalizar al cargar la página
+    startLocationTracking(); // Iniciar seguimiento al cargar
 
     function onMapClick(e) {
         if (marker) {
@@ -57,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     map.on("click", onMapClick);
 
-    // Crear y agregar el botón para volver a la ubicación actual
+    // Botón para volver a la ubicación actual (reinicia el seguimiento)
     const locateButton = document.createElement("button");
     locateButton.textContent = "Volver a mi ubicación";
     locateButton.type = "button";
@@ -73,11 +83,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     locateButton.addEventListener("click", function (event) {
         event.preventDefault();
-        locateUser();
+        startLocationTracking();
     });
 
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+});
+</script>
+
 
      // Generar automáticamente el número de entrada al cargar la página
     fetch("https://script.google.com/macros/s/AKfycbyGtDA1IDjdx8rwjUNx9WOQjrZ12pYG1r-BRXWewLv5cWyI1bVrzdkZy-cA7wsmhVt-/exec?getNumeroEntrada") // Reemplaza con tu URL de Apps Script

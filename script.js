@@ -23,26 +23,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Intentar obtener la ubicación del usuario
     function locateUser() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function (position) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    map.setView([lat, lng], 13); // Centrar el mapa en la ubicación del usuario
-                    if (marker) {
-                        marker.setLatLng([lat, lng]);
-                    } else {
-                        marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-                    }
-                },
-                function (error) {
-                    console.error("Error al obtener la geolocalización:", error);
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                console.log("Ubicación obtenida:", position);
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                console.log(`Precisión: ${position.coords.accuracy} metros`);
+                map.setView([lat, lng], 13);
+                if (marker) {
+                    marker.setLatLng([lat, lng]);
+                } else {
+                    marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
                 }
-            );
-        } else {
-            console.error("La geolocalización no está soportada por este navegador.");
-        }
+            },
+            function (error) {
+                console.error("Error al obtener la geolocalización:", error);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    } else {
+        console.error("La geolocalización no está soportada por este navegador.");
     }
+}
 
     locateUser(); // Llamar a la función para geolocalizar al cargar la página
 

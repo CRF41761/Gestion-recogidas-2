@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     var map = L.map("map").setView([39.4699, -0.3763], 10); // Coordenadas de Valencia por defecto
 
-    // Definir las capas de mapa
+    // Añadir capas de mapa
     var osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
     });
@@ -19,68 +19,87 @@ document.addEventListener("DOMContentLoaded", function () {
     L.control.layers(baseMaps).addTo(map);
     osmMap.addTo(map); // Activar mapa estándar por defecto
 
-    var marker;
+    var marker; // Variable para el marcador del usuario
+    var watchID; // ID del seguimiento GPS
 
-    // Intentar obtener la ubicación del usuario
-    function locateUser() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function (position) {
-                console.log("Ubicación obtenida:", position);
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                console.log(`Precisión: ${position.coords.accuracy} metros`);
-                map.setView([lat, lng], 13);
-                if (marker) {
-                    marker.setLatLng([lat, lng]);
-                } else {
-                    marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-                }
-            },
-            function (error) {
-                console.error("Error al obtener la geolocalización:", error);
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-    } else {
-        console.error("La geolocalización no está soportada por este navegador.");
-    }
-}
+    // Función para iniciar el seguimiento de la ubicación
+    function startTracking() {
+        if (navigator.geolocation) {
+            watchID = navigator.geolocation.watchPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
 
-    locateUser(); // Llamar a la función para geolocalizar al cargar la página
+                    // Centrar el mapa en la nueva ubicación
+                    map.setView([lat, lng], 15); // Zoom más cercano (15)
 
-    function onMapClick(e) {
-        if (marker) {
-            marker.setLatLng(e.latlng);
+                    // Actualizar la posición del marcador
+                    if (marker) {
+                        marker.setLatLng([lat, lng]);
+                    } else {
+                        marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+                    }
+                },
+                function (error) {
+                    console.error("Error al obtener la geolocalización:", error);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
         } else {
-            marker = L.marker(e.latlng).addTo(map);
+            console.error("La geolocalización no está soportada por este navegador.");
         }
-        document.getElementById("coordenadas_mapa").value = e.latlng.lat + ", " + e.latlng.lng;
     }
 
-    map.on("click", onMapClick);
+    // Función para detener el seguimiento
+    function stopTracking() {
+        if (watchID) {
+            navigator.geolocation.clearWatch(watchID);
+            console.log("Seguimiento detenido.");
+        }
+    }
 
-    // Crear y agregar el botón para volver a la ubicación actual
-    const locateButton = document.createElement("button");
-    locateButton.textContent = "Volver a mi ubicación";
-    locateButton.type = "button";
-    locateButton.style.marginTop = "10px";
-    locateButton.style.marginBottom = "15px";
-    locateButton.style.padding = "10px";
-    locateButton.style.backgroundColor = "#28a745";
-    locateButton.style.color = "white";
-    locateButton.style.border = "none";
-    locateButton.style.borderRadius = "4px";
-    locateButton.style.cursor = "pointer";
-    locateButton.style.fontSize = "16px";
+    // Botón para iniciar el seguimiento
+    const startButton = document.createElement("button");
+    startButton.textContent = "Iniciar seguimiento";
+    startButton.type = "button";
+    startButton.style.marginTop = "10px";
+    startButton.style.marginRight = "10px";
+    startButton.style.padding = "10px";
+    startButton.style.backgroundColor = "#007bff";
+    startButton.style.color = "white";
+    startButton.style.border = "none";
+    startButton.style.borderRadius = "4px";
+    startButton.style.cursor = "pointer";
+    startButton.style.fontSize = "16px";
 
-    locateButton.addEventListener("click", function (event) {
+    startButton.addEventListener("click", function (event) {
         event.preventDefault();
-        locateUser();
+        startTracking();
     });
 
+    // Botón para detener el seguimiento
+    const stopButton = document.createElement("button");
+    stopButton.textContent = "Detener seguimiento";
+    stopButton.type = "button";
+    stopButton.style.marginTop = "10px";
+    stopButton.style.padding = "10px";
+    stopButton.style.backgroundColor = "#dc3545";
+    stopButton.style.color = "white";
+    stopButton.style.border = "none";
+    stopButton.style.borderRadius = "4px";
+    stopButton.style.cursor = "pointer";
+    stopButton.style.fontSize = "16px";
+
+    stopButton.addEventListener("click", function (event) {
+        event.preventDefault();
+        stopTracking();
+    });
+
+    // Añadir botones al DOM
     const mapElement = document.getElementById("map");
-    mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+    mapElement.parentNode.insertBefore(startButton, mapElement.nextSibling);
+    mapElement.parentNode.insertBefore(stopButton, startButton.nextSibling);
+});
 
      // Generar automáticamente el número de entrada al cargar la página
     fetch("https://script.google.com/macros/s/AKfycbyGtDA1IDjdx8rwjUNx9WOQjrZ12pYG1r-BRXWewLv5cWyI1bVrzdkZy-cA7wsmhVt-/exec?getNumeroEntrada") // Reemplaza con tu URL de Apps Script

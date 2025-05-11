@@ -23,6 +23,7 @@ let marker;
 let watchId = null;
 let seguimientoActivo = true;
 let forzarZoomInicial = false;
+let ultimaPosicion = null; // ⬅️ Guardamos la última posición válida
 
 function iniciarSeguimiento() {
     if (navigator.geolocation) {
@@ -31,6 +32,8 @@ function iniciarSeguimiento() {
                 if (seguimientoActivo) {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
+
+                    ultimaPosicion = [lat, lng]; // ⬅️ Guardamos la posición más reciente
 
                     const zoom = forzarZoomInicial ? 13 : map.getZoom();
                     map.setView([lat, lng], zoom);
@@ -97,8 +100,13 @@ locateButton.style.fontSize = "16px";
 locateButton.addEventListener("click", function (event) {
     event.preventDefault();
     seguimientoActivo = true;
-    forzarZoomInicial = true; // Volver a zoom 13 al reactivar seguimiento
-    iniciarSeguimiento();
+    forzarZoomInicial = true;
+
+    if (ultimaPosicion) {
+        map.setView(ultimaPosicion, 13); // ⬅️ Centrar de inmediato en la última posición
+    }
+
+    iniciarSeguimiento(); // ⬅️ Volver a activar seguimiento GPS
 });
 
 const mapElement = document.getElementById("map");

@@ -10,18 +10,18 @@ document.addEventListener("DOMContentLoaded", function () {
         attribution: "© Google Maps"
     });
 
+    // Agregar control para elegir entre mapa estándar y ortofoto
     var baseMaps = {
         "Mapa estándar": osmMap,
         "Ortofografía (satélite)": googleSat
     };
 
     L.control.layers(baseMaps).addTo(map);
-    osmMap.addTo(map);
+    osmMap.addTo(map); // Activar mapa estándar por defecto
 
     var marker;
     var watchId = null;
 
-    // Función para iniciar el seguimiento de ubicación
     function startLocationTracking() {
         if (navigator.geolocation) {
             if (watchId !== null) {
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    startLocationTracking(); // Iniciar seguimiento al cargar
+    startLocationTracking(); // Llamar al iniciar
 
     function onMapClick(e) {
         if (marker) {
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     map.on("click", onMapClick);
 
-    // Botón para volver a la ubicación actual (reinicia el seguimiento)
+    // Crear y agregar el botón para volver a la ubicación actual
     const locateButton = document.createElement("button");
     locateButton.textContent = "Volver a mi ubicación";
     locateButton.type = "button";
@@ -82,15 +82,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     locateButton.addEventListener("click", function (event) {
         event.preventDefault();
-        startLocationTracking();
+        startLocationTracking(); // Actualizado
     });
 
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
-
-
-
-
      // Generar automáticamente el número de entrada al cargar la página
     fetch("https://script.google.com/macros/s/AKfycbyGtDA1IDjdx8rwjUNx9WOQjrZ12pYG1r-BRXWewLv5cWyI1bVrzdkZy-cA7wsmhVt-/exec?getNumeroEntrada") // Reemplaza con tu URL de Apps Script
         .then(response => response.json())

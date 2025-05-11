@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
 let marker;
 let watchId = null;
 let seguimientoActivo = true;
+let forzarZoomInicial = false;
 
 function iniciarSeguimiento() {
     if (navigator.geolocation) {
@@ -30,7 +31,12 @@ function iniciarSeguimiento() {
                 if (seguimientoActivo) {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    map.setView([lat, lng], 13);
+
+                    const zoom = forzarZoomInicial ? 13 : map.getZoom();
+                    map.setView([lat, lng], zoom);
+
+                    forzarZoomInicial = false; // Solo aplicar el zoom una vez
+
                     if (marker) {
                         marker.setLatLng([lat, lng]);
                     } else {
@@ -61,9 +67,6 @@ function detenerSeguimiento() {
     seguimientoActivo = false;
 }
 
-// Iniciar seguimiento al cargar
-iniciarSeguimiento();
-
 function onMapClick(e) {
     detenerSeguimiento(); // Al hacer clic, detener seguimiento
     const latlng = e.latlng;
@@ -77,7 +80,7 @@ function onMapClick(e) {
 
 map.on("click", onMapClick);
 
-// Crear botón para reactivar seguimiento
+// Crear botón para reactivar seguimiento y restablecer zoom
 const locateButton = document.createElement("button");
 locateButton.textContent = "Volver a mi ubicación";
 locateButton.type = "button";
@@ -94,7 +97,8 @@ locateButton.style.fontSize = "16px";
 locateButton.addEventListener("click", function (event) {
     event.preventDefault();
     seguimientoActivo = true;
-    iniciarSeguimiento(); // Volver a activar el seguimiento
+    forzarZoomInicial = true; // Volver a zoom 13 al reactivar seguimiento
+    iniciarSeguimiento();
 });
 
 const mapElement = document.getElementById("map");

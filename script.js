@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
-});
+
 
 
 

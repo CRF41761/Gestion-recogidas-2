@@ -19,17 +19,15 @@ document.addEventListener("DOMContentLoaded", function () {
     L.control.layers(baseMaps).addTo(map);
     osmMap.addTo(map); // Activar mapa estándar por defecto
 
-    var marker;
-    var watchId = null;
+let marker;
+let watchId = null;
+let seguimientoActivo = true;
 
-    function startLocationTracking() {
-        if (navigator.geolocation) {
-            if (watchId !== null) {
-                navigator.geolocation.clearWatch(watchId);
-            }
-
-            watchId = navigator.geolocation.watchPosition(
-                function (position) {
+function iniciarSeguimiento() {
+    if (navigator.geolocation) {
+        watchId = navigator.geolocation.watchPosition(
+            function (position) {
+                if (seguimientoActivo) {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
                     map.setView([lat, lng], 13);
@@ -38,55 +36,71 @@ document.addEventListener("DOMContentLoaded", function () {
                     } else {
                         marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
                     }
-                },
-                function (error) {
-                    console.error("Error al obtener la geolocalización:", error);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
+                    document.getElementById("coordenadas_mapa").value = lat + ", " + lng;
                 }
-            );
-        } else {
-            console.error("La geolocalización no está soportada por este navegador.");
-        }
+            },
+            function (error) {
+                console.error("Error al obtener la geolocalización:", error);
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 10000
+            }
+        );
+    } else {
+        console.error("La geolocalización no está soportada por este navegador.");
     }
+}
 
-    startLocationTracking(); // Llamar al iniciar
-
-    function onMapClick(e) {
-        if (marker) {
-            marker.setLatLng(e.latlng);
-        } else {
-            marker = L.marker(e.latlng).addTo(map);
-        }
-        document.getElementById("coordenadas_mapa").value = e.latlng.lat + ", " + e.latlng.lng;
+function detenerSeguimiento() {
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
     }
+    seguimientoActivo = false;
+}
 
-    map.on("click", onMapClick);
+// Iniciar seguimiento al cargar
+iniciarSeguimiento();
 
-    // Crear y agregar el botón para volver a la ubicación actual
-    const locateButton = document.createElement("button");
-    locateButton.textContent = "Volver a mi ubicación";
-    locateButton.type = "button";
-    locateButton.style.marginTop = "10px";
-    locateButton.style.marginBottom = "15px";
-    locateButton.style.padding = "10px";
-    locateButton.style.backgroundColor = "#28a745";
-    locateButton.style.color = "white";
-    locateButton.style.border = "none";
-    locateButton.style.borderRadius = "4px";
-    locateButton.style.cursor = "pointer";
-    locateButton.style.fontSize = "16px";
+function onMapClick(e) {
+    detenerSeguimiento(); // Al hacer clic, detener seguimiento
+    const latlng = e.latlng;
+    if (marker) {
+        marker.setLatLng(latlng);
+    } else {
+        marker = L.marker(latlng).addTo(map);
+    }
+    document.getElementById("coordenadas_mapa").value = latlng.lat + ", " + latlng.lng;
+}
 
-    locateButton.addEventListener("click", function (event) {
-        event.preventDefault();
-        startLocationTracking(); // Actualizado
-    });
+map.on("click", onMapClick);
 
-    const mapElement = document.getElementById("map");
-    mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+// Crear botón para reactivar seguimiento
+const locateButton = document.createElement("button");
+locateButton.textContent = "Volver a mi ubicación";
+locateButton.type = "button";
+locateButton.style.marginTop = "10px";
+locateButton.style.marginBottom = "15px";
+locateButton.style.padding = "10px";
+locateButton.style.backgroundColor = "#28a745";
+locateButton.style.color = "white";
+locateButton.style.border = "none";
+locateButton.style.borderRadius = "4px";
+locateButton.style.cursor = "pointer";
+locateButton.style.fontSize = "16px";
+
+locateButton.addEventListener("click", function (event) {
+    event.preventDefault();
+    seguimientoActivo = true;
+    iniciarSeguimiento(); // Volver a activar el seguimiento
+});
+
+const mapElement = document.getElementById("map");
+mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+
+    
      // Generar automáticamente el número de entrada al cargar la página
     fetch("https://script.google.com/macros/s/AKfycbyGtDA1IDjdx8rwjUNx9WOQjrZ12pYG1r-BRXWewLv5cWyI1bVrzdkZy-cA7wsmhVt-/exec?getNumeroEntrada") // Reemplaza con tu URL de Apps Script
         .then(response => response.json())

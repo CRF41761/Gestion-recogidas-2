@@ -7,7 +7,8 @@ const urlsToCache = [
     "/Gestion-recogidas-2/manifest.json",
     "/Gestion-recogidas-2/icons/icon-192x192.png",
     "/Gestion-recogidas-2/icons/icon-512x512.png",
-    "/Gestion-recogidas-2/municipios.json" // Archivo de municipios
+    "/Gestion-recogidas-2/municipios.json", // Archivo de municipios
+    "/Gestion-recogidas-2/especies.json"
 ];
 
 // Instalar el Service Worker y cachear archivos

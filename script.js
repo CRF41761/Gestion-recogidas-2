@@ -172,24 +172,30 @@ mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
     });
 
     function enviarDatos(data) {
-        fetch("https://script.google.com/macros/s/AKfycbyGtDA1IDjdx8rwjUNx9WOQjrZ12pYG1r-BRXWewLv5cWyI1bVrzdkZy-cA7wsmhVt-/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
             method: "POST",
             mode: "no-cors",  
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(data)
         })
-        .then(() => {alert("Datos enviados correctamente");
-            document.getElementById("formulario").reset();
-            enviarBtn.disabled = false; // Reactivar el botón
-            enviarBtn.textContent = "Enviar"; // Restaurar el texto
-        })
-        .catch(error => {
-            console.error("Error al enviar datos:", error);
-            alert("Error al enviar los datos. Verifique la conexión.");
-             enviarBtn.disabled = false; // Reactivar el botón en caso de error
-             enviarBtn.textContent = "Enviar"; // Restaurar el texto
-        });
-    }
+        .then(() => {
+        // ✅ Solicitud `GET` para recuperar el número de entrada guardado en D1
+        return fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(`✅ Número de entrada asignado: ${data.numeroEntrada}`); // ✅ Mostrar número de entrada
+        document.getElementById("formulario").reset();
+        enviarBtn.disabled = false; // Reactivar el botón
+        enviarBtn.textContent = "Enviar"; // Restaurar el texto
+    })
+    .catch(error => {
+        console.error("Error al obtener el número de entrada:", error);
+        alert("Error al obtener el número de entrada. Verifique la conexión.");
+        enviarBtn.disabled = false; // ✅ Reactivar el botón en caso de error
+        enviarBtn.textContent = "Enviar"; // ✅ Restaurar el texto
+    });
+}
 });
 
 // 🔹 Restaurar la carga del desplegable de municipios

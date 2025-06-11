@@ -45,7 +45,7 @@ function iniciarSeguimiento() {
                     } else {
                         marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
                     }
-                    document.getElementById("coordenadas_mapa").value = lat + ", " + lng;
+                    document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
                 }
             },
             function (error) {

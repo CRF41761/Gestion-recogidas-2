@@ -78,7 +78,7 @@ function onMapClick(e) {
     } else {
         marker = L.marker(latlng).addTo(map);
     }
-    document.getElementById("coordenadas_mapa").value = latlng.lat + ", " + latlng.lng;
+    document.getElementById("coordenadas_mapa").value = latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5);
 }
 
 map.on("click", onMapClick);

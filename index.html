@@ -258,7 +258,6 @@
         <div class="form-group">
             <label for="observaciones">Observaciones:</label>
             <textarea id="observaciones" name="observaciones"></textarea>
-            <button type="button" id="vozObservacionesBtn" title="Dictar por voz">🎤 Dictar</button>
         </div>
 
         <!-- Campo: Cumplimentado por -->
@@ -283,32 +282,42 @@
         <button type="submit" id="enviarBtn">Enviar</button>
     </form>
     <script src="script.js"></script>
-    <script>
-    // --- Dictado por voz en Observaciones ---
-    document.addEventListener("DOMContentLoaded", function() {
-        var btn = document.getElementById('vozObservacionesBtn');
-        var textarea = document.getElementById('observaciones');
-        if (btn && textarea) {
-            btn.addEventListener('click', function() {
-                if ('webkitSpeechRecognition' in window) {
-                    var recognition = new webkitSpeechRecognition();
-                    recognition.lang = 'es-ES';
-                    recognition.interimResults = false;
-                    recognition.maxAlternatives = 1;
-                    recognition.onresult = function(event) {
-                        // Añade el texto dictado al final de lo que ya haya
-                        textarea.value += (textarea.value ? '\n' : '') + event.results[0][0].transcript;
-                    };
-                    recognition.onerror = function(event) {
-                        alert("Error al dictar: " + event.error);
-                    };
-                    recognition.start();
-                } else {
-                    alert("Este navegador no soporta dictado por voz.");
-                }
-            });
-        }
-    });
-    </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

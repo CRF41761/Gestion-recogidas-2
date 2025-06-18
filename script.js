@@ -83,6 +83,32 @@ function onMapClick(e) {
 
 map.on("click", onMapClick);
 
+    // Escuchar cambios en la casilla "coordenadas" y actualizar el mapa y coordenadas_mapa
+document.getElementById("coordenadas").addEventListener("change", function () {
+    const input = this.value.trim();
+    // Permitir separación por "," o por espacio
+    let partes = input.split(",");
+    if (partes.length !== 2) {
+        partes = input.split(" ");
+    }
+    if (partes.length === 2) {
+        const lat = parseFloat(partes[0]);
+        const lng = parseFloat(partes[1]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            // Actualiza el marcador del mapa
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng]).addTo(map);
+            }
+            map.setView([lat, lng], 13);
+
+            // Actualiza la casilla de coordenadas del mapa también
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+        }
+    }
+});
+
 // Crear botón para reactivar seguimiento y restablecer zoom
 const locateButton = document.createElement("button");
 locateButton.textContent = "Volver a mi ubicación";

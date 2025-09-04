@@ -140,7 +140,7 @@ mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
     
      // Generar automáticamente el número de entrada al cargar la página
-    fetch("https://script.google.com/macros/s/AKfycbyGtDA1IDjdx8rwjUNx9WOQjrZ12pYG1r-BRXWewLv5cWyI1bVrzdkZy-cA7wsmhVt-/exec?getNumeroEntrada") // Reemplaza con tu URL de Apps Script
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada") // Reemplaza con tu URL de Apps Script
         .then(response => response.json())
         .then(data => {
             document.getElementById("numero_entrada").value = data.numero_entrada; // Asignar el número de entrada al formulario
@@ -308,6 +308,7 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+
 
 
 

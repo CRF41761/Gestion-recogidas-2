@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     // --- FIN BLOQUE DE RECUPERACIÓN ---
 
-    // Tu código de mapas y demás funcionalidades
+    // Inicialización del mapa
     var map = L.map("map").setView([39.4699, -0.3763], 10);
     var osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
@@ -240,16 +240,18 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem('recogidasForm', JSON.stringify(obj));
     });
     // --- FIN BLOQUE ---
-
 });
 
-// --- BLOQUE DE BORRADO AL CERRAR PESTAÑA/APP ---
-window.addEventListener('beforeunload', () => {
-    localStorage.removeItem('recogidasForm');
+// --- BLOQUE DE AVISO AL CERRAR O REFRESCAR ---
+window.addEventListener('beforeunload', function (e) {
+    const saved = localStorage.getItem('recogidasForm');
+    if (saved && saved !== '{}' && saved !== null) {
+        // Si hay algún dato guardado en el formulario, mostrar aviso
+        e.preventDefault();
+        e.returnValue = 'Hay datos sin guardar. ¿Seguro que quieres salir?';
+    }
 });
 // --- FIN BLOQUE ---
-
-// Resto de tus scripts de municipios, especies, service-worker, etc.
 
 // 🔹 Restaurar la carga del desplegable de municipios
 document.addEventListener("DOMContentLoaded", () => {
@@ -324,6 +326,7 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+
 
 
 

@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // --- BLOQUE DE RECUPERACIÓN DE DATOS DEL FORMULARIO ---
+    // --- Recuperación de datos del formulario ---
     const form = document.getElementById('formulario');
     const saved = localStorage.getItem('recogidasForm');
     if (saved) {
@@ -15,9 +15,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-    // --- FIN BLOQUE DE RECUPERACIÓN ---
 
-    // Tu código de mapas y demás funcionalidades
+    // Inicialización del mapa
     var map = L.map("map").setView([39.4699, -0.3763], 10);
     var osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
@@ -150,9 +149,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("formulario").addEventListener("submit", function (event) {
         event.preventDefault();
 
-        // --- BLOQUE DE BORRADO DE DATOS AL ENVIAR ---
+        // --- Borrado de datos al enviar el formulario ---
         localStorage.removeItem('recogidasForm');
-        // --- FIN BLOQUE ---
 
         const enviarBtn = document.getElementById("enviarBtn");
         enviarBtn.disabled = true;
@@ -223,7 +221,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    // --- BLOQUE DE GUARDADO DE DATOS AL MODIFICAR ---
+    // --- Guardado de datos al modificar el formulario ---
     form.addEventListener('input', () => {
         const obj = {};
         Array.from(form.elements).forEach(el => {
@@ -239,19 +237,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         localStorage.setItem('recogidasForm', JSON.stringify(obj));
     });
-    // --- FIN BLOQUE ---
-
 });
 
-// --- BLOQUE DE BORRADO AL CERRAR PESTAÑA/APP ---
-window.addEventListener('beforeunload', () => {
-    localStorage.removeItem('recogidasForm');
+// --- Borrado de datos SOLO al cerrar la pestaña/app, NO al refrescar ---
+let lastNavigationType = performance.getEntriesByType("navigation")[0]?.type || "navigate";
+
+// Solo borrar si no es reload o back_forward
+window.addEventListener('beforeunload', function () {
+    // Navegación tipo "navigate" (cierre de pestaña/app, no recarga ni atrás/adelante)
+    if (lastNavigationType === "navigate") {
+        localStorage.removeItem('recogidasForm');
+    }
 });
-// --- FIN BLOQUE ---
 
-// Resto de tus scripts de municipios, especies, service-worker, etc.
-
-// 🔹 Restaurar la carga del desplegable de municipios
+// --- Restaurar la carga del desplegable de municipios ---
 document.addEventListener("DOMContentLoaded", () => {
     const municipiosList = document.getElementById("municipios-list");
 
@@ -267,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(error => console.error("Error al cargar los municipios:", error));
 });
 
-// 🔹 Restaurar la carga del desplegable de especies
+// --- Restaurar la carga del desplegable de especies ---
 document.addEventListener("DOMContentLoaded", () => {
     const especieComunInput = document.getElementById("especie_comun");
     const especieCientificoInput = document.getElementById("especie_cientifico");
@@ -318,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Registrar el Service Worker si es compatible
+// --- Registrar el Service Worker si es compatible ---
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/Gestion-recogidas-2/service-worker.js')
         .then(() => console.log('Service Worker registrado correctamente'))

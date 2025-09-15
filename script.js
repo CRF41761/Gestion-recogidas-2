@@ -56,17 +56,29 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     map.on("click", onMapClick);
 
+    /* =====  NUEVO: Coordenadas manuales → Coordenadas del Mapa + centrado  ===== */
     document.getElementById("coordenadas").addEventListener("change", function () {
-        const input = this.value.trim();
-        const partes = input.includes(",") ? input.split(",") : input.split(" ");
-        if (partes.length === 2) {
-            const lat = parseFloat(partes[0]), lng = parseFloat(partes[1]);
-            if (!isNaN(lat) && !isNaN(lng)) {
-                marker ? marker.setLatLng([lat, lng]) : marker = L.marker([lat, lng]).addTo(map);
-                map.setView([lat, lng], 13);
-                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-            }
+        const raw = this.value.trim();
+        if (!raw) return;                       // vacío, nada que hacer
+
+        // aceptamos "40.123, -0.456" o "40.123 -0.456"
+        const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
+        if (partes.length !== 2) return;        // formato incorrecto
+
+        const lat = parseFloat(partes[0]);
+        const lng = parseFloat(partes[1]);
+        if (isNaN(lat) || isNaN(lng)) return;   // no son números
+
+        // 1.  Copiar al campo "Coordenadas del Mapa"
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+
+        // 2.  Mover el marcador y centrar
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng]).addTo(map);
         }
+        map.setView([lat, lng], 13);            // zoom 13, ajústalo si quieres
     });
 
     const locateButton = document.createElement("button");
@@ -133,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(r => r.json())
             .then(d => {
                 alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
-                sessionStorage.setItem('formEnviadoOK', '1');   // <-- MARCA
+                sessionStorage.setItem('formEnviadoOK', '1');
                 document.getElementById("formulario").reset();
                 btn.disabled = false; btn.textContent = "Enviar";
             })
@@ -144,7 +156,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    // Guardado automático
     const form = document.getElementById("formulario");
     form.addEventListener('input', () => {
         const obj = {};
@@ -168,7 +179,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (!sessionStorage.getItem('formEnviadoOK')) {
     localStorage.removeItem('recogidasForm');
   }
-  sessionStorage.removeItem('formEnviadoOK');   // siempre limpiamos la marca
+  sessionStorage.removeItem('formEnviadoOK');
 })();
 
 // Carga de municipios

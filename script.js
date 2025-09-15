@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     map.on("click", onMapClick);
 
-    /* =====  NUEVO: Coordenadas manuales → Coordenadas del Mapa + centrado  ===== */
+    /* =====  Coordenadas manuales → Coordenadas del Mapa + centrado  ===== */
     document.getElementById("coordenadas").addEventListener("change", function () {
         const raw = this.value.trim();
         if (!raw) return;                       // vacío, nada que hacer
@@ -68,6 +68,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const lat = parseFloat(partes[0]);
         const lng = parseFloat(partes[1]);
         if (isNaN(lat) || isNaN(lng)) return;   // no son números
+
+        detenerSeguimiento();                   // ← NUEVO: paramos el GPS
 
         // 1.  Copiar al campo "Coordenadas del Mapa"
         document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);

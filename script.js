@@ -9,17 +9,13 @@ document.addEventListener('touchstart', e => {
 document.addEventListener('touchmove', e => {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const deltaY    = e.touches[0].screenY - touchStartY;
-  // Si estamos arriba del todo y el gesto es “hacia abajo” lo cancelamos
-  if (scrollTop === 0 && deltaY > 0) {
-    e.preventDefault();
-  }
+  if (scrollTop === 0 && deltaY > 0) e.preventDefault();
 }, { passive: false });
 /* ============================================ */
 
 document.addEventListener("DOMContentLoaded", function () {
-    var map = L.map("map").setView([39.4699, -0.3763], 10); // Valencia por defecto
+    var map = L.map("map").setView([39.4699, -0.3763], 10);
 
-    // Capas base
     const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
     });
@@ -32,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let marker, watchId = null, seguimientoActivo = true, forzarZoomInicial = false, ultimaPosicion = null;
 
     function iniciarSeguimiento() {
-        if (!navigator.geolocation) return console.error("Geolocalización no soportada");
+        if (!navigator.geolocation) return;
         watchId = navigator.geolocation.watchPosition(
             pos => {
                 if (!seguimientoActivo) return;
@@ -60,9 +56,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     map.on("click", onMapClick);
 
-    // Entrada manual de coordenadas
     document.getElementById("coordenadas").addEventListener("change", function () {
-        const input = this.value.trim();  const partes = input.includes(",") ? input.split(",") : input.split(" ");
+        const input = this.value.trim();
+        const partes = input.includes(",") ? input.split(",") : input.split(" ");
         if (partes.length === 2) {
             const lat = parseFloat(partes[0]), lng = parseFloat(partes[1]);
             if (!isNaN(lat) && !isNaN(lng)) {
@@ -73,7 +69,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Botón “Volver a mi ubicación”
     const locateButton = document.createElement("button");
     locateButton.textContent = "Volver a mi ubicación";
     locateButton.type = "button";
@@ -86,15 +81,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    // Número de entrada
     fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
-    // Envío del formulario
     document.getElementById("formulario").addEventListener("submit", function (e) {
         e.preventDefault();
-        localStorage.removeItem('recogidasForm');          // limpia respaldo
+        localStorage.removeItem('recogidasForm');
         const btn = document.getElementById("enviarBtn");
         btn.disabled = true; btn.textContent = "Enviando...";
 
@@ -140,6 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(r => r.json())
             .then(d => {
                 alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+                sessionStorage.setItem('formEnviadoOK', '1');   // <-- MARCA
                 document.getElementById("formulario").reset();
                 btn.disabled = false; btn.textContent = "Enviar";
             })
@@ -150,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    // Guardado automático en localStorage
+    // Guardado automático
     const form = document.getElementById("formulario");
     form.addEventListener('input', () => {
         const obj = {};
@@ -169,32 +163,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// Restaurar formulario al cargar
+/* =====  AL ARRANCAR: limpiar si NO venimos de un envío correcto  ===== */
 (() => {
-    const saved = localStorage.getItem('recogidasForm');
-    if (!saved) return;
-    try {
-        const data = JSON.parse(saved);
-        Object.keys(data).forEach(name => {
-            const el = document.querySelector(`[name="${name}"]`);
-            if (!el) return;
-            if (el.type === 'checkbox') {
-                document.querySelectorAll(`[name="${name}"]`).forEach(cb => {
-                    cb.checked = data[name].includes(cb.value);
-                });
-            } else if (el.type === 'radio') {
-                const r = document.querySelector(`[name="${name}"][value="${data[name]}"]`);
-                if (r) r.checked = true;
-            } else {
-                el.value = data[name];
-            }
-        });
-    } catch (e) {
-        console.warn('No se pudo restaurar el formulario:', e);
-    }
+  if (!sessionStorage.getItem('formEnviadoOK')) {
+    localStorage.removeItem('recogidasForm');
+  }
+  sessionStorage.removeItem('formEnviadoOK');   // siempre limpiamos la marca
 })();
 
-// Cargar municipios
+// Carga de municipios
 document.addEventListener("DOMContentLoaded", () => {
     fetch("municipios.json")
         .then(r => r.json())
@@ -209,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(console.error);
 });
 
-// Cargar especies + autocompletado cruzado
+// Carga de especies + autocompletado
 document.addEventListener("DOMContentLoaded", () => {
     const comInput  = document.getElementById("especie_comun");
     const cienInput = document.getElementById("especie_cientifico");
@@ -242,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Registrar Service Worker
+// Service Worker
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/Gestion-recogidas-2/service-worker.js')
         .then(() => console.log('Service Worker registrado correctamente'))

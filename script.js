@@ -56,43 +56,40 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     map.on("click", onMapClick);
 
-    /* =====  BOTÓN LOCALIZAR  ===== */
-    const btnLocalizar = document.getElementById("btnLocalizar");
-    const campoCoord   = document.getElementById("coordenadas");
+    /* =====  NUEVO: Coordenadas manuales → Coordenadas del Mapa + centrado  ===== */
+    document.getElementById("coordenadas").addEventListener("change", function () {
+        const raw = this.value.trim();
+        if (!raw) return;                       // vacío, nada que hacer
 
-    function localizarManual() {
-        const raw = campoCoord.value.trim();
-        if (!raw) return;
-
+        // aceptamos "40.123, -0.456" o "40.123 -0.456"
         const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
-        if (partes.length !== 2) return;
+        if (partes.length !== 2) return;        // formato incorrecto
 
         const lat = parseFloat(partes[0]);
         const lng = parseFloat(partes[1]);
-        if (isNaN(lat) || isNaN(lng)) return;
+        if (isNaN(lat) || isNaN(lng)) return;   // no son números
 
-        detenerSeguimiento();                   // paramos GPS
+        // 1.  Copiar al campo "Coordenadas del Mapa"
         document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        if (marker) marker.setLatLng([lat, lng]); else marker = L.marker([lat, lng]).addTo(map);
-        map.setView([lat, lng], 13);
-    }
 
-    btnLocalizar.addEventListener("click", localizarManual);
-    campoCoord.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); localizarManual(); } });
+        // 2.  Mover el marcador y centrar
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng]).addTo(map);
+        }
+        map.setView([lat, lng], 13);            // zoom 13, ajústalo si quieres
+    });
 
     const locateButton = document.createElement("button");
     locateButton.textContent = "Volver a mi ubicación";
     locateButton.type = "button";
     Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
-
     locateButton.addEventListener("click", e => {
-        e.preventDefault();
-        seguimientoActivo = true;          // fuerza activación
-        forzarZoomInicial = true;
+        e.preventDefault(); seguimientoActivo = true; forzarZoomInicial = true;
         if (ultimaPosicion) map.setView(ultimaPosicion, 13);
-        iniciarSeguimiento();              // reinicia el watch
+        iniciarSeguimiento();
     });
-
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 

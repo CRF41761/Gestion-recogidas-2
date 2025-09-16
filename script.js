@@ -80,11 +80,13 @@ document.addEventListener("DOMContentLoaded", function () {
     locateButton.type = "button";
     Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
 
+    /* =====  BOTÓN ARREGLADO: siempre re-activa el GPS  ===== */
     locateButton.addEventListener("click", e => {
         e.preventDefault();
+        seguimientoActivo = true;          // ← FUERZA activación
         forzarZoomInicial = true;
         if (ultimaPosicion) map.setView(ultimaPosicion, 13);
-        iniciarSeguimiento();   // respeta el valor que ya tenía seguimientoActivo
+        iniciarSeguimiento();              // reinicia el watch
     });
 
     const mapElement = document.getElementById("map");

@@ -149,16 +149,32 @@ document.getElementById("btnBorrarCoords").addEventListener("click", () => {
     }
 
     const locateButton = document.createElement("button");
-    locateButton.textContent = "Volver a mi ubicación";
-    locateButton.type = "button";
-    Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
-    locateButton.addEventListener("click", e => {
-        e.preventDefault(); seguimientoActivo = true; forzarZoomInicial = true;
-        if (ultimaPosicion) map.setView(ultimaPosicion, 13);
-        iniciarSeguimiento();
-    });
-    const mapElement = document.getElementById("map");
-    mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+locateButton.textContent = "Volver a mi ubicación";
+locateButton.type = "button";
+Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
+
+locateButton.addEventListener("click", e => {
+    e.preventDefault();
+
+    // 1. Re-activar seguimiento
+    seguimientoActivo = true;
+    forzarZoomInicial = true;
+
+    // 2. Si ya tenemos una última posición, escribirla y centrar
+    if (ultimaPosicion) {
+        const [lat, lng] = ultimaPosicion;
+        if (marker) marker.setLatLng([lat, lng]);
+        else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+        map.setView([lat, lng], 13);
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+    }
+
+    // 3. Iniciar/reanudar el watch (cuando llegue la siguiente lectura se actualizará)
+    iniciarSeguimiento();
+});
+
+const mapElement = document.getElementById("map");
+mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
     fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
@@ -346,6 +362,7 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+
 
 
 

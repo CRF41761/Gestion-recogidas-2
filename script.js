@@ -50,7 +50,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 forzarZoomInicial = false;
                 marker ? marker.setLatLng([lat, lng])
                        : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                /* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+document.getElementById("btnBorrarCoords").addEventListener("click", () => {
+    // 1. Detener el seguimiento GPS (si está activo)
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        seguimientoActivo = false;
+    }
+
+    // 2. Vaciar el input
+    document.getElementById("coordenadas_mapa").value = "";
+
+    // 3. Quitar el marcador del mapa (si existe)
+    if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+    }
+});
             },
             err => console.error("Error GPS:", err),
             { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
@@ -320,4 +337,5 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+
 

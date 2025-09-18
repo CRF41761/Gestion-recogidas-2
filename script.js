@@ -56,13 +56,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     map.on("click", onMapClick);
 
-  document.getElementById("btnBorrarCoordenadas").addEventListener("click", function() {
-    document.getElementById("coordenadas_mapa").value = "";
-    if (typeof marker !== "undefined" && marker) {
-        map.removeLayer(marker);
-        marker = null;
-    }
-});
+    // ===== MODIFICADO: Coordenadas manuales → Coordenadas del Mapa + centrado + detener seguimiento =====
+    document.getElementById("coordenadas").addEventListener("change", function () {
+        const raw = this.value.trim();
+        if (!raw) return; // vacío, nada que hacer
 
         // aceptamos "40.123, -0.456" o "40.123 -0.456"
         const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
@@ -311,5 +308,3 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
-
-

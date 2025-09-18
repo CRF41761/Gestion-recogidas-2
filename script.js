@@ -14,11 +14,20 @@ document.addEventListener('touchmove', e => {
 /* ============================================ */
 
 /* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+/* ---------- Botón Borrar Coordenadas del Mapa ---------- */
 document.getElementById("btnBorrarCoords").addEventListener("click", () => {
-    // 1. Vaciar el input
-    document.getElementById("coordenadas_mapa").value = "";
+    // 1. Detener el seguimiento GPS (si está activo)
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        seguimientoActivo = false;
+    }
 
-    // 2. Quitar el marcador del mapa (si existe)
+    // 2. Vaciar AMBOS campos de coordenadas
+    document.getElementById("coordenadas_mapa").value = "";
+    document.getElementById("coordenadas").value = "";
+
+    // 3. Quitar el marcador del mapa (si existe)
     if (marker) {
         map.removeLayer(marker);
         marker = null;
@@ -337,5 +346,6 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+
 
 

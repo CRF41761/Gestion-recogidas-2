@@ -58,7 +58,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("btnBorrarCoordenadas").addEventListener("click", function() {
     document.getElementById("coordenadas_mapa").value = "";
-    // Eliminar el marcador del mapa si existe
     if (typeof marker !== "undefined" && marker) {
         map.removeLayer(marker);
         marker = null;
@@ -312,4 +311,5 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+
 

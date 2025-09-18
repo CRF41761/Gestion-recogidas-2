@@ -239,10 +239,12 @@
         <div id="map" style="height: 300px;"></div>
 
         <!-- Campo: Coordenadas del Mapa -->
-        <div class="form-group">
-            <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
-            <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly>
-        </div>
+        <!-- Campo: Coordenadas del Mapa -->
+<div class="form-group" style="display:flex;align-items:center;gap:6px;">
+    <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
+    <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly style="flex:1;">
+    <button type="button" id="btnBorrarCoords" style="width:25%;min-width:60px;max-width:110px;padding:6px 4px;font-size:14px;white-space:nowrap;">Borrar</button>
+</div>
 
         <!-- Campo: Apoyo -->
         <div class="form-group">
@@ -286,3 +288,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+

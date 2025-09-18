@@ -13,6 +13,18 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 /* ============================================ */
 
+/* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+document.getElementById("btnBorrarCoords").addEventListener("click", () => {
+    // 1. Vaciar el input
+    document.getElementById("coordenadas_mapa").value = "";
+
+    // 2. Quitar el marcador del mapa (si existe)
+    if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+    }
+});
+
 document.addEventListener("DOMContentLoaded", function () {
     var map = L.map("map").setView([39.4699, -0.3763], 10);
 
@@ -308,3 +320,4 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+

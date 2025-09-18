@@ -126,6 +126,49 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
+    // ========== VALIDACIÓN EN TIEMPO REAL DE ESPECIE (datalist) ==========
+    function validarInputDatalist(inputId, datalistId, mensajeError) {
+        const input = document.getElementById(inputId);
+        const datalist = document.getElementById(datalistId);
+
+        input.addEventListener('blur', function() {
+            const opciones = Array.from(datalist.options).map(opt => opt.value.trim());
+            if (input.value.trim() === "") return; // Si está vacío, permitir (ya lo controla el required)
+            if (!opciones.includes(input.value.trim())) {
+                alert(mensajeError);
+                input.value = "";
+                input.focus();
+            }
+        });
+    }
+
+    // Añadir después de cargar los datalist:
+    validarInputDatalist('especie_comun', 'especies-comun-list', 'Debes seleccionar una especie (nombre común) existente.');
+    validarInputDatalist('especie_cientifico', 'especies-cientifico-list', 'Debes seleccionar una especie (nombre científico) existente.');
+
+    // ======== VALIDACIÓN EXTRA AL ENVIAR FORMULARIO =========
+    document.getElementById("formulario").addEventListener("submit", function(e) {
+        // Especie común
+        const especieComunInput = document.getElementById("especie_comun");
+        const especieComunList = Array.from(document.getElementById("especies-comun-list").options).map(opt => opt.value.trim());
+        if (!especieComunInput.value.trim() || !especieComunList.includes(especieComunInput.value.trim())) {
+            alert("Debes seleccionar una especie (nombre común) válida.");
+            especieComunInput.focus();
+            e.preventDefault();
+            return;
+        }
+        // Especie científico
+        const especieCientificoInput = document.getElementById("especie_cientifico");
+        const especieCientificoList = Array.from(document.getElementById("especies-cientifico-list").options).map(opt => opt.value.trim());
+        if (!especieCientificoInput.value.trim() || !especieCientificoList.includes(especieCientificoInput.value.trim())) {
+            alert("Debes seleccionar una especie (nombre científico) válida.");
+            especieCientificoInput.focus();
+            e.preventDefault();
+            return;
+        }
+        // ...el resto de tu código de envío (no toques nada más)
+    }, true);
+
     document.getElementById("formulario").addEventListener("submit", function (e) {
         e.preventDefault();
         localStorage.removeItem('recogidasForm');

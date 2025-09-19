@@ -143,6 +143,10 @@ legend {
     margin: 0; /* Elimina márgenes adicionales */
     cursor: pointer; /* Mejora la interacción visual al clicar en el texto */
 }
+/* <-- Aquí agregas la línea para los checkboxes */
+input[type="checkbox"] {
+    accent-color: #558B2F;
+}
 
 /* Ajuste para el mapa */
 #map {
@@ -213,6 +217,7 @@ input[list] {
     font-size: 0.97em;
     color: #009688;
 }
+
 
 
 

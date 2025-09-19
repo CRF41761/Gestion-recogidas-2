@@ -64,8 +64,10 @@ input[type="tel"] {
 input,
 select,
 textarea {
-    color: #558B2F !important;  /* verde oliva vivo */
-    /* font-weight: bold; */    /* Quitado para que no esté en negrita */
+    color: #558B2F !important;          /* Verde oliva vivo para el texto */
+    border: 2.5px solid #e8f5e9 !important; /* Borde verde suave y más grueso */
+    background-color: #fff;             /* Fondo blanco para contraste */
+    /* font-weight: normal; */          /* No negrita */
 }
 
 input:read-only,
@@ -74,8 +76,8 @@ select:disabled,
 textarea:read-only,
 textarea:disabled {
     color: #558B2F !important;
+    border: 2.5px solid #e8f5e9 !important;
     opacity: 1;
-    /* font-weight: bold; */    /* Quitado para que no esté en negrita */
 }
 
 /* Ajustes para compatibilidad de selección de texto */
@@ -214,6 +216,7 @@ input[list] {
     font-size: 0.97em;
     color: #009688;
 }
+
 
 
 

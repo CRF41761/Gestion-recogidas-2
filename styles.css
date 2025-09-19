@@ -12,7 +12,7 @@
 
 body {
     padding: 20px;
-    background-color: #f4f4f4;
+    background-color: #e8f5e9; /* VERDE SUAVE */
 }
 
 h1 {
@@ -128,9 +128,6 @@ legend {
 }
 
 
-
-
-
 /* Ajuste para el mapa */
 #map {
     height: 300px;
@@ -187,6 +184,26 @@ input[list] {
     font-weight: bold; /* Resalta el texto dentro del campo */
 }
 
+/* ====== NUEVO: Destacar textos añadidos (azul verdoso) ====== */
+.texto-nuevo {
+    color: #009688; /* azul verdoso */
+    font-weight: 500;
+}
 
+/* Si quieres destacar también los pequeños textos de ayuda: */
+.form-group small.texto-nuevo {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.97em;
+    color: #009688;
+}
 
+/* Si necesitas que los labels nuevos sean todavía más llamativos, añade un subrayado suave: */
+/*
+label.texto-nuevo {
+    border-bottom: 2px solid #00968811;
+    padding-bottom: 2px;
+}
+*/
 
+/* ====== FIN DE CAMBIOS DE DISEÑO ====== */

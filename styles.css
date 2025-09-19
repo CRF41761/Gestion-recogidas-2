@@ -60,11 +60,11 @@ input[type="tel"] {
     user-select: auto;
 }
 
-/* Cambia el color del texto de TODOS los campos a azul verdoso */
+/* Cambia el color del texto de TODOS los campos a verde oliva */
 input,
 select,
 textarea {
-    color: #00897B !important;
+    color: #558B2F !important;
     font-weight: bold;
 }
 
@@ -73,7 +73,7 @@ input:disabled,
 select:disabled,
 textarea:read-only,
 textarea:disabled {
-    color: #00897B !important;
+    color: #558B2F !important;
     opacity: 1;
 }
 
@@ -213,4 +213,5 @@ input[list] {
     font-size: 0.97em;
     color: #009688;
 }
+
 

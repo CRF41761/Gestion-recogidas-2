@@ -60,6 +60,23 @@ input[type="tel"] {
     user-select: auto;
 }
 
+/* Cambia el color del texto de TODOS los campos a azul verdoso */
+input,
+select,
+textarea {
+    color: #009688 !important;
+    font-weight: bold;
+}
+
+input:read-only,
+input:disabled,
+select:disabled,
+textarea:read-only,
+textarea:disabled {
+    color: #009688 !important;
+    opacity: 1; /* Para que no se vea gris */
+}
+
 /* Ajustes para compatibilidad de selección de texto */
 .user-selectable {
     -moz-user-select: auto;
@@ -126,7 +143,6 @@ legend {
     margin: 0; /* Elimina márgenes adicionales */
     cursor: pointer; /* Mejora la interacción visual al clicar en el texto */
 }
-
 
 /* Ajuste para el mapa */
 #map {
@@ -197,13 +213,3 @@ input[list] {
     font-size: 0.97em;
     color: #009688;
 }
-
-/* Si necesitas que los labels nuevos sean todavía más llamativos, añade un subrayado suave: */
-/*
-label.texto-nuevo {
-    border-bottom: 2px solid #00968811;
-    padding-bottom: 2px;
-}
-*/
-
-/* ====== FIN DE CAMBIOS DE DISEÑO ====== */

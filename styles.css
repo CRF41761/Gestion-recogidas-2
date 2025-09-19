@@ -64,7 +64,7 @@ input[type="tel"] {
 input,
 select,
 textarea {
-    color: #009688 !important;
+    color: #00897B !important;
     font-weight: bold;
 }
 
@@ -73,8 +73,8 @@ input:disabled,
 select:disabled,
 textarea:read-only,
 textarea:disabled {
-    color: #009688 !important;
-    opacity: 1; /* Para que no se vea gris */
+    color: #00897B !important;
+    opacity: 1;
 }
 
 /* Ajustes para compatibilidad de selección de texto */
@@ -213,3 +213,4 @@ input[list] {
     font-size: 0.97em;
     color: #009688;
 }
+

@@ -14,6 +14,7 @@ document.addEventListener('touchmove', e => {
 /* ============================================ */
 
 /* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+/* ---------- Botón Borrar Coordenadas del Mapa ---------- */
 document.getElementById("btnBorrarCoords").addEventListener("click", () => {
     // 1. Detener el seguimiento GPS (si está activo)
     if (watchId !== null) {
@@ -58,7 +59,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 forzarZoomInicial = false;
                 marker ? marker.setLatLng([lat, lng])
                        : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                /* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+document.getElementById("btnBorrarCoords").addEventListener("click", () => {
+    // 1. Detener el seguimiento GPS (si está activo)
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        seguimientoActivo = false;
+    }
+
+    // 2. Vaciar el input
+    document.getElementById("coordenadas_mapa").value = "";
+
+    // 3. Quitar el marcador del mapa (si existe)
+    if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+    }
+});
             },
             err => console.error("Error GPS:", err),
             { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
@@ -79,16 +97,28 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===== MODIFICADO: Coordenadas manuales → Coordenadas del Mapa + centrado + detener seguimiento =====
     document.getElementById("coordenadas").addEventListener("change", function () {
         const raw = this.value.trim();
-        if (!raw) return;
+        if (!raw) return; // vacío, nada que hacer
+
+        // aceptamos "40.123, -0.456" o "40.123 -0.456"
         const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
-        if (partes.length !== 2) return;
+        if (partes.length !== 2) return; // formato incorrecto
+
         const lat = parseFloat(partes[0]);
         const lng = parseFloat(partes[1]);
-        if (isNaN(lat) || isNaN(lng)) return;
-        detenerSeguimiento();
+        if (isNaN(lat) || isNaN(lng)) return; // no son números
+
+        detenerSeguimiento(); // <--- Detiene el seguimiento GPS
+
+        // 1.  Copiar al campo "Coordenadas del Mapa"
         document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        if (marker) marker.setLatLng([lat, lng]); else marker = L.marker([lat, lng]).addTo(map);
-        map.setView([lat, lng], 13);
+
+        // 2.  Mover el marcador y centrar
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng]).addTo(map);
+        }
+        map.setView([lat, lng], 13); // zoom 13, ajústalo si quieres
     });
 
     // ====== NUEVO: Botón Localizar usa también detenerSeguimiento ======
@@ -97,33 +127,56 @@ document.addEventListener("DOMContentLoaded", function () {
         btnLocalizar.addEventListener("click", function () {
             const raw = document.getElementById("coordenadas").value.trim();
             if (!raw) return;
+
             const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
             if (partes.length !== 2) return;
+
             const lat = parseFloat(partes[0]);
             const lng = parseFloat(partes[1]);
             if (isNaN(lat) || isNaN(lng)) return;
-            detenerSeguimiento();
-            if (marker) marker.setLatLng([lat, lng]); else marker = L.marker([lat, lng]).addTo(map);
+
+            detenerSeguimiento(); // <--- Detiene el seguimiento GPS
+
+            // Mover marcador y centrar
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng]).addTo(map);
+            }
             map.setView([lat, lng], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
         });
     }
 
     const locateButton = document.createElement("button");
-    locateButton.textContent = "Volver a mi ubicación";
-    locateButton.type = "button";
-    Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
-    locateButton.addEventListener("click", e => {
-        e.preventDefault();
-        seguimientoActivo = true;
-        forzarZoomInicial = true;
-        if (ultimaPosicion) map.setView(ultimaPosicion, 13);
-        iniciarSeguimiento();
-    });
-    const mapElement = document.getElementById("map");
-    mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+locateButton.textContent = "Volver a mi ubicación";
+locateButton.type = "button";
+Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
 
-    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada ")
+locateButton.addEventListener("click", e => {
+    e.preventDefault();
+
+    // 1. Re-activar seguimiento
+    seguimientoActivo = true;
+    forzarZoomInicial = true;
+
+    // 2. Si ya tenemos una última posición, escribirla y centrar
+    if (ultimaPosicion) {
+        const [lat, lng] = ultimaPosicion;
+        if (marker) marker.setLatLng([lat, lng]);
+        else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+        map.setView([lat, lng], 13);
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+    }
+
+    // 3. Iniciar/reanudar el watch (cuando llegue la siguiente lectura se actualizará)
+    iniciarSeguimiento();
+});
+
+const mapElement = document.getElementById("map");
+mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -131,9 +184,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
         const datalist = document.getElementById(datalistId);
+
         input.addEventListener('blur', function() {
             const opciones = Array.from(datalist.options).map(opt => opt.value.trim());
-            if (input.value.trim() === "") return;
+            if (input.value.trim() === "") return; // Si está vacío, permitir (ya lo controla el required)
             if (!opciones.includes(input.value.trim())) {
                 alert(mensajeError);
                 input.value = "";
@@ -141,8 +195,33 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // Añadir después de cargar los datalist:
     validarInputDatalist('especie_comun', 'especies-comun-list', 'Debes seleccionar una especie (nombre común) existente.');
     validarInputDatalist('especie_cientifico', 'especies-cientifico-list', 'Debes seleccionar una especie (nombre científico) existente.');
+
+    // ======== VALIDACIÓN EXTRA AL ENVIAR FORMULARIO =========
+    document.getElementById("formulario").addEventListener("submit", function(e) {
+        // Especie común
+        const especieComunInput = document.getElementById("especie_comun");
+        const especieComunList = Array.from(document.getElementById("especies-comun-list").options).map(opt => opt.value.trim());
+        if (!especieComunInput.value.trim() || !especieComunList.includes(especieComunInput.value.trim())) {
+            alert("Debes seleccionar una especie (nombre común) válida.");
+            especieComunInput.focus();
+            e.preventDefault();
+            return;
+        }
+        // Especie científico
+        const especieCientificoInput = document.getElementById("especie_cientifico");
+        const especieCientificoList = Array.from(document.getElementById("especies-cientifico-list").options).map(opt => opt.value.trim());
+        if (!especieCientificoInput.value.trim() || !especieCientificoList.includes(especieCientificoInput.value.trim())) {
+            alert("Debes seleccionar una especie (nombre científico) válida.");
+            especieCientificoInput.focus();
+            e.preventDefault();
+            return;
+        }
+        // ...el resto de tu código de envío (no toques nada más)
+    }, true);
 
     document.getElementById("formulario").addEventListener("submit", function (e) {
         e.preventDefault();
@@ -182,13 +261,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data, btn) {
-        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec ", {
+        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         })
-            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada "))
+            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada"))
             .then(r => r.json())
             .then(d => {
                 alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
@@ -244,32 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(console.error);
 });
 
-/* ---------- RECONOCIMIENTO SIN ACENTOS ---------- */
-// quita tildes y diacríticos
-function sinAcentos(str) {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
-
-// carga cruzada sin acentos
-function cruzarSinAcentos(campoOrigen, campoDestino, campoBusqueda) {
-    const input = document.getElementById(campoOrigen);
-    const dest  = document.getElementById(campoDestino);
-
-    input.addEventListener('input', () => {
-        const texto = sinAcentos(input.value);
-        if (!texto) { dest.value = ''; return; }
-
-        // busca coincidencia que empiece por el texto (sin acentos)
-        const encontrado = especiesData.find(e => sinAcentos(e[campoBusqueda]).startsWith(texto));
-        if (encontrado) {
-            dest.value = campoBusqueda === 'nombreComun' ? encontrado.nombreCientifico : encontrado.nombreComun;
-        } else {
-            dest.value = '';
-        }
-    });
-}
-
-// Carga de especies + autocompletado SIN ACENTOS
+// Carga de especies + autocompletado
 document.addEventListener("DOMContentLoaded", () => {
     const comInput  = document.getElementById("especie_comun");
     const cienInput = document.getElementById("especie_cientifico");
@@ -278,8 +332,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("especies.json")
         .then(r => r.json())
         .then(d => {
-            especiesData.push(...d);
-            // rellena datalist (opcional, para que sigan apareciendo)
+            especiesData = d;
             const comList = document.getElementById("especies-comun-list");
             const cienList = document.getElementById("especies-cientifico-list");
             d.forEach(e => {
@@ -290,11 +343,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 opt2.value = e.nombreCientifico;
                 cienList.appendChild(opt2);
             });
-            // cruce sin acentos
-            cruzarSinAcentos('especie_comun', 'especie_cientifico', 'nombreComun');
-            cruzarSinAcentos('especie_cientifico', 'especie_comun', 'nombreCientifico');
         })
         .catch(console.error);
+
+    comInput.addEventListener("input", () => {
+        const found = especiesData.find(x => x.nombreComun === comInput.value.trim());
+        cienInput.value = found ? found.nombreCientifico : "";
+    });
+    cienInput.addEventListener("input", () => {
+        const found = especiesData.find(x => x.nombreCientifico === cienInput.value.trim());
+        comInput.value = found ? found.nombreComun : "";
+    });
 });
 
 // Service Worker

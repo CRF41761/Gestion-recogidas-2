@@ -362,3 +362,15 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
+// Botón cerrar aplicación
+const btnCerrar = document.getElementById('btnCerrar');
+if (btnCerrar) {
+  btnCerrar.addEventListener('click', () => {
+    // Cierra la ventana/pestaña (solo funciona si la ventana fue abierta por script o es PWA instalada)
+    window.close();
+    // Si no se cierra (navegador normal), avisamos:
+    if (!window.closed) {
+      alert('Puedes cerrar esta pestaña desde el navegador.');
+    }
+  });
+}

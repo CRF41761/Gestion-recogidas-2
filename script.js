@@ -1,182 +1,376 @@
-/* ---------- GOOGLE DRIVE ---------- */
-const CLIENT_ID = '688330997573-6mc9ohu23utu12emn6hgiegf884jfgp9.apps.googleusercontent.com';
-const API_KEY   = 'AIzaSyDQ5e0WCYFrk5dGjlFKzyX71pGYrhOXdCE';
-const SCOPES    = 'https://www.googleapis.com/auth/drive.file';
-let gToken      = localStorage.getItem('gdrive_token');
+/* ============================================
+   ANTI-PULL-TO-REFRESH  (Chrome/Android)
+   ============================================ */
+let touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartY = e.touches[0].screenY;
+}, { passive: true });
 
-/* ---------- AUTENTICACIÓN GOOGLE ---------- */
-if (!gToken) {
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${location.origin}&scope=${SCOPES}&response_type=token&include_granted_scopes=true`;
-  window.open(authUrl, 'auth', 'width=500,height=600');
-  window.addEventListener('load', () => {
-    const hash = location.hash;
-    if (hash.includes('access_token')) {
-      const token = hash.match(/access_token=([^&]+)/)[1];
-      localStorage.setItem('gdrive_token', token);
-      gToken = token;
-      location.hash = '';
+document.addEventListener('touchmove', e => {
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const deltaY    = e.touches[0].screenY - touchStartY;
+  if (scrollTop === 0 && deltaY > 0) e.preventDefault();
+}, { passive: false });
+/* ============================================ */
+
+/* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+/* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+document.getElementById("btnBorrarCoords").addEventListener("click", () => {
+    // 1. Detener el seguimiento GPS (si está activo)
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        seguimientoActivo = false;
+    }
+
+    // 2. Vaciar AMBOS campos de coordenadas
+    document.getElementById("coordenadas_mapa").value = "";
+    document.getElementById("coordenadas").value = "";
+
+    // 3. Quitar el marcador del mapa (si existe)
+    if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    var map = L.map("map").setView([39.4699, -0.3763], 10);
+
+    const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors"
+    });
+    const googleSat = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
+        attribution: "© Google Maps"
+    });
+    L.control.layers({ "Mapa estándar": osmMap, "Ortofotografía (satélite)": googleSat }).addTo(map);
+    osmMap.addTo(map);
+
+    let marker, watchId = null, seguimientoActivo = true, forzarZoomInicial = false, ultimaPosicion = null;
+
+    function iniciarSeguimiento() {
+        if (!navigator.geolocation) return;
+        watchId = navigator.geolocation.watchPosition(
+            pos => {
+                if (!seguimientoActivo) return;
+                const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                ultimaPosicion = [lat, lng];
+                map.setView([lat, lng], forzarZoomInicial ? 13 : map.getZoom());
+                forzarZoomInicial = false;
+                marker ? marker.setLatLng([lat, lng])
+                       : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+                /* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+document.getElementById("btnBorrarCoords").addEventListener("click", () => {
+    // 1. Detener el seguimiento GPS (si está activo)
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        seguimientoActivo = false;
+    }
+
+    // 2. Vaciar el input
+    document.getElementById("coordenadas_mapa").value = "";
+
+    // 3. Quitar el marcador del mapa (si existe)
+    if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+    }
+});
+            },
+            err => console.error("Error GPS:", err),
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+        );
+    }
+    function detenerSeguimiento() {
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        watchId = null; seguimientoActivo = false;
+    }
+    function onMapClick(e) {
+        detenerSeguimiento();
+        const latlng = e.latlng;
+        marker ? marker.setLatLng(latlng) : marker = L.marker(latlng).addTo(map);
+        document.getElementById("coordenadas_mapa").value = latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5);
+    }
+    map.on("click", onMapClick);
+
+    // ===== MODIFICADO: Coordenadas manuales → Coordenadas del Mapa + centrado + detener seguimiento =====
+    document.getElementById("coordenadas").addEventListener("change", function () {
+        const raw = this.value.trim();
+        if (!raw) return; // vacío, nada que hacer
+
+        // aceptamos "40.123, -0.456" o "40.123 -0.456"
+        const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
+        if (partes.length !== 2) return; // formato incorrecto
+
+        const lat = parseFloat(partes[0]);
+        const lng = parseFloat(partes[1]);
+        if (isNaN(lat) || isNaN(lng)) return; // no son números
+
+        detenerSeguimiento(); // <--- Detiene el seguimiento GPS
+
+        // 1.  Copiar al campo "Coordenadas del Mapa"
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+
+        // 2.  Mover el marcador y centrar
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng]).addTo(map);
+        }
+        map.setView([lat, lng], 13); // zoom 13, ajústalo si quieres
+    });
+
+    // ====== NUEVO: Botón Localizar usa también detenerSeguimiento ======
+    const btnLocalizar = document.getElementById("btnLocalizar");
+    if (btnLocalizar) {
+        btnLocalizar.addEventListener("click", function () {
+            const raw = document.getElementById("coordenadas").value.trim();
+            if (!raw) return;
+
+            const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
+            if (partes.length !== 2) return;
+
+            const lat = parseFloat(partes[0]);
+            const lng = parseFloat(partes[1]);
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            detenerSeguimiento(); // <--- Detiene el seguimiento GPS
+
+            // Mover marcador y centrar
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng]).addTo(map);
+            }
+            map.setView([lat, lng], 13);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+        });
+    }
+
+    const locateButton = document.createElement("button");
+locateButton.textContent = "Volver a mi ubicación";
+locateButton.type = "button";
+Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
+
+locateButton.addEventListener("click", e => {
+    e.preventDefault();
+
+    // 1. Re-activar seguimiento
+    seguimientoActivo = true;
+    forzarZoomInicial = true;
+
+    // 2. Si ya tenemos una última posición, escribirla y centrar
+    if (ultimaPosicion) {
+        const [lat, lng] = ultimaPosicion;
+        if (marker) marker.setLatLng([lat, lng]);
+        else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+        map.setView([lat, lng], 13);
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+    }
+
+    // 3. Iniciar/reanudar el watch (cuando llegue la siguiente lectura se actualizará)
+    iniciarSeguimiento();
+});
+
+const mapElement = document.getElementById("map");
+mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
+        .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
+        .catch(console.error);
+
+    // ========== VALIDACIÓN EN TIEMPO REAL DE ESPECIE (datalist) ==========
+    function validarInputDatalist(inputId, datalistId, mensajeError) {
+        const input = document.getElementById(inputId);
+        const datalist = document.getElementById(datalistId);
+
+        input.addEventListener('blur', function() {
+            const opciones = Array.from(datalist.options).map(opt => opt.value.trim());
+            if (input.value.trim() === "") return; // Si está vacío, permitir (ya lo controla el required)
+            if (!opciones.includes(input.value.trim())) {
+                alert(mensajeError);
+                input.value = "";
+                input.focus();
+            }
+        });
+    }
+
+    // Añadir después de cargar los datalist:
+    validarInputDatalist('especie_comun', 'especies-comun-list', 'Debes seleccionar una especie (nombre común) existente.');
+    validarInputDatalist('especie_cientifico', 'especies-cientifico-list', 'Debes seleccionar una especie (nombre científico) existente.');
+
+    // ======== VALIDACIÓN EXTRA AL ENVIAR FORMULARIO =========
+    document.getElementById("formulario").addEventListener("submit", function(e) {
+        // Especie común
+        const especieComunInput = document.getElementById("especie_comun");
+        const especieComunList = Array.from(document.getElementById("especies-comun-list").options).map(opt => opt.value.trim());
+        if (!especieComunInput.value.trim() || !especieComunList.includes(especieComunInput.value.trim())) {
+            alert("Debes seleccionar una especie (nombre común) válida.");
+            especieComunInput.focus();
+            e.preventDefault();
+            return;
+        }
+        // Especie científico
+        const especieCientificoInput = document.getElementById("especie_cientifico");
+        const especieCientificoList = Array.from(document.getElementById("especies-cientifico-list").options).map(opt => opt.value.trim());
+        if (!especieCientificoInput.value.trim() || !especieCientificoList.includes(especieCientificoInput.value.trim())) {
+            alert("Debes seleccionar una especie (nombre científico) válida.");
+            especieCientificoInput.focus();
+            e.preventDefault();
+            return;
+        }
+        // ...el resto de tu código de envío (no toques nada más)
+    }, true);
+
+    document.getElementById("formulario").addEventListener("submit", function (e) {
+        e.preventDefault();
+        localStorage.removeItem('recogidasForm');
+        const btn = document.getElementById("enviarBtn");
+        btn.disabled = true; btn.textContent = "Enviando...";
+
+        const fd = new FormData(this);
+        const data = {
+            numero_entrada: document.getElementById("numero_entrada").value,
+            especie_comun: fd.get("especie_comun"),
+            especie_cientifico: fd.get("especie_cientifico"),
+            cantidad_animales: fd.get("cantidad_animales"),
+            fecha: fd.get("fecha"),
+            municipio: fd.get("municipio"),
+            posible_causa: fd.getAll("posible_causa"),
+            remitente: fd.getAll("remitente"),
+            estado_animal: fd.getAll("estado_animal"),
+            coordenadas: fd.get("coordenadas"),
+            coordenadas_mapa: fd.get("coordenadas_mapa"),
+            apoyo: fd.get("apoyo"),
+            cra_km: fd.get("cra_km"),
+            observaciones: fd.get("observaciones"),
+            cumplimentado_por: fd.get("cumplimentado_por"),
+            telefono_remitente: fd.get("telefono_remitente"),
+            foto: ""
+        };
+
+        const file = fd.get("foto");
+        if (file && file.size) {
+            const reader = new FileReader();
+            reader.onload = ev => { data.foto = ev.target.result; enviarDatos(data, btn); };
+            reader.readAsDataURL(file);
+        } else {
+            enviarDatos(data, btn);
+        }
+    });
+
+    function enviarDatos(data, btn) {
+        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada"))
+            .then(r => r.json())
+            .then(d => {
+                alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+                sessionStorage.setItem('formEnviadoOK', '1');
+                document.getElementById("formulario").reset();
+                btn.disabled = false; btn.textContent = "Enviar";
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error al enviar.");
+                btn.disabled = false; btn.textContent = "Enviar";
+            });
+    }
+
+    const form = document.getElementById("formulario");
+    form.addEventListener('input', () => {
+        const obj = {};
+        Array.from(form.elements).forEach(el => {
+            if (!el.name) return;
+            if (el.type === 'checkbox') {
+                if (!obj[el.name]) obj[el.name] = [];
+                if (el.checked) obj[el.name].push(el.value);
+            } else if (el.type === 'radio') {
+                if (el.checked) obj[el.name] = el.value;
+            } else {
+                obj[el.name] = el.value;
+            }
+        });
+        localStorage.setItem('recogidasForm', JSON.stringify(obj));
+    });
+});
+
+/* =====  AL ARRANCAR: limpiar si NO venimos de un envío correcto  ===== */
+(() => {
+  if (!sessionStorage.getItem('formEnviadoOK')) {
+    localStorage.removeItem('recogidasForm');
+  }
+  sessionStorage.removeItem('formEnviadoOK');
+})();
+
+// Carga de municipios
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("municipios.json")
+        .then(r => r.json())
+        .then(d => {
+            const list = document.getElementById("municipios-list");
+            d.municipios.forEach(m => {
+                const opt = document.createElement("option");
+                opt.value = m;
+                list.appendChild(opt);
+            });
+        })
+        .catch(console.error);
+});
+
+// Carga de especies + autocompletado
+document.addEventListener("DOMContentLoaded", () => {
+    const comInput  = document.getElementById("especie_comun");
+    const cienInput = document.getElementById("especie_cientifico");
+    let especiesData = [];
+
+    fetch("especies.json")
+        .then(r => r.json())
+        .then(d => {
+            especiesData = d;
+            const comList = document.getElementById("especies-comun-list");
+            const cienList = document.getElementById("especies-cientifico-list");
+            d.forEach(e => {
+                const opt1 = document.createElement("option");
+                opt1.value = e.nombreComun;
+                comList.appendChild(opt1);
+                const opt2 = document.createElement("option");
+                opt2.value = e.nombreCientifico;
+                cienList.appendChild(opt2);
+            });
+        })
+        .catch(console.error);
+
+    comInput.addEventListener("input", () => {
+        const found = especiesData.find(x => x.nombreComun === comInput.value.trim());
+        cienInput.value = found ? found.nombreCientifico : "";
+    });
+    cienInput.addEventListener("input", () => {
+        const found = especiesData.find(x => x.nombreCientifico === cienInput.value.trim());
+        comInput.value = found ? found.nombreComun : "";
+    });
+});
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/Gestion-recogidas-2/service-worker.js')
+        .then(() => console.log('Service Worker registrado correctamente'))
+        .catch(error => console.error('Error al registrar el Service Worker:', error));
+}
+// Botón cerrar aplicación
+const btnCerrar = document.getElementById('btnCerrar');
+if (btnCerrar) {
+  btnCerrar.addEventListener('click', () => {
+    // Cierra la ventana/pestaña (solo funciona si la ventana fue abierta por script o es PWA instalada)
+    window.close();
+    // Si no se cierra (navegador normal), avisamos:
+    if (!window.closed) {
+      alert('Puedes cerrar esta pestaña desde el navegador.');
     }
   });
 }
-
-/* ---------- SUBIR COPIA A GOOGLE DRIVE ---------- */
-async function subirCopiaADrive(registro) {
-  if (!gToken) return;
-  const csv = [
-    Object.keys(registro).join(','),
-    Object.values(registro).map(v => `"${v}"`).join(',')
-  ].join('\n');
-  const blob      = new Blob([csv], { type: 'text/csv' });
-  const metadata  = {
-    name: `recogida_${registro.numero_entrada}_${registro.fecha}.csv`,
-    mimeType: 'text/csv',
-    parents: ['root']
-  };
-  const form = new FormData();
-  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-  form.append('file', blob);
-
-  const resp = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-    method: 'POST',
-    headers: { Authorization: 'Bearer ' + gToken },
-    body: form
-  });
-  if (resp.ok) console.log('Copia subida a Drive ✅');
-  else console.warn('Error al subir a Drive', await resp.text());
-}
-
-/* ---------- FUNCIONES AUXILIARES ---------- */
-let map;
-let marker;
-
-function generarNumeroEntrada() {
-  const hoy = new Date();
-  const yyyy = hoy.getFullYear();
-  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-  const dd = String(hoy.getDate()).padStart(2, '0');
-  const clave = `numero_entrada_${yyyy}_${mm}`;
-  const max = parseInt(localStorage.getItem(clave) || '0') + 1;
-  localStorage.setItem(clave, max);
-  return `${yyyy}-${mm}-${dd}-${String(max).padStart(3, '0')}`;
-}
-
-function cargarEspecies() {
-  fetch('especies.json')
-    .then(res => res.json())
-    .then(data => {
-      const comunList = document.getElementById('especies-comun-list');
-      const cientificoList = document.getElementById('especies-cientifico-list');
-      data.especies.forEach(e => {
-        const option1 = document.createElement('option');
-        option1.value = e.comun;
-        const option2 = document.createElement('option');
-        option2.value = e.cientifico;
-        comunList.appendChild(option1);
-        cientificoList.appendChild(option2);
-      });
-    });
-}
-
-function cargarMunicipios() {
-  fetch('municipios.json')
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('municipios-list');
-      data.municipios.forEach(m => {
-        const option = document.createElement('option');
-        option.value = m;
-        list.appendChild(option);
-      });
-    });
-}
-
-function iniciarMapa() {
-  map = L.map('map').setView([38.5, -0.5], 10);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-  map.on('click', function(e) {
-    const lat = e.latlng.lat.toFixed(6);
-    const lng = e.latlng.lng.toFixed(6);
-    document.getElementById('coordenadas_mapa').value = `${lat}, ${lng}`;
-    if (marker) map.removeLayer(marker);
-    marker = L.marker([lat, lng]).addTo(map);
-  });
-}
-
-/* ---------- BOTÓN CERRAR APP ---------- */
-document.getElementById('btnCerrar').addEventListener('click', () => {
-  if (confirm('¿Cerrar la aplicación?')) window.close();
-});
-
-/* ---------- GEOLOCALIZAR ---------- */
-document.getElementById('btnLocalizar').addEventListener('click', () => {
-  navigator.geolocation.getCurrentPosition(pos => {
-    const lat = pos.coords.latitude.toFixed(6);
-    const lng = pos.coords.longitude.toFixed(6);
-    document.getElementById('coordenadas').value = `${lat}, ${lng}`;
-  }, () => alert('No se pudo obtener la ubicación.'));
-});
-
-/* ---------- BORRAR COORDENADAS ---------- */
-document.getElementById('btnBorrarCoords').addEventListener('click', () => {
-  document.getElementById('coordenadas_mapa').value = '';
-  if (marker) map.removeLayer(marker);
-});
-
-/* ---------- BOTÓN VER COPIAS (sin desactivación) ---------- */
-document.getElementById('btnVerCopias').addEventListener('click', () => {
-  const copias = JSON.parse(localStorage.getItem('copiasRecogidas') || '[]');
-  if (!copias.length) { alert('No hay copias guardadas'); return; }
-  let texto = 'COPIAS GUARDADAS:\n\n';
-  copias.forEach((c, i) => {
-    texto += `--- Copia ${i + 1} ---\n`;
-    texto += `Nº entrada: ${c.numero_entrada}\n`;
-    texto += `Común: ${c.especie_comun}\n`;
-    texto += `Científico: ${c.especie_cientifico}\n`;
-    texto += `Fecha: ${c.fecha}\n`;
-    texto += `Municipio: ${c.municipio}\n`;
-    texto += `Timestamp: ${c.timestamp}\n\n`;
-  });
-  alert(texto);
-});
-
-/* ---------- ENVÍO DEL FORMULARIO ---------- */
-document.getElementById('formulario').addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  const btnEnviar = document.getElementById('enviarBtn');
-  btnEnviar.disabled = true;
-  setTimeout(() => btnEnviar.disabled = false, 1000); // sólo Envío
-
-  const data = Object.fromEntries(new FormData(e.target).entries());
-
-  // Procesar checkboxes
-  data.posible_causa = Array.from(document.querySelectorAll('input[name="posible_causa"]:checked')).map(el => el.value).join('; ');
-  data.remitente = Array.from(document.querySelectorAll('input[name="remitente"]:checked')).map(el => el.value).join('; ');
-  data.estado_animal = Array.from(document.querySelectorAll('input[name="estado_animal"]:checked')).map(el => el.value).join('; ');
-
-  if (!data.numero_entrada) data.numero_entrada = generarNumeroEntrada();
-
-  // Guardar copia local
-  const copia = { ...data, timestamp: new Date().toISOString() };
-  let copias = JSON.parse(localStorage.getItem('copiasRecogidas') || '[]');
-  copias.push(copia);
-  localStorage.setItem('copiasRecogidas', JSON.stringify(copias));
-
-  // Subir a Google Drive
-  await subirCopiaADrive(copia);
-
-  alert('Registro enviado y copia guardada localmente y en Google Drive.');
-  e.target.reset();
-  document.getElementById('numero_entrada').value = generarNumeroEntrada();
-  if (marker) map.removeLayer(marker);
-  document.getElementById('coordenadas_mapa').value = '';
-});
-
-/* ---------- INICIALIZACIÓN ---------- */
-window.addEventListener('DOMContentLoaded', () => {
-  cargarEspecies();
-  cargarMunicipios();
-  iniciarMapa();
-  document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
-  document.getElementById('numero_entrada').value = generarNumeroEntrada();
-});

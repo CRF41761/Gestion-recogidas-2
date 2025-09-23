@@ -1,302 +1,191 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Recogidas</title>
-    <link rel="manifest" href="/Gestion-recogidas-2/manifest.json">
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-</head>
-<body>
-    <h1>Gestión de Recogidas</h1>
-    <!-- Botón cerrar -->
-<button id="btnCerrar" aria-label="Cerrar aplicación" title="Cerrar">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-</button>
-    <form id="formulario">
+/* ---------- GOOGLE DRIVE ---------- */
+const CLIENT_ID = '688330997573-6mc9ohu23utu12emn6hgiegf884jfgp9.apps.googleusercontent.com';
+const API_KEY   = 'AIzaSyDQ5e0WCYFrk5dGjlFKzyX71pGYrhOXdCE';
+const SCOPES    = 'https://www.googleapis.com/auth/drive.file';
+let gToken      = localStorage.getItem('gdrive_token');
 
-        <!-- Número de entrada -->
-        <div class="form-group">
-            <label for="numero_entrada">Número de entrada:</label>
-            <input type="text" id="numero_entrada" name="numero_entrada" readonly>
-        </div>
+/* ---------- AUTENTICACIÓN GOOGLE ---------- */
+if (!gToken) {
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${location.origin}&scope=${SCOPES}&response_type=token&include_granted_scopes=true`;
+  window.open(authUrl, 'auth', 'width=500,height=600');
+  window.addEventListener('load', () => {
+    const hash = location.hash;
+    if (hash.includes('access_token')) {
+      const token = hash.match(/access_token=([^&]+)/)[1];
+      localStorage.setItem('gdrive_token', token);
+      gToken = token;
+      location.hash = '';
+    }
+  });
+}
 
-       <!-- Especie común -->
-<div class="form-group">
-    <label for="especie_comun">Especie (nombre común):</label>
-<input list="especies-comun-list" id="especie_comun" name="especie_comun" required spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
-    <datalist id="especies-comun-list"></datalist>
-</div>
+/* ---------- SUBIR COPIA A GOOGLE DRIVE ---------- */
+async function subirCopiaADrive(registro) {
+  if (!gToken) return;
+  const csv = [
+    Object.keys(registro).join(','),
+    Object.values(registro).map(v => `"${v}"`).join(',')
+  ].join('\n');
+  const blob      = new Blob([csv], { type: 'text/csv' });
+  const metadata  = {
+    name: `recogida_${registro.numero_entrada}_${registro.fecha}.csv`,
+    mimeType: 'text/csv',
+    parents: ['root']
+  };
+  const form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+  form.append('file', blob);
 
-<!-- Especie científica -->
-<div class="form-group">
-    <label for="especie_cientifico">Especie (nombre científico):</label>
-    <input list="especies-cientifico-list" id="especie_cientifico" name="especie_cientifico" required spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
-    <datalist id="especies-cientifico-list"></datalist>
-</div>
+  const resp = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + gToken },
+    body: form
+  });
+  if (resp.ok) console.log('Copia subida a Drive ✅');
+  else console.warn('Error al subir a Drive', await resp.text());
+}
 
-        <!-- Cantidad de ejemplares -->
-        <div class="form-group">
-            <label for="cantidad_animales">Cantidad de ejemplares:</label>
-            <input type="number" id="cantidad_animales" name="cantidad_animales" min="1" required>
-        </div>
+/* ---------- FUNCIONES AUXILIARES ---------- */
+let map;
+let marker;
 
-        <!-- Fecha -->
-        <div class="form-group">
-            <label for="fecha">Fecha:</label>
-            <input type="date" id="fecha" name="fecha" required>
-        </div>
+function generarNumeroEntrada() {
+  const hoy = new Date();
+  const yyyy = hoy.getFullYear();
+  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoy.getDate()).padStart(2, '0');
+  const clave = `numero_entrada_${yyyy}_${mm}`;
+  const max = parseInt(localStorage.getItem(clave) || '0') + 1;
+  localStorage.setItem(clave, max);
+  return `${yyyy}-${mm}-${dd}-${String(max).padStart(3, '0')}`;
+}
 
-        <!-- Municipio -->
-        <div class="form-group">
-            <label for="municipio">Municipio:</label>
-            <input list="municipios-list" id="municipio" name="municipio" required>
-            <datalist id="municipios-list"></datalist>
-        </div>
+function cargarEspecies() {
+  fetch('especies.json')
+    .then(res => res.json())
+    .then(data => {
+      const comunList = document.getElementById('especies-comun-list');
+      const cientificoList = document.getElementById('especies-cientifico-list');
+      data.especies.forEach(e => {
+        const option1 = document.createElement('option');
+        option1.value = e.comun;
+        const option2 = document.createElement('option');
+        option2.value = e.cientifico;
+        comunList.appendChild(option1);
+        cientificoList.appendChild(option2);
+      });
+    });
+}
 
-        <!-- Campo: Posible Causa -->
-        <fieldset>
-            <legend>Posible Causa</legend>
-            <div class="checkbox-grid">
-                <!-- Primera columna -->
-                <div>
-                    <div>
-                        <label for="ahogamiento">Ahogamiento</label>
-                        <input type="checkbox" id="ahogamiento" name="posible_causa" value="Ahogamiento">
-                    </div>
-                    <div>
-                        <label for="atrapado">Atrapado</label>
-                        <input type="checkbox" id="atrapado" name="posible_causa" value="Atrapado">
-                    </div>
-                    <div>
-                        <label for="atropello">Atropello</label>
-                        <input type="checkbox" id="atropello" name="posible_causa" value="Atropello">
-                    </div>
-                    <div>
-                        <label for="cria">Cría</label>
-                        <input type="checkbox" id="cria" name="posible_causa" value="Cría">
-                    </div>
-                    <div>
-                        <label for="decomiso">Decomiso</label>
-                        <input type="checkbox" id="decomiso" name="posible_causa" value="Decomiso">
-                    </div>
-                    <div>
-                        <label for="depredacion">Depredación</label>
-                        <input type="checkbox" id="depredacion" name="posible_causa" value="Depredación">
-                    </div>
-                    <div>
-                        <label for="desnutricion">Desnutrición</label>
-                        <input type="checkbox" id="desnutricion" name="posible_causa" value="Desnutrición">
-                    </div>
-                    <div>
-                        <label for="disparo">Disparo</label>
-                        <input type="checkbox" id="disparo" name="posible_causa" value="Disparo">
-                    </div>
-                    <div>
-                        <label for="electrocucion">Electrocución</label>
-                        <input type="checkbox" id="electrocucion" name="posible_causa" value="Electrocución">
-                    </div>
-                </div>
+function cargarMunicipios() {
+  fetch('municipios.json')
+    .then(res => res.json())
+    .then(data => {
+      const list = document.getElementById('municipios-list');
+      data.municipios.forEach(m => {
+        const option = document.createElement('option');
+        option.value = m;
+        list.appendChild(option);
+      });
+    });
+}
 
-                <!-- Segunda columna -->
-                <div>
-                    <div>
-                        <label for="cautividad">Cautividad</label>
-                        <input type="checkbox" id="cautividad" name="posible_causa" value="Cautividad">
-                    </div>
-                    <div>
-                        <label for="hallazgo">Hallazgo</label>
-                        <input type="checkbox" id="hallazgo" name="posible_causa" value="Hallazgo">
-                    </div>
-                    <div>
-                        <label for="indeterminada">Indeterminada</label>
-                        <input type="checkbox" id="indeterminada" name="posible_causa" value="Indeterminada">
-                    </div>
-                    <div>
-                        <label for="infecciosa">Infecciosa</label>
-                        <input type="checkbox" id="infecciosa" name="posible_causa" value="Infecciosa">
-                    </div>
-                    <div>
-                        <label for="intoxicacion">Intoxicación</label>
-                        <input type="checkbox" id="intoxicacion" name="posible_causa" value="Intoxicación">
-                    </div>
-                    <div>
-                        <label for="nacido_centro">Nacido en el Centro</label>
-                        <input type="checkbox" id="nacido_centro" name="posible_causa" value="Nacido en el Centro">
-                    </div>
-                    <div>
-                        <label for="trampeo">Trampeo</label>
-                        <input type="checkbox" id="trampeo" name="posible_causa" value="Trampeo">
-                    </div>
-                    <div>
-                        <label for="traumatismo">Traumatismo</label>
-                        <input type="checkbox" id="traumatismo" name="posible_causa" value="Traumatismo">
-                    </div>
-                    <div>
-                        <label for="otras">Otras</label>
-                        <input type="checkbox" id="otras" name="posible_causa" value="Otras">
-                    </div>
-                    <div>
-                        <input type="text" id="otras_texto" name="otras_texto" placeholder="Especificar...">
-                    </div>
-                </div>
-            </div>
-        </fieldset>
+function iniciarMapa() {
+  map = L.map('map').setView([38.5, -0.5], 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  map.on('click', function(e) {
+    const lat = e.latlng.lat.toFixed(6);
+    const lng = e.latlng.lng.toFixed(6);
+    document.getElementById('coordenadas_mapa').value = `${lat}, ${lng}`;
+    if (marker) map.removeLayer(marker);
+    marker = L.marker([lat, lng]).addTo(map);
+  });
+}
 
-        <!-- Campo: Remitente -->
-        <fieldset>
-            <legend>Remitente</legend>
-            <div class="checkbox-grid">
-                <!-- Primera columna -->
-                <div>
-                    <div>
-                        <label for="medioambiental">A. Medioambiental</label>
-                        <input type="checkbox" id="medioambiental" name="remitente" value="A. Medioambiental">
-                    </div>
-                    <div>
-                        <label for="ayuntamiento">Ayuntamiento</label>
-                        <input type="checkbox" id="ayuntamiento" name="remitente" value="Ayuntamiento">
-                    </div>
-                    <div>
-                        <label for="crf_forn">CRF Forn del Vidre</label>
-                        <input type="checkbox" id="crf_forn" name="remitente" value="CRF Forn del Vidre">
-                    </div>
-                    <div>
-                        <label for="crf_santa_faz">CRF Santa Faz</label>
-                        <input type="checkbox" id="crf_santa_faz" name="remitente" value="CRF Santa Faz">
-                    </div>
-                    <div>
-                        <label for="cruz_roja">Cruz Roja</label>
-                        <input type="checkbox" id="cruz_roja" name="remitente" value="Cruz Roja">
-                    </div>
-                </div>
+/* ---------- BOTÓN CERRAR APP ---------- */
+document.getElementById('btnCerrar').addEventListener('click', () => {
+  if (confirm('¿Cerrar la aplicación?')) window.close();
+});
 
-                <!-- Segunda columna -->
-                <div>
-                    <div>
-                        <label for="guardia_civil">Guardia Civil</label>
-                        <input type="checkbox" id="guardia_civil" name="remitente" value="Guardia Civil">
-                    </div>
-                    <div>
-                        <label for="iberdrola">Iberdrola</label>
-                        <input type="checkbox" id="iberdrola" name="remitente" value="Iberdrola">
-                    </div>
-                    <div>
-                        <label for="personal_conselleria">Personal de Conselleria</label>
-                        <input type="checkbox" id="personal_conselleria" name="remitente" value="Personal de Conselleria">
-                    </div>
-                    <div>
-                        <label for="particular">Particular</label>
-                        <input type="checkbox" id="particular" name="remitente" value="Particular">
-                    </div>
-                    <div>
-                        <label for="otras_remitente">Otras</label>
-                        <input type="checkbox" id="otras_remitente" name="remitente" value="Otras">
-                    </div>
-                    <div>
-                        <input type="text" id="otras_remitente_texto" name="otras_remitente_texto" placeholder="Especificar...">
-                    </div>
-                </div>
-            </div>
-        </fieldset>
+/* ---------- GEOLOCALIZAR ---------- */
+document.getElementById('btnLocalizar').addEventListener('click', () => {
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude.toFixed(6);
+    const lng = pos.coords.longitude.toFixed(6);
+    document.getElementById('coordenadas').value = `${lat}, ${lng}`;
+  }, () => alert('No se pudo obtener la ubicación.'));
+});
 
-        <!-- Campo: Estado del Animal -->
-        <fieldset>
-            <legend>Estado del Animal</legend>
-            <div class="checkbox-grid">
-                <!-- Primera columna -->
-                <div>
-                    <div>
-                        <label for="animal_vivo">Animal Vivo</label>
-                        <input type="checkbox" id="animal_vivo" name="estado_animal" value="Animal Vivo">
-                    </div>
-                    <div>
-                        <label for="cadaver">Cadáver</label>
-                        <input type="checkbox" id="cadaver" name="estado_animal" value="Cadáver">
-                    </div>
-                </div>
+/* ---------- BORRAR COORDENADAS ---------- */
+document.getElementById('btnBorrarCoords').addEventListener('click', () => {
+  document.getElementById('coordenadas_mapa').value = '';
+  if (marker) map.removeLayer(marker);
+});
 
-                <!-- Segunda columna -->
-                <div>
-                    <div>
-                        <label for="recoge_centro">Recoge Centro</label>
-                        <input type="checkbox" id="recoge_centro" name="estado_animal" value="Recoge Centro">
-                    </div>
-                    <div>
-                        <label for="recuperacion">Recuperación</label>
-                        <input type="checkbox" id="recuperacion" name="estado_animal" value="Recuperación">
-                    </div>
-                </div>
-            </div>
-        </fieldset>
+/* ---------- BOTÓN VER COPIAS ---------- */
+document.getElementById('btnVerCopias').addEventListener('click', () => {
+  const copias = JSON.parse(localStorage.getItem('copiasRecogidas') || '[]');
+  if (!copias.length) { alert('No hay copias guardadas'); return; }
+  let texto = 'COPIAS GUARDADAS:\n\n';
+  copias.forEach((c, i) => {
+    texto += `--- Copia ${i + 1} ---\n`;
+    texto += `Nº entrada: ${c.numero_entrada}\n`;
+    texto += `Común: ${c.especie_comun}\n`;
+    texto += `Científico: ${c.especie_cientifico}\n`;
+    texto += `Fecha: ${c.fecha}\n`;
+    texto += `Municipio: ${c.municipio}\n`;
+    texto += `Timestamp: ${c.timestamp}\n\n`;
+  });
+  alert(texto);
+});
 
-               <!-- Campos adicionales -->
-        <div class="form-group" style="display:flex;align-items:center;gap:6px;">
-            <label for="coordenadas">Coordenadas:</label>
-            <input type="text" id="coordenadas" name="coordenadas" style="flex:1;">
-            <button type="button" id="btnLocalizar" style="width:25%;min-width:60px;max-width:110px;padding:6px 4px;font-size:14px;white-space:nowrap;">Localizar</button>
-</div>
+/* ---------- ENVÍO DEL FORMULARIO ---------- */
+document.getElementById('formulario').addEventListener('submit', async function(e) {
+  e.preventDefault();
 
-        <!-- Mapa -->
-        <div id="map" style="height: 300px;"></div>
+  const btnEnviar = document.getElementById('enviarBtn');
+  const btnVerCopias = document.getElementById('btnVerCopias');
+  btnEnviar.disabled = true;
+  btnVerCopias.disabled = true;
+  setTimeout(() => {
+    btnEnviar.disabled = false;
+    btnVerCopias.disabled = false;
+  }, 1000);
 
-        <!-- Campo: Coordenadas del Mapa -->
-        <!-- Campo: Coordenadas del Mapa -->
-<div class="form-group" style="display:flex;align-items:center;gap:6px;">
-    <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
-    <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly style="flex:1;">
-    <button type="button" id="btnBorrarCoords" style="width:25%;min-width:60px;max-width:110px;padding:6px 4px;font-size:14px;white-space:nowrap;">Borrar</button>
-</div>
+  const data = Object.fromEntries(new FormData(e.target).entries());
 
-        <!-- Campo: Apoyo -->
-        <div class="form-group">
-            <label for="apoyo">Apoyo:</label>
-            <input type="text" id="apoyo" name="apoyo">
-        </div>
+  // Procesar checkboxes
+  data.posible_causa = Array.from(document.querySelectorAll('input[name="posible_causa"]:checked')).map(el => el.value).join('; ');
+  data.remitente = Array.from(document.querySelectorAll('input[name="remitente"]:checked')).map(el => el.value).join('; ');
+  data.estado_animal = Array.from(document.querySelectorAll('input[name="estado_animal"]:checked')).map(el => el.value).join('; ');
 
-        <!-- Campo: CRA y KM -->
-        <div class="form-group">
-            <label for="cra_km">CRA y KM:</label>
-            <input type="text" id="cra_km" name="cra_km">
-        </div>
+  if (!data.numero_entrada) data.numero_entrada = generarNumeroEntrada();
 
-        <!-- Campo: Observaciones -->
-        <div class="form-group">
-            <label for="observaciones">Observaciones:</label>
-            <textarea id="observaciones" name="observaciones"></textarea>
-        </div>
+  // Guardar copia local
+  const copia = { ...data, timestamp: new Date().toISOString() };
+  let copias = JSON.parse(localStorage.getItem('copiasRecogidas') || '[]');
+  copias.push(copia);
+  localStorage.setItem('copiasRecogidas', JSON.stringify(copias));
 
-        <!-- Campo: Cumplimentado por -->
-        <div class="form-group">
-            <label for="cumplimentado_por">Cumplimentado por:</label>
-            <input type="text" id="cumplimentado_por" name="cumplimentado_por">
-        </div>
+  // Subir a Google Drive
+  await subirCopiaADrive(copia);
 
-        <!-- Campo: Teléfono Remitente -->
-        <div class="form-group">
-            <label for="telefono_remitente">Teléfono Remitente:</label>
-            <input type="tel" id="telefono_remitente" name="telefono_remitente">
-        </div>
+  alert('Registro enviado y copia guardada localmente y en Google Drive.');
+  e.target.reset();
+  document.getElementById('numero_entrada').value = generarNumeroEntrada();
+  if (marker) map.removeLayer(marker);
+  document.getElementById('coordenadas_mapa').value = '';
+});
 
-        <!-- Campo para tomar una foto -->
-        <div class="form-group">
-            <label for="foto">Tomar una foto:</label>
-            <input type="file" id="foto" name="foto" accept="image/*" capture="environment">
-        </div>
+/* ---------- INICIALIZACIÓN ---------- */
+window.addEventListener('DOMContentLoaded', () => {
+  cargarEspecies();
+  cargarMunicipios();
+  iniciarMapa();
+  document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('numero_entrada').value = generarNumeroEntrada();
+});
 
-        <!-- Botón de Envío -->
-        <button type="submit" id="enviarBtn">Enviar</button>
-        <!-- Botón ver copias -->
-<button type="button" id="btnVerCopias" style="margin-top:10px;">Ver copias guardadas</button>
-    </form>
-    <script src="script.js"></script>
-</body>
-</html>
 
 
 

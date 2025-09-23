@@ -65,7 +65,6 @@ input,
 select,
 textarea {
     color: #558B2F !important;  /* verde oliva vivo */
-    /* font-weight: bold; */    /* Quitado para que no esté en negrita */
 }
 
 input:read-only,
@@ -75,16 +74,16 @@ textarea:read-only,
 textarea:disabled {
     color: #558B2F !important;
     opacity: 1;
-    /* font-weight: bold; */    /* Quitado para que no esté en negrita */
 }
+
 /* ESTILO PARA EL FOCO (cuando el campo está activo) */
 input:focus,
 select:focus,
 textarea:focus {
     outline: 2px solid #558B2F !important;
     border-color: #558B2F !important;
-    /* box-shadow: 0 0 0 2px #558B2F;  // Descomenta para un efecto más suave */
 }
+
 /* Ajustes para compatibilidad de selección de texto */
 .user-selectable {
     -moz-user-select: auto;
@@ -151,6 +150,7 @@ legend {
     margin: 0; /* Elimina márgenes adicionales */
     cursor: pointer; /* Mejora la interacción visual al clicar en el texto */
 }
+
 /* <-- Aquí agregas la línea para los checkboxes */
 input[type="checkbox"] {
     accent-color: #558B2F;
@@ -225,6 +225,7 @@ input[list] {
     font-size: 0.97em;
     color: #009688;
 }
+/* Botón Cerrar (ya existente en tu CSS) */
 #btnCerrar {
   position: fixed;
   top: 12px;
@@ -245,9 +246,23 @@ input[list] {
 #btnCerrar:hover { background: #fff; }
 #btnCerrar svg { width: 20px; height: 20px; color: #333; }
 
-
-
-
-
-
-
+/* ---------- NUEVO: BOTÓN VER COPIAS ---------- */
+#btnVerCopias {
+  margin-top: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  background: #6c757d;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%; /* ocupa todo el ancho del formulario */
+}
+#btnVerCopias:hover {
+  background: #5a6268;
+}
+#btnVerCopias:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+}

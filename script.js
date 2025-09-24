@@ -14,14 +14,20 @@ document.addEventListener('touchmove', e => {
 /* ============================================ */
 
 /* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+/* ---------- Botón Borrar Coordenadas del Mapa ---------- */
 document.getElementById("btnBorrarCoords").addEventListener("click", () => {
+    // 1. Detener el seguimiento GPS (si está activo)
     if (watchId !== null) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
         seguimientoActivo = false;
     }
+
+    // 2. Vaciar AMBOS campos de coordenadas
     document.getElementById("coordenadas_mapa").value = "";
     document.getElementById("coordenadas").value = "";
+
+    // 3. Quitar el marcador del mapa (si existe)
     if (marker) {
         map.removeLayer(marker);
         marker = null;
@@ -53,7 +59,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 forzarZoomInicial = false;
                 marker ? marker.setLatLng([lat, lng])
                        : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                /* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+document.getElementById("btnBorrarCoords").addEventListener("click", () => {
+    // 1. Detener el seguimiento GPS (si está activo)
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        seguimientoActivo = false;
+    }
+
+    // 2. Vaciar el input
+    document.getElementById("coordenadas_mapa").value = "";
+
+    // 3. Quitar el marcador del mapa (si existe)
+    if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+    }
+});
             },
             err => console.error("Error GPS:", err),
             { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
@@ -71,73 +94,135 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     map.on("click", onMapClick);
 
+    // ===== MODIFICADO: Coordenadas manuales → Coordenadas del Mapa + centrado + detener seguimiento =====
     document.getElementById("coordenadas").addEventListener("change", function () {
         const raw = this.value.trim();
-        if (!raw) return;
+        if (!raw) return; // vacío, nada que hacer
+
+        // aceptamos "40.123, -0.456" o "40.123 -0.456"
         const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
-        if (partes.length !== 2) return;
+        if (partes.length !== 2) return; // formato incorrecto
+
         const lat = parseFloat(partes[0]);
         const lng = parseFloat(partes[1]);
-        if (isNaN(lat) || isNaN(lng)) return;
-        detenerSeguimiento();
+        if (isNaN(lat) || isNaN(lng)) return; // no son números
+
+        detenerSeguimiento(); // <--- Detiene el seguimiento GPS
+
+        // 1.  Copiar al campo "Coordenadas del Mapa"
         document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        if (marker) marker.setLatLng([lat, lng]); else marker = L.marker([lat, lng]).addTo(map);
-        map.setView([lat, lng], 13);
+
+        // 2.  Mover el marcador y centrar
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng]).addTo(map);
+        }
+        map.setView([lat, lng], 13); // zoom 13, ajústalo si quieres
     });
 
+    // ====== NUEVO: Botón Localizar usa también detenerSeguimiento ======
     const btnLocalizar = document.getElementById("btnLocalizar");
     if (btnLocalizar) {
         btnLocalizar.addEventListener("click", function () {
             const raw = document.getElementById("coordenadas").value.trim();
             if (!raw) return;
+
             const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
             if (partes.length !== 2) return;
+
             const lat = parseFloat(partes[0]);
             const lng = parseFloat(partes[1]);
             if (isNaN(lat) || isNaN(lng)) return;
-            detenerSeguimiento();
-            if (marker) marker.setLatLng([lat, lng]); else marker = L.marker([lat, lng]).addTo(map);
+
+            detenerSeguimiento(); // <--- Detiene el seguimiento GPS
+
+            // Mover marcador y centrar
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng]).addTo(map);
+            }
             map.setView([lat, lng], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
         });
     }
 
     const locateButton = document.createElement("button");
-    locateButton.textContent = "Volver a mi ubicación";
-    locateButton.type = "button";
-    Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
-    locateButton.addEventListener("click", e => {
-        e.preventDefault();
-        seguimientoActivo = true; forzarZoomInicial = true;
-        if (ultimaPosicion) {
-            const [lat, lng] = ultimaPosicion;
-            if (marker) marker.setLatLng([lat, lng]); else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-            map.setView([lat, lng], 13); document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        }
-        iniciarSeguimiento();
-    });
-    const mapElement = document.getElementById("map");
-    mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+locateButton.textContent = "Volver a mi ubicación";
+locateButton.type = "button";
+Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
 
-    // 2. QUITAR LECTURA INICIAL DEL NÚMERO
-    // fetch(url + "?getNumeroEntrada")...  <-- ESTO YA NO SE USA
+locateButton.addEventListener("click", e => {
+    e.preventDefault();
 
-    // Validación datalist
+    // 1. Re-activar seguimiento
+    seguimientoActivo = true;
+    forzarZoomInicial = true;
+
+    // 2. Si ya tenemos una última posición, escribirla y centrar
+    if (ultimaPosicion) {
+        const [lat, lng] = ultimaPosicion;
+        if (marker) marker.setLatLng([lat, lng]);
+        else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+        map.setView([lat, lng], 13);
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+    }
+
+    // 3. Iniciar/reanudar el watch (cuando llegue la siguiente lectura se actualizará)
+    iniciarSeguimiento();
+});
+
+const mapElement = document.getElementById("map");
+mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
+        .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
+        .catch(console.error);
+
+    // ========== VALIDACIÓN EN TIEMPO REAL DE ESPECIE (datalist) ==========
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
         const datalist = document.getElementById(datalistId);
+
         input.addEventListener('blur', function() {
             const opciones = Array.from(datalist.options).map(opt => opt.value.trim());
-            if (input.value.trim() && !opciones.includes(input.value.trim())) {
+            if (input.value.trim() === "") return; // Si está vacío, permitir (ya lo controla el required)
+            if (!opciones.includes(input.value.trim())) {
                 alert(mensajeError);
-                input.value = ""; input.focus();
+                input.value = "";
+                input.focus();
             }
         });
     }
+
+    // Añadir después de cargar los datalist:
     validarInputDatalist('especie_comun', 'especies-comun-list', 'Debes seleccionar una especie (nombre común) existente.');
     validarInputDatalist('especie_cientifico', 'especies-cientifico-list', 'Debes seleccionar una especie (nombre científico) existente.');
 
-    // Envío del formulario
+    // ======== VALIDACIÓN EXTRA AL ENVIAR FORMULARIO =========
+    document.getElementById("formulario").addEventListener("submit", function(e) {
+        // Especie común
+        const especieComunInput = document.getElementById("especie_comun");
+        const especieComunList = Array.from(document.getElementById("especies-comun-list").options).map(opt => opt.value.trim());
+        if (!especieComunInput.value.trim() || !especieComunList.includes(especieComunInput.value.trim())) {
+            alert("Debes seleccionar una especie (nombre común) válida.");
+            especieComunInput.focus();
+            e.preventDefault();
+            return;
+        }
+        // Especie científico
+        const especieCientificoInput = document.getElementById("especie_cientifico");
+        const especieCientificoList = Array.from(document.getElementById("especies-cientifico-list").options).map(opt => opt.value.trim());
+        if (!especieCientificoInput.value.trim() || !especieCientificoList.includes(especieCientificoInput.value.trim())) {
+            alert("Debes seleccionar una especie (nombre científico) válida.");
+            especieCientificoInput.focus();
+            e.preventDefault();
+            return;
+        }
+        // ...el resto de tu código de envío (no toques nada más)
+    }, true);
+
     document.getElementById("formulario").addEventListener("submit", function (e) {
         e.preventDefault();
         localStorage.removeItem('recogidasForm');
@@ -146,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const fd = new FormData(this);
         const data = {
-            // 1. QUITAR numero_entrada del envío
+            numero_entrada: document.getElementById("numero_entrada").value,
             especie_comun: fd.get("especie_comun"),
             especie_cientifico: fd.get("especie_cientifico"),
             cantidad_animales: fd.get("cantidad_animales"),
@@ -176,32 +261,27 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data, btn) {
-        const url = "https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec";
-
-        fetch(url, {
+        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         })
-        .then(() => fetch(url + "?getNumeroEntrada", { method: "GET", mode: "cors" }))
-        .then(r => r.json())
-        .then(d => {
-            // 3. Actualizar mensaje de éxito y mostrar número
-            document.getElementById("numero_entrada").value = d.numeroEntrada;
-            alert(`✅ Entrada registrada con número: ${d.numeroEntrada}`);
-            sessionStorage.setItem('formEnviadoOK', '1');
-            document.getElementById("formulario").reset();
-            btn.disabled = false; btn.textContent = "Enviar";
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error al enviar.");
-            btn.disabled = false; btn.textContent = "Enviar";
-        });
+            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada"))
+            .then(r => r.json())
+            .then(d => {
+                alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+                sessionStorage.setItem('formEnviadoOK', '1');
+                document.getElementById("formulario").reset();
+                btn.disabled = false; btn.textContent = "Enviar";
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error al enviar.");
+                btn.disabled = false; btn.textContent = "Enviar";
+            });
     }
 
-    // Auto-guardado en localStorage
     const form = document.getElementById("formulario");
     form.addEventListener('input', () => {
         const obj = {};
@@ -222,11 +302,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /* =====  AL ARRANCAR: limpiar si NO venimos de un envío correcto  ===== */
 (() => {
-  if (!sessionStorage.getItem('formEnviadoOK')) localStorage.removeItem('recogidasForm');
+  if (!sessionStorage.getItem('formEnviadoOK')) {
+    localStorage.removeItem('recogidasForm');
+  }
   sessionStorage.removeItem('formEnviadoOK');
 })();
 
-// Carga municipios
+// Carga de municipios
 document.addEventListener("DOMContentLoaded", () => {
     fetch("municipios.json")
         .then(r => r.json())
@@ -241,7 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(console.error);
 });
 
-// Carga especies + sincronía común/científico
+// Carga de especies + autocompletado
 document.addEventListener("DOMContentLoaded", () => {
     const comInput  = document.getElementById("especie_comun");
     const cienInput = document.getElementById("especie_cientifico");
@@ -280,12 +362,15 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker registrado correctamente'))
         .catch(error => console.error('Error al registrar el Service Worker:', error));
 }
-
-// Botón cerrar
+// Botón cerrar aplicación
 const btnCerrar = document.getElementById('btnCerrar');
 if (btnCerrar) {
   btnCerrar.addEventListener('click', () => {
+    // Cierra la ventana/pestaña (solo funciona si la ventana fue abierta por script o es PWA instalada)
     window.close();
-    if (!window.closed) alert('Puedes cerrar esta pestaña desde el navegador.');
+    // Si no se cierra (navegador normal), avisamos:
+    if (!window.closed) {
+      alert('Puedes cerrar esta pestaña desde el navegador.');
+    }
   });
 }

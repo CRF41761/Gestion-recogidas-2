@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
 </head>
 <body>
+
   <h1>Gestión de Recogidas</h1>
 
   <!-- Botón cerrar -->
@@ -20,7 +21,7 @@
     </svg>
   </button>
 
-  <!-- FORMULARIO ORIGINAL -->
+  <!-- FORMULARIO ORIGINAL (INTACTO) -->
   <form id="formulario">
 
     <!-- Número de entrada -->
@@ -66,7 +67,31 @@
     <fieldset>
       <legend>Posible Causa</legend>
       <div class="checkbox-grid">
-        <!-- (todos tus checkboxes aquí) -->
+        <!-- Primera columna -->
+        <div>
+          <div><label><input type="checkbox" name="posible_causa" value="Ahogamiento"> Ahogamiento</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Atrapado"> Atrapado</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Atropello"> Atropello</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Cría"> Cría</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Decomiso"> Decomiso</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Depredación"> Depredación</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Desnutrición"> Desnutrición</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Disparo"> Disparo</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Electrocución"> Electrocución</label></div>
+        </div>
+        <!-- Segunda columna -->
+        <div>
+          <div><label><input type="checkbox" name="posible_causa" value="Cautividad"> Cautividad</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Hallazgo"> Hallazgo</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Indeterminada"> Indeterminada</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Infecciosa"> Infecciosa</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Intoxicación"> Intoxicación</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Nacido en el Centro"> Nacido en el Centro</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Trampeo"> Trampeo</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Traumatismo"> Traumatismo</label></div>
+          <div><label><input type="checkbox" name="posible_causa" value="Otras"> Otras</label></div>
+          <div><input type="text" id="otras_texto" name="otras_texto" placeholder="Especificar..."></div>
+        </div>
       </div>
     </fieldset>
 
@@ -74,7 +99,21 @@
     <fieldset>
       <legend>Remitente</legend>
       <div class="checkbox-grid">
-        <!-- (todos tus checkboxes aquí) -->
+        <div>
+          <div><label><input type="checkbox" name="remitente" value="A. Medioambiental"> A. Medioambiental</label></div>
+          <div><label><input type="checkbox" name="remitente" value="Ayuntamiento"> Ayuntamiento</label></div>
+          <div><label><input type="checkbox" name="remitente" value="CRF Forn del Vidre"> CRF Forn del Vidre</label></div>
+          <div><label><input type="checkbox" name="remitente" value="CRF Santa Faz"> CRF Santa Faz</label></div>
+          <div><label><input type="checkbox" name="remitente" value="Cruz Roja"> Cruz Roja</label></div>
+        </div>
+        <div>
+          <div><label><input type="checkbox" name="remitente" value="Guardia Civil"> Guardia Civil</label></div>
+          <div><label><input type="checkbox" name="remitente" value="Iberdrola"> Iberdrola</label></div>
+          <div><label><input type="checkbox" name="remitente" value="Personal de Conselleria"> Personal de Conselleria</label></div>
+          <div><label><input type="checkbox" name="remitente" value="Particular"> Particular</label></div>
+          <div><label><input type="checkbox" name="remitente" value="Otras"> Otras</label></div>
+          <div><input type="text" id="otras_remitente_texto" name="otras_remitente_texto" placeholder="Especificar..."></div>
+        </div>
       </div>
     </fieldset>
 
@@ -82,7 +121,14 @@
     <fieldset>
       <legend>Estado del Animal</legend>
       <div class="checkbox-grid">
-        <!-- (todos tus checkboxes aquí) -->
+        <div>
+          <div><label><input type="checkbox" name="estado_animal" value="Animal Vivo"> Animal Vivo</label></div>
+          <div><label><input type="checkbox" name="estado_animal" value="Cadáver"> Cadáver</label></div>
+        </div>
+        <div>
+          <div><label><input type="checkbox" name="estado_animal" value="Recoge Centro"> Recoge Centro</label></div>
+          <div><label><input type="checkbox" name="estado_animal" value="Recuperación"> Recuperación</label></div>
+        </div>
       </div>
     </fieldset>
 
@@ -142,31 +188,32 @@
     <!-- Botón Enviar -->
     <button type="submit" id="enviarBtn">Enviar</button>
 
-    <!-- SEPARADOR Y BOTONES DE CONSULTA -->
-    <div style="margin-top: 40px;"></div>
-
-    <div style="text-align: center; margin-bottom: 20px;">
-      <button type="button" id="btnConsultarPDFs">📄 Consultar PDFs</button>
-      <button type="button" id="btnConsultarEntrada">🔍 Consultar Entrada</button>
-    </div>
-
-    <!-- PANEL CONSULTA PDFs (oculto al principio) -->
-    <div id="panelPDFs" style="display:none; margin-top:15px; border:1px solid #ccc; padding:15px;">
-      <h3>PDFs guardados</h3>
-      <div id="listaPDFs"></div>
-      <button type="button" id="btnCerrarPDFs">Cerrar</button>
-    </div>
-
-    <!-- PANEL CONSULTA ENTRADA (oculto al principio) -->
-    <div id="panelEntrada" style="display:none; margin-top:15px; border:1px solid #ccc; padding:15px;">
-      <h3>Consultar Entrada</h3>
-      <input type="number" id="inputNumeroEntrada" placeholder="Nº de entrada" min="1">
-      <button type="button" id="btnBuscarEntrada">Buscar</button>
-      <div id="detalleEntrada" style="margin-top:10px;"></div>
-      <button type="button" id="btnCerrarEntrada">Cerrar</button>
-    </div>
-
   </form>
+  <!-- FIN FORMULARIO ORIGINAL -->
+
+  <!-- SEPARADOR Y BOTONES DE CONSULTA -->
+  <div style="margin-top: 40px;"></div>
+
+  <div style="text-align: center; margin-bottom: 20px;">
+    <button type="button" id="btnConsultarPDFs">📄 Consultar PDFs</button>
+    <button type="button" id="btnConsultarEntrada">🔍 Consultar Entrada</button>
+  </div>
+
+  <!-- PANEL CONSULTA PDFs (oculto al principio) -->
+  <div id="panelPDFs" style="display:none; margin-top:15px; border:1px solid #ccc; padding:15px;">
+    <h3>PDFs guardados</h3>
+    <div id="listaPDFs"></div>
+    <button type="button" id="btnCerrarPDFs">Cerrar</button>
+  </div>
+
+  <!-- PANEL CONSULTA ENTRADA (oculto al principio) -->
+  <div id="panelEntrada" style="display:none; margin-top:15px; border:1px solid #ccc; padding:15px;">
+    <h3>Consultar Entrada</h3>
+    <input type="number" id="inputNumeroEntrada" placeholder="Nº de entrada" min="1">
+    <button type="button" id="btnBuscarEntrada">Buscar</button>
+    <div id="detalleEntrada" style="margin-top:10px;"></div>
+    <button type="button" id="btnCerrarEntrada">Cerrar</button>
+  </div>
 
   <!-- SCRIPTS -->
   <script src="script.js"></script>

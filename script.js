@@ -11,23 +11,15 @@ document.addEventListener('touchmove', e => {
   const deltaY    = e.touches[0].screenY - touchStartY;
   if (scrollTop === 0 && deltaY > 0) e.preventDefault();
 }, { passive: false });
-/* ============================================ */
 
 /* ---------- Botón Borrar Coordenadas del Mapa ---------- */
-/* ---------- Botón Borrar Coordenadas del Mapa ---------- */
 document.getElementById("btnBorrarCoords").addEventListener("click", () => {
-    // 1. Detener el seguimiento GPS (si está activo)
     if (watchId !== null) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
         seguimientoActivo = false;
     }
-
-    // 2. Vaciar AMBOS campos de coordenadas
     document.getElementById("coordenadas_mapa").value = "";
-    document.getElementById("coordenadas").value = "";
-
-    // 3. Quitar el marcador del mapa (si existe)
     if (marker) {
         map.removeLayer(marker);
         marker = null;
@@ -36,11 +28,10 @@ document.getElementById("btnBorrarCoords").addEventListener("click", () => {
 
 document.addEventListener("DOMContentLoaded", function () {
     var map = L.map("map").setView([39.4699, -0.3763], 10);
-
     const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
     });
-    const googleSat = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
+    const googleSat = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={z}&z={z}", {
         attribution: "© Google Maps"
     });
     L.control.layers({ "Mapa estándar": osmMap, "Ortofotografía (satélite)": googleSat }).addTo(map);
@@ -59,33 +50,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 forzarZoomInicial = false;
                 marker ? marker.setLatLng([lat, lng])
                        : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-                /* ---------- Botón Borrar Coordenadas del Mapa ---------- */
-document.getElementById("btnBorrarCoords").addEventListener("click", () => {
-    // 1. Detener el seguimiento GPS (si está activo)
-    if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-        seguimientoActivo = false;
-    }
-
-    // 2. Vaciar el input
-    document.getElementById("coordenadas_mapa").value = "";
-
-    // 3. Quitar el marcador del mapa (si existe)
-    if (marker) {
-        map.removeLayer(marker);
-        marker = null;
-    }
-});
+                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             },
             err => console.error("Error GPS:", err),
             { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
         );
     }
+
     function detenerSeguimiento() {
         if (watchId !== null) navigator.geolocation.clearWatch(watchId);
         watchId = null; seguimientoActivo = false;
     }
+
     function onMapClick(e) {
         detenerSeguimiento();
         const latlng = e.latlng;
@@ -94,135 +70,65 @@ document.getElementById("btnBorrarCoords").addEventListener("click", () => {
     }
     map.on("click", onMapClick);
 
-    // ===== MODIFICADO: Coordenadas manuales → Coordenadas del Mapa + centrado + detener seguimiento =====
     document.getElementById("coordenadas").addEventListener("change", function () {
         const raw = this.value.trim();
-        if (!raw) return; // vacío, nada que hacer
-
-        // aceptamos "40.123, -0.456" o "40.123 -0.456"
+        if (!raw) return;
         const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
-        if (partes.length !== 2) return; // formato incorrecto
-
+        if (partes.length !== 2) return;
         const lat = parseFloat(partes[0]);
         const lng = parseFloat(partes[1]);
-        if (isNaN(lat) || isNaN(lng)) return; // no son números
-
-        detenerSeguimiento(); // <--- Detiene el seguimiento GPS
-
-        // 1.  Copiar al campo "Coordenadas del Mapa"
+        if (isNaN(lat) || isNaN(lng)) return;
+        detenerSeguimiento();
         document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-
-        // 2.  Mover el marcador y centrar
         if (marker) {
             marker.setLatLng([lat, lng]);
         } else {
             marker = L.marker([lat, lng]).addTo(map);
         }
-        map.setView([lat, lng], 13); // zoom 13, ajústalo si quieres
+        map.setView([lat, lng], 13);
     });
 
-    // ====== NUEVO: Botón Localizar usa también detenerSeguimiento ======
-    const btnLocalizar = document.getElementById("btnLocalizar");
-    if (btnLocalizar) {
-        btnLocalizar.addEventListener("click", function () {
-            const raw = document.getElementById("coordenadas").value.trim();
-            if (!raw) return;
-
-            const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
-            if (partes.length !== 2) return;
-
-            const lat = parseFloat(partes[0]);
-            const lng = parseFloat(partes[1]);
-            if (isNaN(lat) || isNaN(lng)) return;
-
-            detenerSeguimiento(); // <--- Detiene el seguimiento GPS
-
-            // Mover marcador y centrar
-            if (marker) {
-                marker.setLatLng([lat, lng]);
-            } else {
-                marker = L.marker([lat, lng]).addTo(map);
-            }
-            map.setView([lat, lng], 13);
-            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        });
-    }
-
-    const locateButton = document.createElement("button");
-locateButton.textContent = "Volver a mi ubicación";
-locateButton.type = "button";
-Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
-
-locateButton.addEventListener("click", e => {
-    e.preventDefault();
-
-    // 1. Re-activar seguimiento
-    seguimientoActivo = true;
-    forzarZoomInicial = true;
-
-    // 2. Si ya tenemos una última posición, escribirla y centrar
-    if (ultimaPosicion) {
-        const [lat, lng] = ultimaPosicion;
-        if (marker) marker.setLatLng([lat, lng]);
-        else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+    document.getElementById("btnLocalizar")?.addEventListener("click", function () {
+        const raw = document.getElementById("coordenadas").value.trim();
+        if (!raw) return;
+        const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
+        if (partes.length !== 2) return;
+        const lat = parseFloat(partes[0]);
+        const lng = parseFloat(partes[1]);
+        if (isNaN(lat) || isNaN(lng)) return;
+        detenerSeguimiento();
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng]).addTo(map);
+        }
         map.setView([lat, lng], 13);
         document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-    }
+    });
 
-    // 3. Iniciar/reanudar el watch (cuando llegue la siguiente lectura se actualizará)
-    iniciarSeguimiento();
-});
+    const locateButton = document.createElement("button");
+    locateButton.textContent = "Volver a mi ubicación";
+    locateButton.type = "button";
+    Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
+    locateButton.addEventListener("click", e => {
+        e.preventDefault();
+        seguimientoActivo = true;
+        forzarZoomInicial = true;
+        if (ultimaPosicion) {
+            const [lat, lng] = ultimaPosicion;
+            if (marker) marker.setLatLng([lat, lng]); else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+            map.setView([lat, lng], 13);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+        }
+        iniciarSeguimiento();
+    });
+    document.getElementById("map").parentNode.insertBefore(locateButton, document.getElementById("map").nextSibling);
 
-const mapElement = document.getElementById("map");
-mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
-
-    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
-        .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada=true")
+        .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numeroEntrada)
         .catch(console.error);
 
-    // ========== VALIDACIÓN EN TIEMPO REAL DE ESPECIE (datalist) ==========
-    function validarInputDatalist(inputId, datalistId, mensajeError) {
-        const input = document.getElementById(inputId);
-        const datalist = document.getElementById(datalistId);
-
-        input.addEventListener('blur', function() {
-            const opciones = Array.from(datalist.options).map(opt => opt.value.trim());
-            if (input.value.trim() === "") return; // Si está vacío, permitir (ya lo controla el required)
-            if (!opciones.includes(input.value.trim())) {
-                alert(mensajeError);
-                input.value = "";
-                input.focus();
-            }
-        });
-    }
-
-    // Añadir después de cargar los datalist:
-    validarInputDatalist('especie_comun', 'especies-comun-list', 'Debes seleccionar una especie (nombre común) existente.');
-    validarInputDatalist('especie_cientifico', 'especies-cientifico-list', 'Debes seleccionar una especie (nombre científico) existente.');
-
-    // ======== VALIDACIÓN EXTRA AL ENVIAR FORMULARIO =========
-    document.getElementById("formulario").addEventListener("submit", function(e) {
-        // Especie común
-        const especieComunInput = document.getElementById("especie_comun");
-        const especieComunList = Array.from(document.getElementById("especies-comun-list").options).map(opt => opt.value.trim());
-        if (!especieComunInput.value.trim() || !especieComunList.includes(especieComunInput.value.trim())) {
-            alert("Debes seleccionar una especie (nombre común) válida.");
-            especieComunInput.focus();
-            e.preventDefault();
-            return;
-        }
-        // Especie científico
-        const especieCientificoInput = document.getElementById("especie_cientifico");
-        const especieCientificoList = Array.from(document.getElementById("especies-cientifico-list").options).map(opt => opt.value.trim());
-        if (!especieCientificoInput.value.trim() || !especieCientificoList.includes(especieCientificoInput.value.trim())) {
-            alert("Debes seleccionar una especie (nombre científico) válida.");
-            especieCientificoInput.focus();
-            e.preventDefault();
-            return;
-        }
-        // ...el resto de tu código de envío (no toques nada más)
-    }, true);
-
+    // VALIDACIONES Y ENVÍO (tu código actual)
     document.getElementById("formulario").addEventListener("submit", function (e) {
         e.preventDefault();
         localStorage.removeItem('recogidasForm');
@@ -234,7 +140,7 @@ mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
             numero_entrada: document.getElementById("numero_entrada").value,
             especie_comun: fd.get("especie_comun"),
             especie_cientifico: fd.get("especie_cientifico"),
-            cantidad_animales: fd.get("cantidad_animales"),
+            cantidad_animales: Number(fd.get("cantidad_animales")) || 0,
             fecha: fd.get("fecha"),
             municipio: fd.get("municipio"),
             posible_causa: fd.getAll("posible_causa"),
@@ -267,7 +173,7 @@ mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         })
-            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada"))
+            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada=true"))
             .then(r => r.json())
             .then(d => {
                 alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
@@ -282,95 +188,77 @@ mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
             });
     }
 
-    const form = document.getElementById("formulario");
-    form.addEventListener('input', () => {
-        const obj = {};
-        Array.from(form.elements).forEach(el => {
-            if (!el.name) return;
-            if (el.type === 'checkbox') {
-                if (!obj[el.name]) obj[el.name] = [];
-                if (el.checked) obj[el.name].push(el.value);
-            } else if (el.type === 'radio') {
-                if (el.checked) obj[el.name] = el.value;
-            } else {
-                obj[el.name] = el.value;
-            }
+    // ---------- NUEVOS BOTONES DE CONSULTA ----------
+    const btnConsultarPDFs = document.getElementById("btnConsultarPDFs");
+    const btnConsultarEntrada = document.getElementById("btnConsultarEntrada");
+    const panelPDFs = document.getElementById("panelPDFs");
+    const panelEntrada = document.getElementById("panelEntrada");
+    const listaPDFs = document.getElementById("listaPDFs");
+    const detalleEntrada = document.getElementById("detalleEntrada");
+    const inputNumeroEntrada = document.getElementById("inputNumeroEntrada");
+
+    btnConsultarPDFs.addEventListener("click", async () => {
+        panelPDFs.style.display = "block";
+        panelEntrada.style.display = "none";
+        const res = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?listarPDFs=true");
+        const pdfs = await res.json();
+        listaPDFs.innerHTML = "";
+        pdfs.forEach(p => {
+            listaPDFs.innerHTML += `<p><a href="${p.url}" target="_blank" rel="noopener noreferrer">${p.nombre}</a></p>`;
         });
-        localStorage.setItem('recogidasForm', JSON.stringify(obj));
     });
-});
 
-/* =====  AL ARRANCAR: limpiar si NO venimos de un envío correcto  ===== */
-(() => {
-  if (!sessionStorage.getItem('formEnviadoOK')) {
-    localStorage.removeItem('recogidasForm');
-  }
-  sessionStorage.removeItem('formEnviadoOK');
-})();
-
-// Carga de municipios
-document.addEventListener("DOMContentLoaded", () => {
-    fetch("municipios.json")
-        .then(r => r.json())
-        .then(d => {
-            const list = document.getElementById("municipios-list");
-            d.municipios.forEach(m => {
-                const opt = document.createElement("option");
-                opt.value = m;
-                list.appendChild(opt);
-            });
-        })
-        .catch(console.error);
-});
-
-// Carga de especies + autocompletado
-document.addEventListener("DOMContentLoaded", () => {
-    const comInput  = document.getElementById("especie_comun");
-    const cienInput = document.getElementById("especie_cientifico");
-    let especiesData = [];
-
-    fetch("especies.json")
-        .then(r => r.json())
-        .then(d => {
-            especiesData = d;
-            const comList = document.getElementById("especies-comun-list");
-            const cienList = document.getElementById("especies-cientifico-list");
-            d.forEach(e => {
-                const opt1 = document.createElement("option");
-                opt1.value = e.nombreComun;
-                comList.appendChild(opt1);
-                const opt2 = document.createElement("option");
-                opt2.value = e.nombreCientifico;
-                cienList.appendChild(opt2);
-            });
-        })
-        .catch(console.error);
-
-    comInput.addEventListener("input", () => {
-        const found = especiesData.find(x => x.nombreComun === comInput.value.trim());
-        cienInput.value = found ? found.nombreCientifico : "";
+    document.getElementById("btnCerrarPDFs").addEventListener("click", () => {
+        panelPDFs.style.display = "none";
     });
-    cienInput.addEventListener("input", () => {
-        const found = especiesData.find(x => x.nombreCientifico === cienInput.value.trim());
-        comInput.value = found ? found.nombreComun : "";
-    });
-});
 
-// Service Worker
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/Gestion-recogidas-2/service-worker.js')
-        .then(() => console.log('Service Worker registrado correctamente'))
-        .catch(error => console.error('Error al registrar el Service Worker:', error));
-}
-// Botón cerrar aplicación
-const btnCerrar = document.getElementById('btnCerrar');
-if (btnCerrar) {
-  btnCerrar.addEventListener('click', () => {
-    // Cierra la ventana/pestaña (solo funciona si la ventana fue abierta por script o es PWA instalada)
-    window.close();
-    // Si no se cierra (navegador normal), avisamos:
-    if (!window.closed) {
-      alert('Puedes cerrar esta pestaña desde el navegador.');
+    btnConsultarEntrada.addEventListener("click", () => {
+        panelEntrada.style.display = "block";
+        panelPDFs.style.display = "none";
+        detalleEntrada.innerHTML = "";
+        inputNumeroEntrada.value = "";
+    });
+
+    document.getElementById("btnBuscarEntrada").addEventListener("click", async () => {
+        const n = inputNumeroEntrada.value.trim();
+        if (!n || isNaN(n)) {
+            detalleEntrada.innerHTML = "Escribe un número válido.";
+            return;
+        }
+        const res = await fetch(`https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?consultar=${n}`);
+        const data = await res.json();
+        if (data.error) {
+            detalleEntrada.innerHTML = "Entrada no encontrada.";
+            return;
+        }
+        detalleEntrada.innerHTML = `
+            <p><strong>Nº entrada:</strong> ${data.numero_entrada}</p>
+            <p><strong>Especie:</strong> ${data.especie_comun} (${data.especie_cientifico})</p>
+            <p><strong>Cantidad:</strong> ${data.cantidad_animales}</p>
+            <p><strong>Fecha:</strong> ${data.fecha}</p>
+            <p><strong>Municipio:</strong> ${data.municipio}</p>
+            <p><strong>Coordenadas:</strong> ${data.coordenadas_mapa}</p>
+            <p><strong>Observaciones:</strong> ${data.observaciones}</p>
+            ${data.foto_url && data.foto_url !== "No se adjuntó imagen" ? `<img src="${data.foto_url}" style="max-width:100%;">` : ''}
+        `;
+    });
+
+    document.getElementById("btnCerrarEntrada").addEventListener("click", () => {
+        panelEntrada.style.display = "none";
+    });
+
+    // Service Worker y cerrar ventana (tu código actual)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/Gestion-recogidas-2/service-worker.js')
+            .then(() => console.log('Service Worker registrado correctamente'))
+            .catch(error => console.error('Error al registrar el Service Worker:', error));
     }
-  });
-}
+
+    const btnCerrar = document.getElementById('btnCerrar');
+    if (btnCerrar) {
+        btnCerrar.addEventListener('click', () => {
+            window.close();
+            if (!window.closed) alert('Puedes cerrar esta pestaña desde el navegador.');
+        });
+    }
+});

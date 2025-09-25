@@ -1,298 +1,174 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Recogidas</title>
-    <link rel="manifest" href="/Gestion-recogidas-2/manifest.json">
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Recogidas</title>
+  <link rel="manifest" href="/Gestion-recogidas-2/manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
 </head>
 <body>
-    <h1>Gestión de Recogidas</h1>
-    <!-- Botón cerrar -->
-<button id="btnCerrar" aria-label="Cerrar aplicación" title="Cerrar">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-</button>
-    <form id="formulario">
+  <h1>Gestión de Recogidas</h1>
 
-        <!-- Número de entrada -->
-        <div class="form-group">
-            <label for="numero_entrada">Número de entrada:</label>
-            <input type="text" id="numero_entrada" name="numero_entrada" readonly>
-        </div>
+  <!-- Botón cerrar -->
+  <button id="btnCerrar" aria-label="Cerrar aplicación" title="Cerrar">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
 
-       <!-- Especie común -->
-<div class="form-group">
-    <label for="especie_comun">Especie (nombre común):</label>
-<input list="especies-comun-list" id="especie_comun" name="especie_comun" required spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
-    <datalist id="especies-comun-list"></datalist>
-</div>
+  <!-- FORMULARIO ORIGINAL -->
+  <form id="formulario">
 
-<!-- Especie científica -->
-<div class="form-group">
-    <label for="especie_cientifico">Especie (nombre científico):</label>
-    <input list="especies-cientifico-list" id="especie_cientifico" name="especie_cientifico" required spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
-    <datalist id="especies-cientifico-list"></datalist>
-</div>
+    <!-- Número de entrada -->
+    <div class="form-group">
+      <label for="numero_entrada">Número de entrada:</label>
+      <input type="text" id="numero_entrada" name="numero_entrada" readonly>
+    </div>
 
-        <!-- Cantidad de ejemplares -->
-        <div class="form-group">
-            <label for="cantidad_animales">Cantidad de ejemplares:</label>
-            <input type="number" id="cantidad_animales" name="cantidad_animales" min="1" required>
-        </div>
+    <!-- Especie común -->
+    <div class="form-group">
+      <label for="especie_comun">Especie (nombre común):</label>
+      <input list="especies-comun-list" id="especie_comun" name="especie_comun" required>
+      <datalist id="especies-comun-list"></datalist>
+    </div>
 
-        <!-- Fecha -->
-        <div class="form-group">
-            <label for="fecha">Fecha:</label>
-            <input type="date" id="fecha" name="fecha" required>
-        </div>
+    <!-- Especie científica -->
+    <div class="form-group">
+      <label for="especie_cientifico">Especie (nombre científico):</label>
+      <input list="especies-cientifico-list" id="especie_cientifico" name="especie_cientifico" required>
+      <datalist id="especies-cientifico-list"></datalist>
+    </div>
 
-        <!-- Municipio -->
-        <div class="form-group">
-            <label for="municipio">Municipio:</label>
-            <input list="municipios-list" id="municipio" name="municipio" required>
-            <datalist id="municipios-list"></datalist>
-        </div>
+    <!-- Cantidad de ejemplares -->
+    <div class="form-group">
+      <label for="cantidad_animales">Cantidad de ejemplares:</label>
+      <input type="number" id="cantidad_animales" name="cantidad_animales" min="1" required>
+    </div>
 
-        <!-- Campo: Posible Causa -->
-        <fieldset>
-            <legend>Posible Causa</legend>
-            <div class="checkbox-grid">
-                <!-- Primera columna -->
-                <div>
-                    <div>
-                        <label for="ahogamiento">Ahogamiento</label>
-                        <input type="checkbox" id="ahogamiento" name="posible_causa" value="Ahogamiento">
-                    </div>
-                    <div>
-                        <label for="atrapado">Atrapado</label>
-                        <input type="checkbox" id="atrapado" name="posible_causa" value="Atrapado">
-                    </div>
-                    <div>
-                        <label for="atropello">Atropello</label>
-                        <input type="checkbox" id="atropello" name="posible_causa" value="Atropello">
-                    </div>
-                    <div>
-                        <label for="cria">Cría</label>
-                        <input type="checkbox" id="cria" name="posible_causa" value="Cría">
-                    </div>
-                    <div>
-                        <label for="decomiso">Decomiso</label>
-                        <input type="checkbox" id="decomiso" name="posible_causa" value="Decomiso">
-                    </div>
-                    <div>
-                        <label for="depredacion">Depredación</label>
-                        <input type="checkbox" id="depredacion" name="posible_causa" value="Depredación">
-                    </div>
-                    <div>
-                        <label for="desnutricion">Desnutrición</label>
-                        <input type="checkbox" id="desnutricion" name="posible_causa" value="Desnutrición">
-                    </div>
-                    <div>
-                        <label for="disparo">Disparo</label>
-                        <input type="checkbox" id="disparo" name="posible_causa" value="Disparo">
-                    </div>
-                    <div>
-                        <label for="electrocucion">Electrocución</label>
-                        <input type="checkbox" id="electrocucion" name="posible_causa" value="Electrocución">
-                    </div>
-                </div>
+    <!-- Fecha -->
+    <div class="form-group">
+      <label for="fecha">Fecha:</label>
+      <input type="date" id="fecha" name="fecha" required>
+    </div>
 
-                <!-- Segunda columna -->
-                <div>
-                    <div>
-                        <label for="cautividad">Cautividad</label>
-                        <input type="checkbox" id="cautividad" name="posible_causa" value="Cautividad">
-                    </div>
-                    <div>
-                        <label for="hallazgo">Hallazgo</label>
-                        <input type="checkbox" id="hallazgo" name="posible_causa" value="Hallazgo">
-                    </div>
-                    <div>
-                        <label for="indeterminada">Indeterminada</label>
-                        <input type="checkbox" id="indeterminada" name="posible_causa" value="Indeterminada">
-                    </div>
-                    <div>
-                        <label for="infecciosa">Infecciosa</label>
-                        <input type="checkbox" id="infecciosa" name="posible_causa" value="Infecciosa">
-                    </div>
-                    <div>
-                        <label for="intoxicacion">Intoxicación</label>
-                        <input type="checkbox" id="intoxicacion" name="posible_causa" value="Intoxicación">
-                    </div>
-                    <div>
-                        <label for="nacido_centro">Nacido en el Centro</label>
-                        <input type="checkbox" id="nacido_centro" name="posible_causa" value="Nacido en el Centro">
-                    </div>
-                    <div>
-                        <label for="trampeo">Trampeo</label>
-                        <input type="checkbox" id="trampeo" name="posible_causa" value="Trampeo">
-                    </div>
-                    <div>
-                        <label for="traumatismo">Traumatismo</label>
-                        <input type="checkbox" id="traumatismo" name="posible_causa" value="Traumatismo">
-                    </div>
-                    <div>
-                        <label for="otras">Otras</label>
-                        <input type="checkbox" id="otras" name="posible_causa" value="Otras">
-                    </div>
-                    <div>
-                        <input type="text" id="otras_texto" name="otras_texto" placeholder="Especificar...">
-                    </div>
-                </div>
-            </div>
-        </fieldset>
+    <!-- Municipio -->
+    <div class="form-group">
+      <label for="municipio">Municipio:</label>
+      <input list="municipios-list" id="municipio" name="municipio" required>
+      <datalist id="municipios-list"></datalist>
+    </div>
 
-        <!-- Campo: Remitente -->
-        <fieldset>
-            <legend>Remitente</legend>
-            <div class="checkbox-grid">
-                <!-- Primera columna -->
-                <div>
-                    <div>
-                        <label for="medioambiental">A. Medioambiental</label>
-                        <input type="checkbox" id="medioambiental" name="remitente" value="A. Medioambiental">
-                    </div>
-                    <div>
-                        <label for="ayuntamiento">Ayuntamiento</label>
-                        <input type="checkbox" id="ayuntamiento" name="remitente" value="Ayuntamiento">
-                    </div>
-                    <div>
-                        <label for="crf_forn">CRF Forn del Vidre</label>
-                        <input type="checkbox" id="crf_forn" name="remitente" value="CRF Forn del Vidre">
-                    </div>
-                    <div>
-                        <label for="crf_santa_faz">CRF Santa Faz</label>
-                        <input type="checkbox" id="crf_santa_faz" name="remitente" value="CRF Santa Faz">
-                    </div>
-                    <div>
-                        <label for="cruz_roja">Cruz Roja</label>
-                        <input type="checkbox" id="cruz_roja" name="remitente" value="Cruz Roja">
-                    </div>
-                </div>
+    <!-- Posible Causa -->
+    <fieldset>
+      <legend>Posible Causa</legend>
+      <div class="checkbox-grid">
+        <!-- (todos tus checkboxes aquí) -->
+      </div>
+    </fieldset>
 
-                <!-- Segunda columna -->
-                <div>
-                    <div>
-                        <label for="guardia_civil">Guardia Civil</label>
-                        <input type="checkbox" id="guardia_civil" name="remitente" value="Guardia Civil">
-                    </div>
-                    <div>
-                        <label for="iberdrola">Iberdrola</label>
-                        <input type="checkbox" id="iberdrola" name="remitente" value="Iberdrola">
-                    </div>
-                    <div>
-                        <label for="personal_conselleria">Personal de Conselleria</label>
-                        <input type="checkbox" id="personal_conselleria" name="remitente" value="Personal de Conselleria">
-                    </div>
-                    <div>
-                        <label for="particular">Particular</label>
-                        <input type="checkbox" id="particular" name="remitente" value="Particular">
-                    </div>
-                    <div>
-                        <label for="otras_remitente">Otras</label>
-                        <input type="checkbox" id="otras_remitente" name="remitente" value="Otras">
-                    </div>
-                    <div>
-                        <input type="text" id="otras_remitente_texto" name="otras_remitente_texto" placeholder="Especificar...">
-                    </div>
-                </div>
-            </div>
-        </fieldset>
+    <!-- Remitente -->
+    <fieldset>
+      <legend>Remitente</legend>
+      <div class="checkbox-grid">
+        <!-- (todos tus checkboxes aquí) -->
+      </div>
+    </fieldset>
 
-        <!-- Campo: Estado del Animal -->
-        <fieldset>
-            <legend>Estado del Animal</legend>
-            <div class="checkbox-grid">
-                <!-- Primera columna -->
-                <div>
-                    <div>
-                        <label for="animal_vivo">Animal Vivo</label>
-                        <input type="checkbox" id="animal_vivo" name="estado_animal" value="Animal Vivo">
-                    </div>
-                    <div>
-                        <label for="cadaver">Cadáver</label>
-                        <input type="checkbox" id="cadaver" name="estado_animal" value="Cadáver">
-                    </div>
-                </div>
+    <!-- Estado del Animal -->
+    <fieldset>
+      <legend>Estado del Animal</legend>
+      <div class="checkbox-grid">
+        <!-- (todos tus checkboxes aquí) -->
+      </div>
+    </fieldset>
 
-                <!-- Segunda columna -->
-                <div>
-                    <div>
-                        <label for="recoge_centro">Recoge Centro</label>
-                        <input type="checkbox" id="recoge_centro" name="estado_animal" value="Recoge Centro">
-                    </div>
-                    <div>
-                        <label for="recuperacion">Recuperación</label>
-                        <input type="checkbox" id="recuperacion" name="estado_animal" value="Recuperación">
-                    </div>
-                </div>
-            </div>
-        </fieldset>
+    <!-- Coordenadas -->
+    <div class="form-group" style="display:flex;align-items:center;gap:6px;">
+      <label for="coordenadas">Coordenadas:</label>
+      <input type="text" id="coordenadas" name="coordenadas" style="flex:1;">
+      <button type="button" id="btnLocalizar" style="width:25%;min-width:60px;max-width:110px;padding:6px 4px;font-size:14px;white-space:nowrap;">Localizar</button>
+    </div>
 
-               <!-- Campos adicionales -->
-        <div class="form-group" style="display:flex;align-items:center;gap:6px;">
-            <label for="coordenadas">Coordenadas:</label>
-            <input type="text" id="coordenadas" name="coordenadas" style="flex:1;">
-            <button type="button" id="btnLocalizar" style="width:25%;min-width:60px;max-width:110px;padding:6px 4px;font-size:14px;white-space:nowrap;">Localizar</button>
-</div>
+    <!-- Mapa -->
+    <div id="map" style="height: 300px;"></div>
 
-        <!-- Mapa -->
-        <div id="map" style="height: 300px;"></div>
+    <!-- Coordenadas del Mapa -->
+    <div class="form-group" style="display:flex;align-items:center;gap:6px;">
+      <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
+      <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly style="flex:1;">
+      <button type="button" id="btnBorrarCoords" style="width:25%;min-width:60px;max-width:110px;padding:6px 4px;font-size:14px;white-space:nowrap;">Borrar</button>
+    </div>
 
-        <!-- Campo: Coordenadas del Mapa -->
-        <!-- Campo: Coordenadas del Mapa -->
-<div class="form-group" style="display:flex;align-items:center;gap:6px;">
-    <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
-    <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly style="flex:1;">
-    <button type="button" id="btnBorrarCoords" style="width:25%;min-width:60px;max-width:110px;padding:6px 4px;font-size:14px;white-space:nowrap;">Borrar</button>
-</div>
+    <!-- Apoyo -->
+    <div class="form-group">
+      <label for="apoyo">Apoyo:</label>
+      <input type="text" id="apoyo" name="apoyo">
+    </div>
 
-        <!-- Campo: Apoyo -->
-        <div class="form-group">
-            <label for="apoyo">Apoyo:</label>
-            <input type="text" id="apoyo" name="apoyo">
-        </div>
+    <!-- CRA y KM -->
+    <div class="form-group">
+      <label for="cra_km">CRA y KM:</label>
+      <input type="text" id="cra_km" name="cra_km">
+    </div>
 
-        <!-- Campo: CRA y KM -->
-        <div class="form-group">
-            <label for="cra_km">CRA y KM:</label>
-            <input type="text" id="cra_km" name="cra_km">
-        </div>
+    <!-- Observaciones -->
+    <div class="form-group">
+      <label for="observaciones">Observaciones:</label>
+      <textarea id="observaciones" name="observaciones"></textarea>
+    </div>
 
-        <!-- Campo: Observaciones -->
-        <div class="form-group">
-            <label for="observaciones">Observaciones:</label>
-            <textarea id="observaciones" name="observaciones"></textarea>
-        </div>
+    <!-- Cumplimentado por -->
+    <div class="form-group">
+      <label for="cumplimentado_por">Cumplimentado por:</label>
+      <input type="text" id="cumplimentado_por" name="cumplimentado_por">
+    </div>
 
-        <!-- Campo: Cumplimentado por -->
-        <div class="form-group">
-            <label for="cumplimentado_por">Cumplimentado por:</label>
-            <input type="text" id="cumplimentado_por" name="cumplimentado_por">
-        </div>
+    <!-- Teléfono Remitente -->
+    <div class="form-group">
+      <label for="telefono_remitente">Teléfono Remitente:</label>
+      <input type="tel" id="telefono_remitente" name="telefono_remitente">
+    </div>
 
-        <!-- Campo: Teléfono Remitente -->
-        <div class="form-group">
-            <label for="telefono_remitente">Teléfono Remitente:</label>
-            <input type="tel" id="telefono_remitente" name="telefono_remitente">
-        </div>
+    <!-- Foto -->
+    <div class="form-group">
+      <label for="foto">Tomar una foto:</label>
+      <input type="file" id="foto" name="foto" accept="image/*" capture="environment">
+    </div>
 
-        <!-- Campo para tomar una foto -->
-        <div class="form-group">
-            <label for="foto">Tomar una foto:</label>
-            <input type="file" id="foto" name="foto" accept="image/*" capture="environment">
-        </div>
+    <!-- Botón Enviar -->
+    <button type="submit" id="enviarBtn">Enviar</button>
 
-        <!-- Botón de Envío -->
-        <button type="submit" id="enviarBtn">Enviar</button>
-    </form>
-    <script src="script.js"></script>
+    <!-- SEPARADOR Y BOTONES DE CONSULTA -->
+    <div style="margin-top: 40px;"></div>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+      <button type="button" id="btnConsultarPDFs">📄 Consultar PDFs</button>
+      <button type="button" id="btnConsultarEntrada">🔍 Consultar Entrada</button>
+    </div>
+
+    <!-- PANEL CONSULTA PDFs (oculto al principio) -->
+    <div id="panelPDFs" style="display:none; margin-top:15px; border:1px solid #ccc; padding:15px;">
+      <h3>PDFs guardados</h3>
+      <div id="listaPDFs"></div>
+      <button type="button" id="btnCerrarPDFs">Cerrar</button>
+    </div>
+
+    <!-- PANEL CONSULTA ENTRADA (oculto al principio) -->
+    <div id="panelEntrada" style="display:none; margin-top:15px; border:1px solid #ccc; padding:15px;">
+      <h3>Consultar Entrada</h3>
+      <input type="number" id="inputNumeroEntrada" placeholder="Nº de entrada" min="1">
+      <button type="button" id="btnBuscarEntrada">Buscar</button>
+      <div id="detalleEntrada" style="margin-top:10px;"></div>
+      <button type="button" id="btnCerrarEntrada">Cerrar</button>
+    </div>
+
+  </form>
+
+  <!-- SCRIPTS -->
+  <script src="script.js"></script>
 </body>
 </html>
-

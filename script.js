@@ -374,3 +374,35 @@ if (btnCerrar) {
     }
   });
 }
+/* ===== RECONOCIMIENTO DE VOZ ===== */
+const btnVoz = document.getElementById('btnVoz');
+const textarea = document.getElementById('observaciones');
+
+if (btnVoz && textarea) {
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Speech) {
+        btnVoz.style.display = 'none'; // ocultar si no está soportado
+    } else {
+        const recognition = new Speech();
+        recognition.lang = 'es-ES';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        btnVoz.addEventListener('click', () => {
+            recognition.start();
+            btnVoz.textContent = '🔴';
+        });
+
+        recognition.onresult = (e) => {
+            const transcript = e.results[0][0].transcript;
+            textarea.value += (textarea.value ? ' ' : '') + transcript;
+            btnVoz.textContent = '🎤';
+        };
+
+        recognition.onerror = () => {
+            btnVoz.textContent = '🎤';
+            alert('No se pudo reconocer la voz. Comprueba los permisos del micrófono.');
+        };
+    }
+}
+

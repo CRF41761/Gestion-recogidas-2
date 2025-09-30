@@ -341,3 +341,36 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+// ==========================================
+//  CAPTURA PNG + VER ARCHIVOS
+// ==========================================
+async function generarCaptura(numero) {
+  if (!numero || numero === 'undefined') return;
+  try {
+    const canvas = await html2canvas(document.body, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null
+    });
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Entrada_${numero}_${new Date().toISOString().slice(0, 10)}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      console.log('✅ PNG descargado: Entrada_' + numero + '.png');
+    }, 'image/png');
+  } catch (err) {
+    console.error('Error al crear captura:', err);
+  }
+}
+
+// Botón «Ver archivos» (abre carpeta Descargas)
+document.getElementById('btnVerArchivos')?.addEventListener('click', () => {
+  // Android / Chrome
+  window.open('content://com.android.externalstorage.documents/document/primary%3ADownload', '_blank');
+  // iOS: no se puede abrir Descargas, pero el usuario ya la ve en «Archivos»
+});

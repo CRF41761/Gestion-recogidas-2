@@ -225,68 +225,27 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ✅ NUEVO: enviarDatos con compresión de imagen y PDF posterior
-async function enviarDatos(data, btn) {
-  try {
-    // 1. Comprimir imagen si pesa > 1 MB
-    const fileInput = document.getElementById('foto');
-    if (fileInput.files[0]) {
-      const file = fileInput.files[0];
-      if (file.size > 1_000_000) { // > 1 MB
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.src = data.foto;
-        await new Promise((resolve) => img.onload = resolve);
-        const maxAncho = 1280;
-        const escala = maxAncho / img.width;
-        canvas.width = maxAncho;
-        canvas.height = img.height * escala;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        data.foto = canvas.toDataURL('image/jpeg', 0.7); // 70 % calidad
-      }
+    function enviarDatos(data, btn) {
+        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada"))
+            .then(r => r.json())
+            .then(d => {
+                alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+                sessionStorage.setItem('formEnviadoOK', '1');
+                document.getElementById("formulario").reset();
+                btn.disabled = false; btn.textContent = "Enviar";
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error al enviar.");
+                btn.disabled = false; btn.textContent = "Enviar";
+            });
     }
-
-    // 2. Enviar formulario (no-cors)
-    await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-
-    // 3. Esperar 1 s a que el servidor procese (ajústalo si hace falta más)
-    await new Promise(r => setTimeout(r, 1000));
-
-    // 4. Obtener el último número de entrada
-    const resNum = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
-    const numData = await resNum.json();
-    const numero = numData.numero_entrada;
-
-    // 5. Obtener URL del PDF por número
-    const resPDF = await fetch(`https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?numero=${numero}`);
-    const pdfData = await resPDF.json();
-
-    if (pdfData.url) {
-      sessionStorage.setItem('ultimoPdfUrl', pdfData.url);
-      sessionStorage.setItem('ultimoNumero', numero);
-      alert(`✅ Entrada ${numero} guardada.\n📄 PDF generado.`);
-    } else {
-      alert(`✅ Entrada ${numero} guardada.\n⚠️ PDF no encontrado (inténtalo más tarde).`);
-    }
-
-    sessionStorage.setItem('formEnviadoOK', '1');
-    document.getElementById("formulario").reset();
-    btn.disabled = false;
-    btn.textContent = "Enviar";
-
-  } catch (err) {
-    console.error(err);
-    alert("Error al enviar.");
-    btn.disabled = false;
-    btn.textContent = "Enviar";
-  }
-}
 
     const form = document.getElementById("formulario");
     form.addEventListener('input', () => {
@@ -382,4 +341,3 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-

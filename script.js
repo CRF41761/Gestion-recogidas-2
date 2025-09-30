@@ -341,3 +341,61 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+// ==========================================
+//  FUNCIONES PDF
+// ==========================================
+const btnVerUltimoPDF = document.getElementById('btnVerUltimoPDF');
+const btnBuscarPDF    = document.getElementById('btnBuscarPDF');
+const inputBuscar     = document.getElementById('buscarEntradaPDF');
+
+// Ver último PDF guardado en sessionStorage
+btnVerUltimoPDF?.addEventListener('click', () => {
+  const url = sessionStorage.getItem('ultimoPdfUrl');
+  if (url) window.open(url, '_blank');
+  else alert('No hay PDF generado aún.');
+});
+
+// Buscar PDF por número de entrada
+btnBuscarPDF?.addEventListener('click', async () => {
+  const numero = inputBuscar.value.trim();
+  if (!numero) return alert('Escribe un número de entrada.');
+  try {
+    const res = await fetch(`https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?numero=${numero}`);
+    const data = await res.json();
+    if (data.url) window.open(data.url, '_blank');
+    else alert('No se encontró PDF para esa entrada.');
+  } catch (err) {
+    alert('Error al buscar el PDF.');
+  }
+});
+
+// Sobrescribir enviarDatos para recibir la URL del PDF
+async function enviarDatos(data, btn) {
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    const d = await res.json();
+
+    if (d.result === "success") {
+      alert(`✅ Entrada ${d.numeroEntrada} guardada.\n📄 PDF generado.`);
+      sessionStorage.setItem('ultimoPdfUrl', d.pdfUrl);
+      sessionStorage.setItem('ultimoNumero', d.numeroEntrada);
+      sessionStorage.setItem('formEnviadoOK', '1');
+      document.getElementById("formulario").reset();
+      btn.disabled = false;
+      btn.textContent = "Enviar";
+    } else {
+      alert("Error al enviar: " + (d.message || "Desconocido"));
+      btn.disabled = false;
+      btn.textContent = "Enviar";
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error al enviar.");
+    btn.disabled = false;
+    btn.textContent = "Enviar";
+  }
+}

@@ -225,26 +225,62 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    function enviarDatos(data, btn) {
-        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        })
-            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada"))
-            .then(r => r.json())
-            .then(d => {
-                alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
-                sessionStorage.setItem('formEnviadoOK', '1');
-                document.getElementById("formulario").reset();
-                btn.disabled = false; btn.textContent = "Enviar";
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Error al enviar.");
-                btn.disabled = false; btn.textContent = "Enviar";
-            });
+    // ✅ NUEVO: enviarDatos con compresión de imagen y PDF posterior
+    async function enviarDatos(data, btn) {
+      try {
+        // 1. Comprimir imagen si pesa > 1 MB
+        const fileInput = document.getElementById('foto');
+        if (fileInput.files[0]) {
+          const file = fileInput.files[0];
+          if (file.size > 1_000_000) { // > 1 MB
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.src = data.foto;
+            await new Promise((resolve) => img.onload = resolve);
+            const maxAncho = 1280;
+            const escala = maxAncho / img.width;
+            canvas.width = maxAncho;
+            canvas.height = img.height * escala;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            data.foto = canvas.toDataURL('image/jpeg', 0.7); // 70 % calidad
+          }
+        }
+
+        // 2. Enviar formulario (no-cors)
+        await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        // 3. Obtener número de entrada (del campo)
+        const numero = document.getElementById('numero_entrada').value;
+
+        // 4. Obtener URL del PDF por número
+        const resPDF = await fetch(`https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?numero=${numero}`);
+        const pdfData = await resPDF.json();
+
+        if (pdfData.url) {
+          sessionStorage.setItem('ultimoPdfUrl', pdfData.url);
+          sessionStorage.setItem('ultimoNumero', numero);
+          alert(`✅ Entrada ${numero} guardada.\n📄 PDF generado.`);
+        } else {
+          alert(`✅ Entrada ${numero} guardada.\n⚠️ PDF no encontrado (inténtalo más tarde).`);
+        }
+
+        sessionStorage.setItem('formEnviadoOK', '1');
+        document.getElementById("formulario").reset();
+        btn.disabled = false;
+        btn.textContent = "Enviar";
+
+      } catch (err) {
+        console.error(err);
+        alert("Error al enviar.");
+        btn.disabled = false;
+        btn.textContent = "Enviar";
+      }
     }
 
     const form = document.getElementById("formulario");
@@ -341,61 +377,3 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-// ==========================================
-//  FUNCIONES PDF
-// ==========================================
-const btnVerUltimoPDF = document.getElementById('btnVerUltimoPDF');
-const btnBuscarPDF    = document.getElementById('btnBuscarPDF');
-const inputBuscar     = document.getElementById('buscarEntradaPDF');
-
-// Ver último PDF guardado en sessionStorage
-btnVerUltimoPDF?.addEventListener('click', () => {
-  const url = sessionStorage.getItem('ultimoPdfUrl');
-  if (url) window.open(url, '_blank');
-  else alert('No hay PDF generado aún.');
-});
-
-// Buscar PDF por número de entrada
-btnBuscarPDF?.addEventListener('click', async () => {
-  const numero = inputBuscar.value.trim();
-  if (!numero) return alert('Escribe un número de entrada.');
-  try {
-    const res = await fetch(`https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?numero=${numero}`);
-    const data = await res.json();
-    if (data.url) window.open(data.url, '_blank');
-    else alert('No se encontró PDF para esa entrada.');
-  } catch (err) {
-    alert('Error al buscar el PDF.');
-  }
-});
-
-// Sobrescribir enviarDatos para recibir la URL del PDF
-async function enviarDatos(data, btn) {
-  try {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    const d = await res.json();
-
-    if (d.result === "success") {
-      alert(`✅ Entrada ${d.numeroEntrada} guardada.\n📄 PDF generado.`);
-      sessionStorage.setItem('ultimoPdfUrl', d.pdfUrl);
-      sessionStorage.setItem('ultimoNumero', d.numeroEntrada);
-      sessionStorage.setItem('formEnviadoOK', '1');
-      document.getElementById("formulario").reset();
-      btn.disabled = false;
-      btn.textContent = "Enviar";
-    } else {
-      alert("Error al enviar: " + (d.message || "Desconocido"));
-      btn.disabled = false;
-      btn.textContent = "Enviar";
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Error al enviar.");
-    btn.disabled = false;
-    btn.textContent = "Enviar";
-  }
-}

@@ -225,26 +225,56 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    function enviarDatos(data, btn) {
-        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        })
-            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada"))
-            .then(r => r.json())
-            .then(d => {
-                alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
-                sessionStorage.setItem('formEnviadoOK', '1');
-                document.getElementById("formulario").reset();
-                btn.disabled = false; btn.textContent = "Enviar";
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Error al enviar.");
-                btn.disabled = false; btn.textContent = "Enviar";
-            });
+    // ✅ NUEVO: enviarDatos con captura automática
+    async function enviarDatos(data, btn) {
+      try {
+        // 1. Comprimir imagen si pesa > 1 MB
+        const fileInput = document.getElementById('foto');
+        if (fileInput.files[0]) {
+          const file = fileInput.files[0];
+          if (file.size > 1_000_000) { // > 1 MB
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.src = data.foto;
+            await new Promise((resolve) => img.onload = resolve);
+            const maxAncho = 1280;
+            const escala = maxAncho / img.width;
+            canvas.width = maxAncho;
+            canvas.height = img.height * escala;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            data.foto = canvas.toDataURL('image/jpeg', 0.7); // 70 % calidad
+          }
+        }
+
+        // 2. Enviar formulario (no-cors)
+        await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        // 3. Obtener el último número de entrada
+        const resNum = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
+        const numData = await resNum.json();
+        const numero = numData.numero_entrada;
+
+        // 4. Generar y descargar captura PNG
+        generarCaptura(numero);
+
+        alert(`✅ Entrada ${numero} guardada.\n📄 Captura descargada.`);
+        sessionStorage.setItem('formEnviadoOK', '1');
+        document.getElementById("formulario").reset();
+        btn.disabled = false;
+        btn.textContent = "Enviar";
+
+      } catch (err) {
+        console.error(err);
+        alert("Error al enviar.");
+        btn.disabled = false;
+        btn.textContent = "Enviar";
+      }
     }
 
     const form = document.getElementById("formulario");
@@ -341,36 +371,3 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-// ==========================================
-//  CAPTURA PNG + VER ARCHIVOS
-// ==========================================
-async function generarCaptura(numero) {
-  if (!numero || numero === 'undefined') return;
-  try {
-    const canvas = await html2canvas(document.body, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: null
-    });
-    canvas.toBlob(blob => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Entrada_${numero}_${new Date().toISOString().slice(0, 10)}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      console.log('✅ PNG descargado: Entrada_' + numero + '.png');
-    }, 'image/png');
-  } catch (err) {
-    console.error('Error al crear captura:', err);
-  }
-}
-
-// Botón «Ver archivos» (abre carpeta Descargas)
-document.getElementById('btnVerArchivos')?.addEventListener('click', () => {
-  // Android / Chrome
-  window.open('content://com.android.externalstorage.documents/document/primary%3ADownload', '_blank');
-  // iOS: no se puede abrir Descargas, pero el usuario ya la ve en «Archivos»
-});

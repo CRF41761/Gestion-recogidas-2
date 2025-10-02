@@ -13,28 +13,27 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 /* ============================================ */
 
+/* ---------- Botón Borrar Coordenadas del Mapa ---------- */
+document.getElementById("btnBorrarCoords").addEventListener("click", () => {
+    // 1. Detener el seguimiento GPS (si está activo)
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        seguimientoActivo = false;
+    }
+
+    // 2. Vaciar AMBOS campos de coordenadas
+    document.getElementById("coordenadas_mapa").value = "";
+    document.getElementById("coordenadas").value = "";
+
+    // 3. Quitar el marcador del mapa (si existe)
+    if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+    }
+});
+
 document.addEventListener("DOMContentLoaded", function () {
-
-    /* ---------- Botón Borrar Coordenadas del Mapa (AHORA DENTRO DE DOMContentLoaded) ---------- */
-    document.getElementById("btnBorrarCoords").addEventListener("click", () => {
-        // 1. Detener el seguimiento GPS (si está activo)
-        if (watchId !== null) {
-            navigator.geolocation.clearWatch(watchId);
-            watchId = null;
-            seguimientoActivo = false;
-        }
-
-        // 2. Vaciar AMBOS campos de coordenadas
-        document.getElementById("coordenadas_mapa").value = "";
-        document.getElementById("coordenadas").value = "";
-
-        // 3. Quitar el marcador del mapa (si existe)
-        if (marker) {
-            map.removeLayer(marker);
-            marker = null;
-        }
-    });
-
     var map = L.map("map").setView([39.4699, -0.3763], 10);
 
     const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -226,56 +225,26 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ✅ NUEVO: enviarDatos con captura automática
-    async function enviarDatos(data, btn) {
-      try {
-        // 1. Comprimir imagen si pesa > 1 MB
-        const fileInput = document.getElementById('foto');
-        if (fileInput.files[0]) {
-          const file = fileInput.files[0];
-          if (file.size > 1_000_000) { // > 1 MB
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            img.src = data.foto;
-            await new Promise((resolve) => img.onload = resolve);
-            const maxAncho = 1280;
-            const escala = maxAncho / img.width;
-            canvas.width = maxAncho;
-            canvas.height = img.height * escala;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            data.foto = canvas.toDataURL('image/jpeg', 0.7); // 70 % calidad
-          }
-        }
-
-        // 2. Enviar formulario (no-cors)
-        await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-
-        // 3. Obtener el último número de entrada
-        const resNum = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
-        const numData = await resNum.json();
-        const numero = numData.numero_entrada;
-
-        // 4. Generar y descargar captura PNG
-        generarCaptura(numero);
-
-        alert(`✅ Entrada ${numero} guardada.\n📄 Captura descargada.`);
-        sessionStorage.setItem('formEnviadoOK', '1');
-        document.getElementById("formulario").reset();
-        btn.disabled = false;
-        btn.textContent = "Enviar";
-
-      } catch (err) {
-        console.error(err);
-        alert("Error al enviar: " + err.message);
-        btn.disabled = false;
-        btn.textContent = "Enviar";
-      }
+    function enviarDatos(data, btn) {
+        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada"))
+            .then(r => r.json())
+            .then(d => {
+                alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+                sessionStorage.setItem('formEnviadoOK', '1');
+                document.getElementById("formulario").reset();
+                btn.disabled = false; btn.textContent = "Enviar";
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error al enviar.");
+                btn.disabled = false; btn.textContent = "Enviar";
+            });
     }
 
     const form = document.getElementById("formulario");

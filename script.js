@@ -13,39 +13,39 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 /* ============================================ */
 
-/* ---------- Botón Borrar Coordenadas del Mapa ---------- */
-document.getElementById("btnBorrarCoords").addEventListener("click", () => {
-    // 1. Detener el seguimiento GPS (si está activo)
-    if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-        seguimientoActivo = false;
-    }
-
-    // 2. Vaciar AMBOS campos de coordenadas
-    document.getElementById("coordenadas_mapa").value = "";
-    document.getElementById("coordenadas").value = "";
-
-    // 3. Quitar el marcador del mapa (si existe)
-    if (marker) {
-        map.removeLayer(marker);
-        marker = null;
-    }
-});
-
 document.addEventListener("DOMContentLoaded", function () {
     var map = L.map("map").setView([39.4699, -0.3763], 10);
 
     const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
     });
-    const googleSat = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
+    const googleSat = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x= {x}&y={y}&z={z}", {
         attribution: "© Google Maps"
     });
     L.control.layers({ "Mapa estándar": osmMap, "Ortofotografía (satélite)": googleSat }).addTo(map);
     osmMap.addTo(map);
 
     let marker, watchId = null, seguimientoActivo = true, forzarZoomInicial = false, ultimaPosicion = null;
+
+    /* ✅ Botón Borrar Coordenadas del Mapa (AHORA DENTRO DE DOMContentLoaded) */
+    const btnBorrar = document.getElementById("btnBorrarCoords");
+    if (btnBorrar) {
+        btnBorrar.addEventListener("click", () => {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+                seguimientoActivo = false;
+            }
+            document.getElementById("coordenadas_mapa").value = "";
+            document.getElementById("coordenadas").value = "";
+            if (marker) {
+                map.removeLayer(marker);
+                marker = null;
+            }
+        });
+    } else {
+        console.warn("⚠️ Botón 'btnBorrarCoords' no encontrado en el DOM.");
+    }
 
     function iniciarSeguimiento() {
         if (!navigator.geolocation) return;
@@ -82,7 +82,6 @@ document.addEventListener("DOMContentLoaded", function () {
         raw = raw.trim();
         if (!raw) return;
 
-        // ¿Es coordenada numérica?
         const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
         if (partes.length === 2 && !isNaN(parseFloat(partes[0])) && !isNaN(parseFloat(partes[1]))) {
             const lat = parseFloat(partes[0]);
@@ -95,8 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // No es coordenada → geocoding
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q= ${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -119,7 +117,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    // Reemplazamos los antiguos eventos por el nuevo buscador
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");
     if (btnLocalizar) {
@@ -148,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada ")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -226,13 +223,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data, btn) {
-        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec ", {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         })
-            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada"))
+            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada "))
             .then(r => r.json())
             .then(d => {
                 alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
@@ -338,6 +335,7 @@ if (btnCerrar) {
     }
   });
 }
+
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;

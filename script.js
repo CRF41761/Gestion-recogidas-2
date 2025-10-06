@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (recuperacionChecked && anillaInput) {
                     const anilla = anillaInput.value.trim();
                     if (anilla) {
-                        txt += (txt ? " | " : "") + `Recuperación: ${anilla}`;
+                        txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
                     }
                 }
                 return txt;
@@ -370,3 +370,4 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+

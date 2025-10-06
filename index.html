@@ -11,13 +11,15 @@
 </head>
 <body>
     <h1>Gestión de Recogidas</h1>
+
     <!-- Botón cerrar -->
-<button id="btnCerrar" aria-label="Cerrar aplicación" title="Cerrar">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-</button>
+    <button id="btnCerrar" aria-label="Cerrar aplicación" title="Cerrar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+    </button>
+
     <form id="formulario">
 
         <!-- Número de entrada -->
@@ -26,19 +28,19 @@
             <input type="text" id="numero_entrada" name="numero_entrada" readonly>
         </div>
 
-       <!-- Especie común -->
-<div class="form-group">
-    <label for="especie_comun">Especie (nombre común):</label>
-<input list="especies-comun-list" id="especie_comun" name="especie_comun" required spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
-    <datalist id="especies-comun-list"></datalist>
-</div>
+        <!-- Especie común -->
+        <div class="form-group">
+            <label for="especie_comun">Especie (nombre común):</label>
+            <input list="especies-comun-list" id="especie_comun" name="especie_comun" required spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
+            <datalist id="especies-comun-list"></datalist>
+        </div>
 
-<!-- Especie científica -->
-<div class="form-group">
-    <label for="especie_cientifico">Especie (nombre científico):</label>
-    <input list="especies-cientifico-list" id="especie_cientifico" name="especie_cientifico" required spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
-    <datalist id="especies-cientifico-list"></datalist>
-</div>
+        <!-- Especie científica -->
+        <div class="form-group">
+            <label for="especie_cientifico">Especie (nombre científico):</label>
+            <input list="especies-cientifico-list" id="especie_cientifico" name="especie_cientifico" required spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
+            <datalist id="especies-cientifico-list"></datalist>
+        </div>
 
         <!-- Cantidad de ejemplares -->
         <div class="form-group">
@@ -230,28 +232,31 @@
                     <div>
                         <label for="recuperacion">Recuperación</label>
                         <input type="checkbox" id="recuperacion" name="estado_animal" value="Recuperación">
+                        <!-- ✅ Campo dinámico para código de anilla -->
+                        <span id="anillaWrapper" style="display:none; margin-left:8px;">
+                            <input type="text" id="anilla" name="anilla" placeholder="Código anilla" maxlength="30" style="width:140px; font-size:0.95em;">
+                        </span>
                     </div>
                 </div>
             </div>
         </fieldset>
 
-               <!-- Campos adicionales -->
+        <!-- Campos adicionales -->
         <div class="form-group" style="display:flex;align-items:center;gap:6px;">
             <label for="coordenadas">Coordenadas:</label>
             <input type="text" id="coordenadas" name="coordenadas" style="flex:1;">
             <button type="button" id="btnLocalizar" style="width:25%;min-width:60px;max-width:110px;padding:6px 4px;font-size:14px;white-space:nowrap;">Localizar</button>
-</div>
+        </div>
 
         <!-- Mapa -->
         <div id="map" style="height: 300px;"></div>
 
         <!-- Campo: Coordenadas del Mapa -->
-        <!-- Campo: Coordenadas del Mapa -->
-<div class="form-group" style="display:flex;align-items:center;gap:6px;">
-    <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
-    <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly style="flex:1;">
-    <button type="button" id="btnBorrarCoords" style="width:25%;min-width:60px;max-width:110px;padding:6px 4px;font-size:14px;white-space:nowrap;">Borrar</button>
-</div>
+        <div class="form-group" style="display:flex;align-items:center;gap:6px;">
+            <label for="coordenadas_mapa">Coordenadas del Mapa:</label>
+            <input type="text" id="coordenadas_mapa" name="coordenadas_mapa" readonly style="flex:1;">
+            <button type="button" id="btnBorrarCoords" style="width:25%;min-width:60px;max-width:110px;padding:6px 4px;font-size:14px;white-space:nowrap;">Borrar</button>
+        </div>
 
         <!-- Campo: Apoyo -->
         <div class="form-group">
@@ -292,6 +297,7 @@
         <!-- Botón de Envío -->
         <button type="submit" id="enviarBtn">Enviar</button>
     </form>
+
     <script src="script.js"></script>
 </body>
 </html>

@@ -50,14 +50,7 @@ input[type="tel"] {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
-    /* Corrección de orden en border-radius */
-    -webkit-border-radius: 4px;   /* Safari y Chrome */
-    -moz-border-radius: 4px;      /* Firefox */
-    border-radius: 4px;           /* Estándar moderno */
-    -moz-user-select: auto;
-    -webkit-user-select: auto;
-    -ms-user-select: auto;
-    user-select: auto;
+    border-radius: 4px;
 }
 
 /* Cambia el color del texto de TODOS los campos a verde oliva */
@@ -65,7 +58,6 @@ input,
 select,
 textarea {
     color: #558B2F !important;  /* verde oliva vivo */
-    /* font-weight: bold; */    /* Quitado para que no esté en negrita */
 }
 
 input:read-only,
@@ -75,16 +67,16 @@ textarea:read-only,
 textarea:disabled {
     color: #558B2F !important;
     opacity: 1;
-    /* font-weight: bold; */    /* Quitado para que no esté en negrita */
 }
+
 /* ESTILO PARA EL FOCO (cuando el campo está activo) */
 input:focus,
 select:focus,
 textarea:focus {
     outline: 2px solid #558B2F !important;
     border-color: #558B2F !important;
-    /* box-shadow: 0 0 0 2px #558B2F;  // Descomenta para un efecto más suave */
 }
+
 /* Ajustes para compatibilidad de selección de texto */
 .user-selectable {
     -moz-user-select: auto;
@@ -105,9 +97,6 @@ fieldset {
     border: 1px solid #ccc;
     padding: 10px;
     margin-bottom: 15px;
-    /* Corrección de orden en border-radius */
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
     border-radius: 4px;
 }
 
@@ -137,10 +126,11 @@ legend {
     gap: 10px; /* Espacio entre casilla y texto */
 }
 
-.checkbox-grid input[type="checkbox"] {
-    flex-shrink: 0; /* Evita que las casillas cambien de tamaño */
-    width: 18px; /* Tamaño uniforme de las casillas */
-    height: 18px; /* Tamaño uniforme de las casillas */
+.checkbox-grid input[type="checkbox"],
+.checkbox-grid input[type="radio"] {
+    flex-shrink: 0; /* Evita que las casillas/círculos cambien de tamaño */
+    width: 18px; /* Tamaño uniforme */
+    height: 18px; /* Tamaño uniforme */
     margin: 0; /* Elimina márgenes predeterminados */
 }
 
@@ -151,9 +141,11 @@ legend {
     margin: 0; /* Elimina márgenes adicionales */
     cursor: pointer; /* Mejora la interacción visual al clicar en el texto */
 }
-/* <-- Aquí agregas la línea para los checkboxes */
-input[type="checkbox"] {
-    accent-color: #558B2F;
+
+/* Color verde para checkboxes Y radios */
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+    accent-color: #28a745; /* mismo verde que los botones */
 }
 
 /* Ajuste para el mapa */
@@ -161,9 +153,6 @@ input[type="checkbox"] {
     height: 300px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
-    /* Corrección de orden en border-radius */
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
     border-radius: 4px;
 }
 
@@ -177,10 +166,6 @@ button {
     display: block;
     width: 100%;
     font-size: 16px;
-
-    /* Corrección de orden en border-radius */
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
     border-radius: 4px;
 }
 
@@ -196,6 +181,7 @@ input[list] {
     border-radius: 4px;
     font-size: 16px;
 }
+
 /* Ajustes específicos para Número de entrada y Cantidad de ejemplares */
 #numero_entrada, #cantidad_animales {
     width: 120px; /* Tamaño más compacto */
@@ -205,6 +191,7 @@ input[list] {
     font-size: 14px; /* Texto más proporcionado */
     text-align: center; /* Centrar el contenido */
 }
+
 /* Destacar Número de entrada con borde más oscuro */
 #numero_entrada {
     border: 2px solid #444; /* Línea más oscura para enfatizar */
@@ -225,6 +212,8 @@ input[list] {
     font-size: 0.97em;
     color: #009688;
 }
+
+/* Botón cerrar */
 #btnCerrar {
   position: fixed;
   top: 12px;

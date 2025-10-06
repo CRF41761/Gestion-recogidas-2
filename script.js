@@ -47,6 +47,18 @@ document.addEventListener("DOMContentLoaded", function () {
         console.warn("⚠️ Botón 'btnBorrarCoords' no encontrado en el DOM.");
     }
 
+    /* ✅ Mostrar/ocultar campo "anilla" sólo para Recuperación */
+    const chkRec = document.getElementById('chkRecuperacion');
+    const wrap   = document.getElementById('anillaWrapper');
+    const inpAni = document.getElementById('anilla');
+
+    if (chkRec && wrap && inpAni) {
+      chkRec.addEventListener('change', () => {
+        wrap.style.display = chkRec.checked ? 'inline-block' : 'none';
+        if (!chkRec.checked) inpAni.value = '';
+      });
+    }
+
     function iniciarSeguimiento() {
         if (!navigator.geolocation) return;
         watchId = navigator.geolocation.watchPosition(
@@ -185,6 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }, true);
 
+    /* ---------- ENVÍO DEL FORMULARIO ---------- */
     document.getElementById("formulario").addEventListener("submit", function (e) {
         e.preventDefault();
         localStorage.removeItem('recogidasForm');
@@ -206,7 +219,15 @@ document.addEventListener("DOMContentLoaded", function () {
             coordenadas_mapa: fd.get("coordenadas_mapa"),
             apoyo: fd.get("apoyo"),
             cra_km: fd.get("cra_km"),
-            observaciones: fd.get("observaciones"),
+            /* ✅ CONCATENAMOS observaciones + anilla si procede */
+            observaciones: (() => {
+                let txt = fd.get("observaciones")?.trim() || "";
+                if (chkRec && chkRec.checked) {
+                    const anilla = inpAni.value.trim();
+                    if (anilla) txt += (txt ? " | " : "") + `Recuperación: ${anilla}`;
+                }
+                return txt;
+            })(),
             cumplimentado_por: fd.get("cumplimentado_por"),
             telefono_remitente: fd.get("telefono_remitente"),
             foto: ""

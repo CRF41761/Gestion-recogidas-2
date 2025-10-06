@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let marker, watchId = null, seguimientoActivo = true, forzarZoomInicial = false, ultimaPosicion = null;
 
-    /* ✅ Botón Borrar Coordenadas del Mapa (AHORA DENTRO DE DOMContentLoaded) */
+    /* ✅ Botón Borrar Coordenadas del Mapa */
     const btnBorrar = document.getElementById("btnBorrarCoords");
     if (btnBorrar) {
         btnBorrar.addEventListener("click", () => {
@@ -47,16 +47,21 @@ document.addEventListener("DOMContentLoaded", function () {
         console.warn("⚠️ Botón 'btnBorrarCoords' no encontrado en el DOM.");
     }
 
-    /* ✅ Mostrar/ocultar campo "anilla" sólo para Recuperación */
-    const chkRec = document.getElementById('chkRecuperacion');
+    /* ✅ Mostrar/ocultar campo "Código anilla" al marcar/desmarcar "Recuperación" */
+    const chkRec = document.getElementById('recuperacion');
     const wrap   = document.getElementById('anillaWrapper');
     const inpAni = document.getElementById('anilla');
 
     if (chkRec && wrap && inpAni) {
-      chkRec.addEventListener('change', () => {
-        wrap.style.display = chkRec.checked ? 'inline-block' : 'none';
-        if (!chkRec.checked) inpAni.value = '';
-      });
+        function toggleAnillaField() {
+            wrap.style.display = chkRec.checked ? 'inline-block' : 'none';
+            if (!chkRec.checked) inpAni.value = '';
+        }
+
+        chkRec.addEventListener('change', toggleAnillaField);
+
+        /* ✅ Por si el checkbox ya está marcado al cargar la página */
+        toggleAnillaField();
     }
 
     function iniciarSeguimiento() {
@@ -89,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     map.on("click", onMapClick);
 
-    /* ========== NUEVO: BUSCAR COORDENADAS O DIRECCIÓN ========== */
+    /* ========== BUSCAR COORDENADAS O DIRECCIÓN ========== */
     function buscarOCoordenadas(raw) {
         raw = raw.trim();
         if (!raw) return;

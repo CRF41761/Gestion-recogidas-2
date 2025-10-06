@@ -227,9 +227,14 @@ document.addEventListener("DOMContentLoaded", function () {
             /* ✅ CONCATENAMOS observaciones + anilla si procede */
             observaciones: (() => {
                 let txt = fd.get("observaciones")?.trim() || "";
-                if (chkRec && chkRec.checked) {
-                    const anilla = inpAni.value.trim();
-                    if (anilla) txt += (txt ? " | " : "") + `Recuperación: ${anilla}`;
+                const anillaInput = document.getElementById('anilla');
+                const recuperacionChecked = document.getElementById('recuperacion')?.checked;
+
+                if (recuperacionChecked && anillaInput) {
+                    const anilla = anillaInput.value.trim();
+                    if (anilla) {
+                        txt += (txt ? " | " : "") + `Recuperación: ${anilla}`;
+                    }
                 }
                 return txt;
             })(),

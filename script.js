@@ -13,6 +13,35 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 /* ============================================ */
 
+/* ---------- FUNCIÓN UTM (lat/lon -> X,Y) ---------- */
+function latLonToUTM(lat, lon) {
+  const a = 6378137;
+  const f = 1 / 298.257223563;
+  const k0 = 0.9996;
+  const e = Math.sqrt(f * (2 - f));
+  const zone = Math.floor((lon + 180) / 6) + 1;
+  const lambda0 = ((zone - 1) * 6 - 180 + 3) * Math.PI / 180;
+
+  const phi = lat * Math.PI / 180;
+  const lambda = lon * Math.PI / 180;
+
+  const N = a / Math.sqrt(1 - Math.pow(e, 2) * Math.pow(Math.sin(phi), 2));
+  const T = Math.pow(Math.tan(phi), 2);
+  const C = (Math.pow(e, 2) / (1 - Math.pow(e, 2))) * Math.pow(Math.cos(phi), 2);
+  const A = (lambda - lambda0) * Math.cos(phi);
+
+  const M = a * ((1 - Math.pow(e, 2) / 4 - 3 * Math.pow(e, 4) / 64 - 5 * Math.pow(e, 6) / 256) * phi
+    - (3 * Math.pow(e, 2) / 8 + 3 * Math.pow(e, 4) / 32 + 45 * Math.pow(e, 6) / 1024) * Math.sin(2 * phi)
+    + (15 * Math.pow(e, 4) / 256 + 45 * Math.pow(e, 6) / 1024) * Math.sin(4 * phi)
+    - (35 * Math.pow(e, 6) / 3072) * Math.sin(6 * phi));
+
+  let X = k0 * N * (A + (1 - T + C) * Math.pow(A, 3) / 6 + (5 - 18 * T + T * T + 72 * C - 58 * (Math.pow(e, 2) / (1 - Math.pow(e, 2)))) * Math.pow(A, 5) / 120) + 500000;
+  let Y = k0 * (M + N * Math.tan(phi) * (Math.pow(A, 2) / 2 + (5 - T + 9 * C + 4 * C * C) * Math.pow(A, 4) / 24 + (61 - 58 * T + T * T + 600 * C - 330 * (Math.pow(e, 2) / (1 - Math.pow(e, 2)))) * Math.pow(A, 6) / 720));
+  if (lat < 0) Y = Y + 10000000;
+
+  return { x: X.toFixed(2), y: Y.toFixed(2) };
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     var map = L.map("map").setView([39.4699, -0.3763], 10);
 
@@ -112,7 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q= ${encodeURIComponent(raw)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=  ${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -163,7 +192,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada ")
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada  ")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -244,6 +273,17 @@ document.addEventListener("DOMContentLoaded", function () {
             foto: ""
         };
 
+        // >>> CALCULAMOS UTM DESDE JAVASCRIPT <<<
+        const coordText = fd.get("coordenadas_mapa");
+        if (coordText && coordText.includes(",")) {
+            const [lat, lon] = coordText.split(",").map(n => parseFloat(n.trim()));
+            if (!isNaN(lat) && !isNaN(lon)) {
+                const utm = latLonToUTM(lat, lon);
+                data.utm_x = utm.x; // <-- nuevas claves
+                data.utm_y = utm.y;
+            }
+        }
+
         const file = fd.get("foto");
         if (file && file.size) {
             const reader = new FileReader();
@@ -255,13 +295,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function enviarDatos(data, btn) {
-        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec ", {
+        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         })
-            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada "))
+            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada"))
             .then(r => r.json())
             .then(d => {
                 alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
@@ -371,7 +411,3 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-
-
-
-

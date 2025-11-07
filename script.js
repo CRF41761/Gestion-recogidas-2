@@ -14,6 +14,21 @@ document.addEventListener('touchmove', e => {
 /* ============================================ */
 
 document.addEventListener("DOMContentLoaded", function () {
+   /* ---------- CONFIRMACIÓN DE CANTIDAD DE EJEMPLARES ---------- */
+const cantidadInput = document.getElementById('cantidad_animales');
+if (cantidadInput) {
+  cantidadInput.addEventListener('change', function () {
+    const cant = parseInt(this.value, 10);
+    if (isNaN(cant) || cant <= 0) return;
+
+    const mensaje = `¿Seguro que son ${cant} animales?`;
+    const ok = confirm(mensaje);
+    if (!ok) {
+      this.value = "";
+      this.focus();
+    }
+  });
+}
     var map = L.map("map").setView([39.4699, -0.3763], 10);
 
     const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -371,6 +386,7 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

@@ -218,56 +218,159 @@ if (cantidadInput) {
         }
     }, true);
 
-    /* ---------- ENVÍO DEL FORMULARIO ---------- */
-    document.getElementById("formulario").addEventListener("submit", function (e) {
-        e.preventDefault();
-        localStorage.removeItem('recogidasForm');
-        const btn = document.getElementById("enviarBtn");
-        btn.disabled = true; btn.textContent = "Enviando...";
+    /* ---------- ENVÍO DEL FORMULARIO + GENERACIÓN PDF ---------- */
+document.getElementById("formulario").addEventListener("submit", function (e) {
+    e.preventDefault();
+    localStorage.removeItem('recogidasForm');
+    const btn = document.getElementById("enviarBtn");
+    btn.disabled = true; btn.textContent = "Enviando...";
 
-        const fd = new FormData(this);
-        const data = {
-            numero_entrada: document.getElementById("numero_entrada").value,
-            especie_comun: fd.get("especie_comun"),
-            especie_cientifico: fd.get("especie_cientifico"),
-            cantidad_animales: fd.get("cantidad_animales"),
-            fecha: fd.get("fecha"),
-            municipio: fd.get("municipio"),
-            posible_causa: fd.getAll("posible_causa"),
-            remitente: fd.getAll("remitente"),
-            estado_animal: fd.getAll("estado_animal"),
-            coordenadas: fd.get("coordenadas"),
-            coordenadas_mapa: fd.get("coordenadas_mapa"),
-            apoyo: fd.get("apoyo"),
-            cra_km: fd.get("cra_km"),
-            /* ? CONCATENAMOS observaciones + anilla si procede */
-            observaciones: (() => {
-                let txt = fd.get("observaciones")?.trim() || "";
-                const anillaInput = document.getElementById('anilla');
-                const recuperacionChecked = document.getElementById('recuperacion')?.checked;
+    const fd = new FormData(this);
+    const data = {
+        numero_entrada: document.getElementById("numero_entrada").value,
+        especie_comun: fd.get("especie_comun"),
+        especie_cientifico: fd.get("especie_cientifico"),
+        cantidad_animales: fd.get("cantidad_animales"),
+        fecha: fd.get("fecha"),
+        municipio: fd.get("municipio"),
+        posible_causa: fd.getAll("posible_causa"),
+        remitente: fd.getAll("remitente"),
+        estado_animal: fd.getAll("estado_animal"),
+        coordenadas: fd.get("coordenadas"),
+        coordenadas_mapa: fd.get("coordenadas_mapa"),
+        apoyo: fd.get("apoyo"),
+        cra_km: fd.get("cra_km"),
+        observaciones: (() => {
+            let txt = fd.get("observaciones")?.trim() || "";
+            const anillaInput = document.getElementById('anilla');
+            const recuperacionChecked = document.getElementById('recuperacion')?.checked;
+            if (recuperacionChecked && anillaInput) {
+                const anilla = anillaInput.value.trim();
+                if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
+            }
+            return txt;
+        })(),
+        cumplimentado_por: fd.get("cumplimentado_por"),
+        telefono_remitente: fd.get("telefono_remitente"),
+        foto: ""
+    };
 
-                if (recuperacionChecked && anillaInput) {
-                    const anilla = anillaInput.value.trim();
-                    if (anilla) {
-                        txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
-                    }
-                }
-                return txt;
-            })(),
-            cumplimentado_por: fd.get("cumplimentado_por"),
-            telefono_remitente: fd.get("telefono_remitente"),
-            foto: ""
-        };
-
-        const file = fd.get("foto");
-        if (file && file.size) {
-            const reader = new FileReader();
-            reader.onload = ev => { data.foto = ev.target.result; enviarDatos(data, btn); };
-            reader.readAsDataURL(file);
-        } else {
-            enviarDatos(data, btn);
+    function generarPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        
+        pdf.setFontSize(16);
+        pdf.text("Registro de Recogida", 105, 15, { align: "center" });
+        
+        pdf.setFontSize(10);
+        let y = 30;
+        const lineHeight = 8;
+        const margin = 10;
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Número de entrada:", margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(data.numero_entrada || "-", margin + 45, y);
+        y += lineHeight;
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Fecha:", margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(data.fecha || "-", margin + 45, y);
+        y += lineHeight;
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Especie:", margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(`${data.especie_comun || "-"} (${data.especie_cientifico || "-"})`, margin + 45, y);
+        y += lineHeight;
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Cantidad:", margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(data.cantidad_animales ? data.cantidad_animales.toString() : "-", margin + 45, y);
+        y += lineHeight;
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Municipio:", margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(data.municipio || "-", margin + 45, y);
+        y += lineHeight;
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Posible causa:", margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(data.posible_causa.length ? data.posible_causa.join(", ") : "-", margin + 45, y);
+        y += lineHeight;
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Remitente:", margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(data.remitente.length ? data.remitente.join(", ") : "-", margin + 45, y);
+        y += lineHeight;
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Estado animal:", margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(data.estado_animal.length ? data.estado_animal.join(", ") : "-", margin + 45, y);
+        y += lineHeight;
+        
+        if (data.coordenadas_mapa) {
+            pdf.setFont(undefined, 'bold');
+            pdf.text("Coordenadas:", margin, y);
+            pdf.setFont(undefined, 'normal');
+            pdf.text(data.coordenadas_mapa, margin + 45, y);
+            y += lineHeight;
         }
-    });
+        
+        if (data.apoyo) {
+            pdf.setFont(undefined, 'bold');
+            pdf.text("Apoyo:", margin, y);
+            pdf.setFont(undefined, 'normal');
+            pdf.text(data.apoyo, margin + 45, y);
+            y += lineHeight;
+        }
+        
+        if (data.cra_km) {
+            pdf.setFont(undefined, 'bold');
+            pdf.text("CRA y KM:", margin, y);
+            pdf.setFont(undefined, 'normal');
+            pdf.text(data.cra_km, margin + 45, y);
+            y += lineHeight;
+        }
+        
+        if (data.observaciones) {
+            pdf.setFont(undefined, 'bold');
+            pdf.text("Observaciones:", margin, y);
+            y += lineHeight;
+            pdf.setFont(undefined, 'normal');
+            const obsLines = pdf.splitTextToSize(data.observaciones, 180);
+            pdf.text(obsLines, margin, y);
+            y += obsLines.length * lineHeight;
+        }
+        
+        if (data.cumplimentado_por) {
+            y += lineHeight;
+            pdf.setFont(undefined, 'bold');
+            pdf.text("Cumplimentado por:", margin, y);
+            pdf.setFont(undefined, 'normal');
+            pdf.text(data.cumplimentado_por, margin + 45, y);
+            y += lineHeight;
+        }
+        
+        if (data.telefono_remitente) {
+            pdf.setFont(undefined, 'bold');
+            pdf.text("Teléfono:", margin, y);
+            pdf.setFont(undefined, 'normal');
+            pdf.text(data.telefono_remitente, margin + 45, y);
+        }
+        
+        const fechaHora = new Date().toLocaleString('es-ES');
+        pdf.setFontSize(8);
+        pdf.setTextColor(100);
+        pdf.text(`PDF generado: ${fechaHora}`, 105, 290, { align: "center" });
+        
+        const especieLimpia = data.especie_comun ? data.especie_comun.replace(/
 
     function enviarDatos(data, btn) {
         fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec ", {
@@ -386,6 +489,7 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

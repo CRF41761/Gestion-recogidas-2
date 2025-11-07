@@ -278,19 +278,12 @@ if (cantidadInput) {
         })
             .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada "))
             .then(r => r.json())
-.then(d => {
-    if (d.numerosEntrada && d.numerosEntrada.length > 0) {
-        // ‑‑> varios ejemplares
-        const lista = d.numerosEntrada.join(", ");
-        alert(`✅ Números de entrada asignados: ${lista}`);
-    } else {
-        // ‑‑> un solo ejemplar (retro-compatible)
-        alert(`✅ Número de entrada asignado: ${d.numeroEntrada || "desconocido"}`);
-    }
-    sessionStorage.setItem('formEnviadoOK', '1');
-    document.getElementById("formulario").reset();
-    btn.disabled = false; btn.textContent = "Enviar";
-})
+            .then(d => {
+                alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
+                sessionStorage.setItem('formEnviadoOK', '1');
+                document.getElementById("formulario").reset();
+                btn.disabled = false; btn.textContent = "Enviar";
+            })
             .catch(err => {
                 console.error(err);
                 alert("Error al enviar.");
@@ -393,8 +386,6 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-
-
 
 
 

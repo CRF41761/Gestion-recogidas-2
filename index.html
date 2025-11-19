@@ -20,11 +20,6 @@
         </svg>
     </button>
 
-     <!-- Botón para ver registros guardados -->
-    <button id="btnVerRegistros" style="position:fixed; top:10px; right:50px; z-index:1000; background:#17a2b8; color:white; padding:8px 12px; border:none; border-radius:4px; cursor:pointer;">
-        📋 Ver registros guardados
-    </button>
-
     <!-- Modal para mostrar registros -->
     <div id="modalRegistros" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; overflow:auto;">
         <div style="background:white; margin:20px; padding:20px; border-radius:8px; max-height:90vh; overflow:auto;">
@@ -40,7 +35,6 @@
     </div>
 
     <form id="formulario">
-
         <!-- Número de entrada -->
         <div class="form-group">
             <label for="numero_entrada">Número de entrada:</label>
@@ -251,7 +245,7 @@
                     <div>
                         <label for="recuperacion">Recuperación</label>
                         <input type="checkbox" id="recuperacion" name="estado_animal" value="Recuperación">
-                        <!-- ? Campo dinámico para código de anilla -->
+                        <!-- Campo dinámico para código de anilla -->
                         <span id="anillaWrapper" style="display:none; margin-left:8px;">
                             <input type="text" id="anilla" name="anilla" placeholder="Código anilla" maxlength="30" style="width:140px; font-size:0.95em;">
                         </span>
@@ -315,10 +309,15 @@
 
         <!-- Botón de Envío -->
         <button type="submit" id="enviarBtn">Enviar</button>
+        
+        <!-- BOTÓN NUEVO AL FINAL DEL FORMULARIO -->
+        <div style="margin-top: 15px; text-align: center;">
+            <button type="button" id="btnVerRegistros" style="background:#17a2b8; color:white; padding:10px 15px; border:none; border-radius:4px; cursor:pointer; font-size:14px;">
+                📋 Ver registros guardados en tablet
+            </button>
+        </div>
     </form>
 
     <script src="script.js"></script>
 </body>
 </html>
-
-

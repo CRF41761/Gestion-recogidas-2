@@ -25,16 +25,19 @@
         <div style="background:white; margin:20px; padding:20px; border-radius:8px; max-height:90vh; overflow:auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h2>Registros Guardados Localmente</h2>
-                <div>
-                    <button id="btnExportarJSON" style="background:#28a745; color:white; padding:8px 12px; border:none; border-radius:4px; cursor:pointer; margin-right:10px;">📤 Exportar JSON</button>
-                    <button id="btnCerrarModal" style="background:#dc3545; color:white; padding:8px 12px; border:none; border-radius:4px; cursor:pointer;">✕ Cerrar</button>
-                </div>
+                <button id="btnCerrarModal" style="background:#dc3545; color:white; padding:8px 12px; border:none; border-radius:4px; cursor:pointer;">✕ Cerrar</button>
+            </div>
+            <!-- Botón importar dentro del modal (solo visible si no hay registros) -->
+            <div id="importarEnModal" style="display:none; text-align:center; margin-bottom:15px;">
+                <input type="file" id="importarJSON" accept=".json" style="display:none;">
+                <button id="btnImportarModal" style="background:#ffc107; color:#000; padding:8px 12px; border:none; border-radius:4px; cursor:pointer; font-size:14px;">📥 Importar backup</button>
             </div>
             <div id="contenidoRegistros"></div>
         </div>
     </div>
 
     <form id="formulario">
+        <!-- [TODO TU FORMULARIO EXISTENTE - SIN CAMBIOS] -->
         <!-- Número de entrada -->
         <div class="form-group">
             <label for="numero_entrada">Número de entrada:</label>
@@ -310,11 +313,15 @@
         <!-- Botón de Envío -->
         <button type="submit" id="enviarBtn">Enviar</button>
         
-        <!-- BOTÓN NUEVO AL FINAL DEL FORMULARIO -->
-        <div style="margin-top: 15px; text-align: center;">
-            <button type="button" id="btnVerRegistros" style="background:#17a2b8; color:white; padding:10px 15px; border:none; border-radius:4px; cursor:pointer; font-size:14px;">
-                📋 Ver registros guardados en tablet
+        <!-- BOTONES NUEVOS EN LA MISMA LÍNEA -->
+        <div style="margin-top: 15px; text-align: center; display:flex; gap:10px; justify-content:center;">
+            <button type="button" id="btnVerRegistros" style="background:#17a2b8; color:white; padding:10px 15px; border:none; border-radius:4px; cursor:pointer; font-size:14px; flex:1; max-width:200px;">
+                📋 Ver registros guardados
             </button>
+            <button type="button" id="btnImportar" style="background:#ffc107; color:#000; padding:10px 15px; border:none; border-radius:4px; cursor:pointer; font-size:14px; flex:1; max-width:200px;">
+                📥 Importar backup
+            </button>
+            <input type="file" id="importarJSON" accept=".json" style="display:none;">
         </div>
     </form>
 

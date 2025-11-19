@@ -20,6 +20,25 @@
         </svg>
     </button>
 
+     <!-- Botón para ver registros guardados -->
+    <button id="btnVerRegistros" style="position:fixed; top:10px; right:50px; z-index:1000; background:#17a2b8; color:white; padding:8px 12px; border:none; border-radius:4px; cursor:pointer;">
+        📋 Ver registros guardados
+    </button>
+
+    <!-- Modal para mostrar registros -->
+    <div id="modalRegistros" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; overflow:auto;">
+        <div style="background:white; margin:20px; padding:20px; border-radius:8px; max-height:90vh; overflow:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2>Registros Guardados Localmente</h2>
+                <div>
+                    <button id="btnExportarJSON" style="background:#28a745; color:white; padding:8px 12px; border:none; border-radius:4px; cursor:pointer; margin-right:10px;">📤 Exportar JSON</button>
+                    <button id="btnCerrarModal" style="background:#dc3545; color:white; padding:8px 12px; border:none; border-radius:4px; cursor:pointer;">✕ Cerrar</button>
+                </div>
+            </div>
+            <div id="contenidoRegistros"></div>
+        </div>
+    </div>
+
     <form id="formulario">
 
         <!-- Número de entrada -->
@@ -301,4 +320,5 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 

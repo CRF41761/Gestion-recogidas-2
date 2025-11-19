@@ -128,11 +128,13 @@ const mostrarRegistros = async () => {
     const html = registros.map(reg => `
         <div style="border:1px solid #ddd; padding:12px; margin-bottom:12px; border-radius:6px; background:#f9f9f9;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <div>
+                <div style="flex:1;">
                     <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
                     <small style="color:#666;">📅 ${formatearFechaHora(reg.timestamp)}</small>
                 </div>
-                <button onclick="eliminarYActualizar(${reg.id})" style="background:#dc3545; color:white; border:none; padding:6px 10px; border-radius:3px; cursor:pointer;">Eliminar</button>
+                <button onclick="eliminarYActualizar(${reg.id})" 
+                        style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px; margin-left:10px;" 
+                        title="Eliminar registro">🗑️</button>
             </div>
             <details style="font-size:0.9em; color:#555; margin-top:8px;">
                 <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
@@ -143,7 +145,6 @@ const mostrarRegistros = async () => {
     
     contenedor.innerHTML = html;
 };
-
 // Eliminar y actualizar vista
 window.eliminarYActualizar = async (id) => {
     if (confirm('¿Seguro que quieres eliminar este registro?')) {
@@ -571,3 +572,4 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+

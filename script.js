@@ -100,6 +100,34 @@ const exportarRegistrosJSON = async () => {
     URL.revokeObjectURL(url);
 };
 
+// Importar registros desde JSON
+const importarRegistrosJSON = (archivo) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const registros = JSON.parse(e.target.result);
+                if (!Array.isArray(registros)) {
+                    throw new Error('El archivo no contiene un array válido');
+                }
+                
+                // Importar cada registro
+                for (const registro of registros) {
+                    // Verificar que tenga los campos mínimos
+                    if (registro.fecha && registro.especie_comun) {
+                        await guardarRegistroLocal(registro);
+                    }
+                }
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(archivo);
+    });
+};
+
 // Formatear fecha/hora legible (ej: 19/11/2025 14:30:25)
 const formatearFechaHora = (fechaISO) => {
     const fecha = new Date(fechaISO);
@@ -116,11 +144,15 @@ const formatearFechaHora = (fechaISO) => {
 const mostrarRegistros = async () => {
     const registros = await obtenerRegistros();
     const contenedor = document.getElementById('contenidoRegistros');
+    const importarEnModal = document.getElementById('importarEnModal');
     
     if (registros.length === 0) {
         contenedor.innerHTML = '<p style="color:#666;">No hay registros guardados localmente.</p>';
+        importarEnModal.style.display = 'block'; // Mostrar opción de importar
         return;
     }
+    
+    importarEnModal.style.display = 'none'; // Ocultar si hay registros
     
     // Ordenar por fecha descendente (más reciente primero)
     registros.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -145,6 +177,7 @@ const mostrarRegistros = async () => {
     
     contenedor.innerHTML = html;
 };
+
 // Eliminar y actualizar vista
 window.eliminarYActualizar = async (id) => {
     if (confirm('¿Seguro que quieres eliminar este registro?')) {
@@ -475,19 +508,52 @@ document.addEventListener("DOMContentLoaded", function () {
     // Modal de registros
     const modal = document.getElementById('modalRegistros');
     const btnVerRegistros = document.getElementById('btnVerRegistros');
+    const btnImportar = document.getElementById('btnImportar');
     const btnCerrarModal = document.getElementById('btnCerrarModal');
-    const btnExportarJSON = document.getElementById('btnExportarJSON');
+    const inputImportarJSON = document.getElementById('importarJSON');
+    const btnImportarModal = document.getElementById('btnImportarModal');
 
+    // Abrir modal
     btnVerRegistros.addEventListener('click', async () => {
         modal.style.display = 'block';
         await mostrarRegistros();
     });
 
+    // Cerrar modal
     btnCerrarModal.addEventListener('click', () => {
         modal.style.display = 'none';
     });
 
-    btnExportarJSON.addEventListener('click', exportarRegistrosJSON);
+    // Importar desde el botón principal
+    btnImportar.addEventListener('click', () => {
+        inputImportarJSON.click();
+    });
+
+    // Importar desde el modal (cuando no hay registros)
+    btnImportarModal.addEventListener('click', () => {
+        inputImportarJSON.click();
+    });
+
+    // Manejar archivo seleccionado
+    inputImportarJSON.addEventListener('change', async (e) => {
+        const archivo = e.target.files[0];
+        if (!archivo) return;
+
+        if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
+
+        try {
+            await importarRegistrosJSON(archivo);
+            alert('✅ Registros importados correctamente');
+            if (modal.style.display === 'block') {
+                await mostrarRegistros();
+            }
+            // Limpiar el input para poder importar el mismo archivo de nuevo si es necesario
+            inputImportarJSON.value = '';
+        } catch (error) {
+            console.error('Error importando:', error);
+            alert('❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.');
+        }
+    });
 
     // Cerrar modal al hacer clic fuera
     modal.addEventListener('click', (e) => {
@@ -572,4 +638,3 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-

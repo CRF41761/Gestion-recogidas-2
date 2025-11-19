@@ -53,7 +53,7 @@ const guardarRegistroLocal = (datos) => {
         const datosParaGuardar = { ...datos };
         delete datosParaGuardar.numero_entrada;
         
-        // Añadir timestamp
+        // Añadir timestamp con fecha y hora exacta
         datosParaGuardar.timestamp = new Date().toISOString();
         datosParaGuardar.id = Date.now(); // Usar timestamp como ID único
         
@@ -100,6 +100,18 @@ const exportarRegistrosJSON = async () => {
     URL.revokeObjectURL(url);
 };
 
+// Formatear fecha/hora legible (ej: 19/11/2025 14:30:25)
+const formatearFechaHora = (fechaISO) => {
+    const fecha = new Date(fechaISO);
+    const dia = fecha.getDate().toString().padStart(2, '0');
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const año = fecha.getFullYear();
+    const horas = fecha.getHours().toString().padStart(2, '0');
+    const minutos = fecha.getMinutes().toString().padStart(2, '0');
+    const segundos = fecha.getSeconds().toString().padStart(2, '0');
+    return `${dia}/${mes}/${año} ${horas}:${minutos}:${segundos}`;
+};
+
 // Mostrar registros en el modal
 const mostrarRegistros = async () => {
     const registros = await obtenerRegistros();
@@ -110,18 +122,22 @@ const mostrarRegistros = async () => {
         return;
     }
     
-    // Ordenar por fecha descendente
+    // Ordenar por fecha descendente (más reciente primero)
     registros.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
     const html = registros.map(reg => `
-        <div style="border:1px solid #ddd; padding:12px; margin-bottom:10px; border-radius:4px; background:#f9f9f9;">
+        <div style="border:1px solid #ddd; padding:12px; margin-bottom:12px; border-radius:6px; background:#f9f9f9;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <strong style="color:#333;">${reg.fecha || 'Sin fecha'} - ${reg.especie_comun || 'Sin especie'}</strong>
-                <button onclick="eliminarYActualizar(${reg.id})" style="background:#dc3545; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">Eliminar</button>
+                <div>
+                    <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
+                    <small style="color:#666;">📅 ${formatearFechaHora(reg.timestamp)}</small>
+                </div>
+                <button onclick="eliminarYActualizar(${reg.id})" style="background:#dc3545; color:white; border:none; padding:6px 10px; border-radius:3px; cursor:pointer;">Eliminar</button>
             </div>
-            <div style="font-size:0.9em; color:#555; overflow:auto; max-height:150px;">
-                <pre style="margin:0; white-space: pre-wrap; word-wrap: break-word;">${JSON.stringify(reg, null, 2)}</pre>
-            </div>
+            <details style="font-size:0.9em; color:#555; margin-top:8px;">
+                <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
+                <pre style="margin:8px 0 0 0; padding:10px; background:#fff; border:1px solid #e0e0e0; border-radius:4px; white-space: pre-wrap; word-wrap: break-word; font-size:0.85em;">${JSON.stringify(reg, null, 2)}</pre>
+            </details>
         </div>
     `).join('');
     
@@ -414,7 +430,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log('Registro guardado localmente sin número de entrada');
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
-                // No bloqueamos el flujo principal si falla el guardado local
             }
 
             // Actualizamos número de entrada

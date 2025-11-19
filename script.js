@@ -13,31 +13,163 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 /* ============================================ */
 
-document.addEventListener("DOMContentLoaded", function () {
-   /* ---------- CONFIRMACIÓN DE CANTIDAD DE EJEMPLARES ---------- */
-const cantidadInput = document.getElementById('cantidad_animales');
-if (cantidadInput) {
-  cantidadInput.addEventListener('change', function () {
-    const cant = parseInt(this.value, 10);
-    if (isNaN(cant) || cant <= 0) return;
+/* ============================================
+   INDEXEDDB - GESTIÓN DE REGISTROS LOCALES
+   ============================================ */
+const DB_NAME = 'RecogidasDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'registros';
 
-    const mensaje = `¿Seguro que son ${cant} animales?`;
-    const ok = confirm(mensaje);
-    if (!ok) {
-      this.value = "";
-      this.focus();
+// Inicializar IndexedDB
+let db;
+const initDB = () => {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+            db = request.result;
+            resolve(db);
+        };
+        
+        request.onupgradeneeded = (e) => {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                store.createIndex('fecha', 'fecha', { unique: false });
+                store.createIndex('municipio', 'municipio', { unique: false });
+            }
+        };
+    });
+};
+
+// Guardar registro en IndexedDB (sin número de entrada)
+const guardarRegistroLocal = (datos) => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        
+        // Eliminar numero_entrada para no guardarlo
+        const datosParaGuardar = { ...datos };
+        delete datosParaGuardar.numero_entrada;
+        
+        // Añadir timestamp
+        datosParaGuardar.timestamp = new Date().toISOString();
+        datosParaGuardar.id = Date.now(); // Usar timestamp como ID único
+        
+        const request = store.add(datosParaGuardar);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+};
+
+// Obtener todos los registros
+const obtenerRegistros = () => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.getAll();
+        
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+};
+
+// Eliminar registro
+const eliminarRegistro = (id) => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.delete(id);
+        
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+};
+
+// Exportar registros a JSON
+const exportarRegistrosJSON = async () => {
+    const registros = await obtenerRegistros();
+    const dataStr = JSON.stringify(registros, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `registros_recogidas_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
+// Mostrar registros en el modal
+const mostrarRegistros = async () => {
+    const registros = await obtenerRegistros();
+    const contenedor = document.getElementById('contenidoRegistros');
+    
+    if (registros.length === 0) {
+        contenedor.innerHTML = '<p style="color:#666;">No hay registros guardados localmente.</p>';
+        return;
     }
-  });
-}
+    
+    // Ordenar por fecha descendente
+    registros.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    const html = registros.map(reg => `
+        <div style="border:1px solid #ddd; padding:12px; margin-bottom:10px; border-radius:4px; background:#f9f9f9;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <strong style="color:#333;">${reg.fecha || 'Sin fecha'} - ${reg.especie_comun || 'Sin especie'}</strong>
+                <button onclick="eliminarYActualizar(${reg.id})" style="background:#dc3545; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">Eliminar</button>
+            </div>
+            <div style="font-size:0.9em; color:#555; overflow:auto; max-height:150px;">
+                <pre style="margin:0; white-space: pre-wrap; word-wrap: break-word;">${JSON.stringify(reg, null, 2)}</pre>
+            </div>
+        </div>
+    `).join('');
+    
+    contenedor.innerHTML = html;
+};
+
+// Eliminar y actualizar vista
+window.eliminarYActualizar = async (id) => {
+    if (confirm('¿Seguro que quieres eliminar este registro?')) {
+        await eliminarRegistro(id);
+        await mostrarRegistros();
+    }
+};
+
+// Inicializar DB al cargar
+initDB().then(() => {
+    console.log('IndexedDB inicializada correctamente');
+}).catch(err => {
+    console.error('Error inicializando IndexedDB:', err);
+    alert('Error al inicializar base de datos local. Los registros no se guardarán.');
+});
+/* ============================================ */
+
+document.addEventListener("DOMContentLoaded", function () {
+    /* ---------- CONFIRMACIÓN DE CANTIDAD DE EJEMPLARES ---------- */
+    const cantidadInput = document.getElementById('cantidad_animales');
+    if (cantidadInput) {
+        cantidadInput.addEventListener('change', function () {
+            const cant = parseInt(this.value, 10);
+            if (isNaN(cant) || cant <= 0) return;
+            const mensaje = `¿Seguro que son ${cant} animales?`;
+            const ok = confirm(mensaje);
+            if (!ok) {
+                this.value = "";
+                this.focus();
+            }
+        });
+    }
+
     var map = L.map("map").setView([39.4699, -0.3763], 10);
 
     const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
     });
     const googleSat = L.tileLayer("https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
-    attribution: "© Google Maps",
-    subdomains: ["mt0", "mt1", "mt2", "mt3"]
-});
+        attribution: "© Google Maps",
+        subdomains: ["mt0", "mt1", "mt2", "mt3"]
+    });
     L.control.layers({ "Mapa estándar": osmMap, "Ortofotografía (satélite)": googleSat }).addTo(map);
     osmMap.addTo(map);
 
@@ -59,8 +191,6 @@ if (cantidadInput) {
                 marker = null;
             }
         });
-    } else {
-        console.warn("?? Botón 'btnBorrarCoords' no encontrado en el DOM.");
     }
 
     /* ? Mostrar/ocultar campo "Código anilla" al marcar/desmarcar "Recuperación" */
@@ -73,10 +203,7 @@ if (cantidadInput) {
             wrap.style.display = chkRec.checked ? 'inline-block' : 'none';
             if (!chkRec.checked) inpAni.value = '';
         }
-
         chkRec.addEventListener('change', toggleAnillaField);
-
-        /* ? Por si el checkbox ya está marcado al cargar la página */
         toggleAnillaField();
     }
 
@@ -127,7 +254,7 @@ if (cantidadInput) {
             return;
         }
 
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q= ${encodeURIComponent(raw)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -178,7 +305,7 @@ if (cantidadInput) {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada ")
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -240,7 +367,6 @@ if (cantidadInput) {
             coordenadas_mapa: fd.get("coordenadas_mapa"),
             apoyo: fd.get("apoyo"),
             cra_km: fd.get("cra_km"),
-            /* ? CONCATENAMOS observaciones + anilla si procede */
             observaciones: (() => {
                 let txt = fd.get("observaciones")?.trim() || "";
                 const anillaInput = document.getElementById('anilla');
@@ -262,35 +388,57 @@ if (cantidadInput) {
         const file = fd.get("foto");
         if (file && file.size) {
             const reader = new FileReader();
-            reader.onload = ev => { data.foto = ev.target.result; enviarDatos(data, btn); };
+            reader.onload = ev => { 
+                data.foto = ev.target.result; 
+                enviarDatos(data, btn); 
+            };
             reader.readAsDataURL(file);
         } else {
             enviarDatos(data, btn);
         }
     });
 
-    function enviarDatos(data, btn) {
-        fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec ", {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        })
-            .then(() => fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada "))
-            .then(r => r.json())
-            .then(d => {
-                alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
-                sessionStorage.setItem('formEnviadoOK', '1');
-                document.getElementById("formulario").reset();
-                btn.disabled = false; btn.textContent = "Enviar";
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Error al enviar.");
-                btn.disabled = false; btn.textContent = "Enviar";
+    async function enviarDatos(data, btn) {
+        try {
+            // Primero enviamos a Google Sheets
+            await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
             });
+
+            // Si el envío fue exitoso, guardamos en IndexedDB (sin número de entrada)
+            try {
+                await guardarRegistroLocal(data);
+                console.log('Registro guardado localmente sin número de entrada');
+            } catch (dbError) {
+                console.error('Error guardando en IndexedDB:', dbError);
+                // No bloqueamos el flujo principal si falla el guardado local
+            }
+
+            // Actualizamos número de entrada
+            const response = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
+            const d = await response.json();
+            
+            alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+            sessionStorage.setItem('formEnviadoOK', '1');
+            document.getElementById("formulario").reset();
+            
+            // Restablecer fecha actual
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = hoy;
+            
+        } catch (err) {
+            console.error(err);
+            alert("❌ Error al enviar. Los datos no se guardaron en la tablet.");
+        } finally {
+            btn.disabled = false; 
+            btn.textContent = "Enviar";
+        }
     }
 
+    // Auto-guardado temporal (localStorage) mientras se rellena el formulario
     const form = document.getElementById("formulario");
     form.addEventListener('input', () => {
         const obj = {};
@@ -306,6 +454,28 @@ if (cantidadInput) {
             }
         });
         localStorage.setItem('recogidasForm', JSON.stringify(obj));
+    });
+
+    // Modal de registros
+    const modal = document.getElementById('modalRegistros');
+    const btnVerRegistros = document.getElementById('btnVerRegistros');
+    const btnCerrarModal = document.getElementById('btnCerrarModal');
+    const btnExportarJSON = document.getElementById('btnExportarJSON');
+
+    btnVerRegistros.addEventListener('click', async () => {
+        modal.style.display = 'block';
+        await mostrarRegistros();
+    });
+
+    btnCerrarModal.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    btnExportarJSON.addEventListener('click', exportarRegistrosJSON);
+
+    // Cerrar modal al hacer clic fuera
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
     });
 });
 
@@ -386,5 +556,3 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-
-

@@ -25,13 +25,11 @@ let db;
 const initDB = () => {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
-        
         request.onerror = () => reject(request.error);
         request.onsuccess = () => {
             db = request.result;
             resolve(db);
         };
-        
         request.onupgradeneeded = (e) => {
             db = e.target.result;
             if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -48,15 +46,10 @@ const guardarRegistroLocal = (datos) => {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
-        
-        // Eliminar numero_entrada para no guardarlo
         const datosParaGuardar = { ...datos };
         delete datosParaGuardar.numero_entrada;
-        
-        // Añadir timestamp con fecha y hora exacta
         datosParaGuardar.timestamp = new Date().toISOString();
-        datosParaGuardar.id = Date.now(); // Usar timestamp como ID único
-        
+        datosParaGuardar.id = Date.now();
         const request = store.add(datosParaGuardar);
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
@@ -69,7 +62,6 @@ const obtenerRegistros = () => {
         const transaction = db.transaction([STORE_NAME], 'readonly');
         const store = transaction.objectStore(STORE_NAME);
         const request = store.getAll();
-        
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
@@ -81,7 +73,6 @@ const eliminarRegistro = (id) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
         const request = store.delete(id);
-        
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
     });
@@ -107,16 +98,9 @@ const importarRegistrosJSON = (archivo) => {
         reader.onload = async (e) => {
             try {
                 const registros = JSON.parse(e.target.result);
-                if (!Array.isArray(registros)) {
-                    throw new Error('El archivo no contiene un array válido');
-                }
-                
-                // Importar cada registro
+                if (!Array.isArray(registros)) throw new Error('El archivo no contiene un array válido');
                 for (const registro of registros) {
-                    // Verificar que tenga los campos mínimos
-                    if (registro.fecha && registro.especie_comun) {
-                        await guardarRegistroLocal(registro);
-                    }
+                    if (registro.fecha && registro.especie_comun) await guardarRegistroLocal(registro);
                 }
                 resolve();
             } catch (error) {
@@ -128,7 +112,7 @@ const importarRegistrosJSON = (archivo) => {
     });
 };
 
-// Formatear fecha/hora legible (ej: 19/11/2025 14:30:25)
+// Formatear fecha/hora legible
 const formatearFechaHora = (fechaISO) => {
     const fecha = new Date(fechaISO);
     const dia = fecha.getDate().toString().padStart(2, '0');
@@ -145,28 +129,23 @@ const mostrarRegistros = async () => {
     const registros = await obtenerRegistros();
     const contenedor = document.getElementById('contenidoRegistros');
     const importarEnModal = document.getElementById('importarEnModal');
-    
     if (registros.length === 0) {
         contenedor.innerHTML = '<p style="color:#666;">No hay registros guardados localmente.</p>';
-        importarEnModal.style.display = 'block'; // Mostrar opción de importar
+        importarEnModal.style.display = 'block';
         return;
     }
-    
-    importarEnModal.style.display = 'none'; // Ocultar si hay registros
-    
-    // Ordenar por fecha descendente (más reciente primero)
+    importarEnModal.style.display = 'none';
     registros.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
     const html = registros.map(reg => `
         <div style="border:1px solid #ddd; padding:12px; margin-bottom:12px; border-radius:6px; background:#f9f9f9;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="flex:1;">
                     <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
-                    <small style="color:#666;">?? ${formatearFechaHora(reg.timestamp)}</small>
+                    <small style="color:#666;">📅 ${formatearFechaHora(reg.timestamp)}</small>
                 </div>
                 <button onclick="eliminarYActualizar(${reg.id})" 
                         style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px; margin-left:10px;" 
-                        title="Eliminar registro">???</button>
+                        title="Eliminar registro">🗑️</button>
             </div>
             <details style="font-size:0.9em; color:#555; margin-top:8px;">
                 <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
@@ -174,7 +153,6 @@ const mostrarRegistros = async () => {
             </details>
         </div>
     `).join('');
-    
     contenedor.innerHTML = html;
 };
 
@@ -212,7 +190,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     var map = L.map("map").setView([39.4699, -0.3763], 10);
-
     const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
     });
@@ -225,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let marker, watchId = null, seguimientoActivo = true, forzarZoomInicial = false, ultimaPosicion = null;
 
-    /* ? Botón Borrar Coordenadas del Mapa */
+    /* Botón Borrar Coordenadas del Mapa */
     const btnBorrar = document.getElementById("btnBorrarCoords");
     if (btnBorrar) {
         btnBorrar.addEventListener("click", () => {
@@ -243,11 +220,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    /* ? Mostrar/ocultar campo "Código anilla" al marcar/desmarcar "Recuperación" */
+    /* Mostrar/ocultar campo "Código anilla" */
     const chkRec = document.getElementById('recuperacion');
     const wrap   = document.getElementById('anillaWrapper');
     const inpAni = document.getElementById('anilla');
-
     if (chkRec && wrap && inpAni) {
         function toggleAnillaField() {
             wrap.style.display = chkRec.checked ? 'inline-block' : 'none';
@@ -287,11 +263,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     map.on("click", onMapClick);
 
-    /* ========== BUSCAR COORDENADAS O DIRECCIÓN ========== */
+    /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
     function buscarOCoordenadas(raw) {
         raw = raw.trim();
         if (!raw) return;
-
         const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
         if (partes.length === 2 && !isNaN(parseFloat(partes[0])) && !isNaN(parseFloat(partes[1]))) {
             const lat = parseFloat(partes[0]);
@@ -303,7 +278,6 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             return;
         }
-
         const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
@@ -337,7 +311,6 @@ document.addEventListener("DOMContentLoaded", function () {
     locateButton.textContent = "Volver a mi ubicación";
     locateButton.type = "button";
     Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
-
     locateButton.addEventListener("click", e => {
         e.preventDefault();
         seguimientoActivo = true;
@@ -351,7 +324,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         iniciarSeguimiento();
     });
-
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
@@ -362,7 +334,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
         const datalist = document.getElementById(datalistId);
-        input.addEventListener('blur', function() {
+        input.addEventListener('blur', function () {
             const opciones = Array.from(datalist.options).map(opt => opt.value.trim());
             if (input.value.trim() === "") return;
             if (!opciones.includes(input.value.trim())) {
@@ -376,7 +348,7 @@ document.addEventListener("DOMContentLoaded", function () {
     validarInputDatalist('especie_comun', 'especies-comun-list', 'Debes seleccionar una especie (nombre común) existente.');
     validarInputDatalist('especie_cientifico', 'especies-cientifico-list', 'Debes seleccionar una especie (nombre científico) existente.');
 
-    document.getElementById("formulario").addEventListener("submit", function(e) {
+    document.getElementById("formulario").addEventListener("submit", function (e) {
         const especieComunInput = document.getElementById("especie_comun");
         const especieComunList = Array.from(document.getElementById("especies-comun-list").options).map(opt => opt.value.trim());
         if (!especieComunInput.value.trim() || !especieComunList.includes(especieComunInput.value.trim())) {
@@ -421,12 +393,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 let txt = fd.get("observaciones")?.trim() || "";
                 const anillaInput = document.getElementById('anilla');
                 const recuperacionChecked = document.getElementById('recuperacion')?.checked;
-
                 if (recuperacionChecked && anillaInput) {
                     const anilla = anillaInput.value.trim();
-                    if (anilla) {
-                        txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
-                    }
+                    if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
                 }
                 return txt;
             })(),
@@ -438,10 +407,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const file = fd.get("foto");
         if (file && file.size) {
             const reader = new FileReader();
-            reader.onload = ev => { 
-                data.foto = ev.target.result; 
-                enviarDatos(data, btn); 
-            };
+            reader.onload = ev => { data.foto = ev.target.result; enviarDatos(data, btn); };
             reader.readAsDataURL(file);
         } else {
             enviarDatos(data, btn);
@@ -450,39 +416,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            // Primero enviamos a Google Sheets
             await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
-
-            // Si el envío fue exitoso, guardamos en IndexedDB (sin número de entrada)
             try {
                 await guardarRegistroLocal(data);
                 console.log('Registro guardado localmente sin número de entrada');
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-
-            // Actualizamos número de entrada
             const response = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
             const d = await response.json();
-            
-            alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
+            alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
-            
-            // Restablecer fecha actual
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').value = hoy;
-            
         } catch (err) {
             console.error(err);
-            alert("? Error al enviar. Los datos no se guardaron en la tablet.");
+            alert("❌ Error al enviar. Los datos no se guardaron en la tablet.");
         } finally {
-            btn.disabled = false; 
+            btn.disabled = false;
             btn.textContent = "Enviar";
         }
     }
@@ -513,49 +470,40 @@ document.addEventListener("DOMContentLoaded", function () {
     const inputImportarJSON = document.getElementById('importarJSON');
     const btnImportarModal = document.getElementById('btnImportarModal');
 
-    // Abrir modal
     btnVerRegistros.addEventListener('click', async () => {
         modal.style.display = 'block';
         await mostrarRegistros();
     });
 
-    // Cerrar modal
     btnCerrarModal.addEventListener('click', () => {
         modal.style.display = 'none';
     });
 
-    // Importar desde el botón principal
     btnImportar.addEventListener('click', () => {
         inputImportarJSON.click();
     });
 
-    // Importar desde el modal (cuando no hay registros)
     btnImportarModal.addEventListener('click', () => {
         inputImportarJSON.click();
     });
 
-    // Manejar archivo seleccionado
     inputImportarJSON.addEventListener('change', async (e) => {
         const archivo = e.target.files[0];
         if (!archivo) return;
-
         if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
-
         try {
             await importarRegistrosJSON(archivo);
-            alert('? Registros importados correctamente');
+            alert('✅ Registros importados correctamente');
             if (modal.style.display === 'block') {
                 await mostrarRegistros();
             }
-            // Limpiar el input para poder importar el mismo archivo de nuevo si es necesario
             inputImportarJSON.value = '';
         } catch (error) {
             console.error('Error importando:', error);
-            alert('? Error al importar el archivo. Asegúrate de que sea un JSON válido.');
+            alert('❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.');
         }
     });
 
-    // Cerrar modal al hacer clic fuera
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.style.display = 'none';
     });
@@ -563,10 +511,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /* =====  AL ARRANCAR: limpiar si NO venimos de un envío correcto  ===== */
 (() => {
-  if (!sessionStorage.getItem('formEnviadoOK')) {
-    localStorage.removeItem('recogidasForm');
-  }
-  sessionStorage.removeItem('formEnviadoOK');
+    if (!sessionStorage.getItem('formEnviadoOK')) {
+        localStorage.removeItem('recogidasForm');
+    }
+    sessionStorage.removeItem('formEnviadoOK');
 })();
 
 // Carga de municipios
@@ -584,11 +532,16 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(console.error);
 });
 
-// Carga de especies + autocompletado
+// ---------- Carga de especies + autocompletado INTELIGENTE ----------
 document.addEventListener("DOMContentLoaded", () => {
     const comInput  = document.getElementById("especie_comun");
     const cienInput = document.getElementById("especie_cientifico");
     let especiesData = [];
+
+    // Función para quitar acentos
+    function quitarAcentos(str) {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
 
     fetch("especies.json")
         .then(r => r.json())
@@ -596,32 +549,47 @@ document.addEventListener("DOMContentLoaded", () => {
             especiesData = d;
             const comList = document.getElementById("especies-comun-list");
             const cienList = document.getElementById("especies-cientifico-list");
-           // Rellenar datalists con versiones SIN acento para búsqueda fácil
-d.forEach(e => {
-  const comSin  = quitarAcentos(e.nombreComun);
-  const cienSin = quitarAcentos(e.nombreCientifico);
 
-  const opt1 = document.createElement("option");
-  opt1.value = e.nombreComun; // texto real con acento
-  opt1.label = comSin;        // etiqueta sin acento
-  comList.appendChild(opt1);
+            // Rellenar datalists: versión SIN acento para buscar y CON acento para insertar
+            d.forEach(e => {
+                const comSin  = quitarAcentos(e.nombreComun);
+                const cienSin = quitarAcentos(e.nombreCientifico);
 
-  const opt2 = document.createElement("option");
-  opt2.value = e.nombreCientifico;
-  opt2.label = cienSin;
-  cienList.appendChild(opt2);
-});
+                const opt1 = document.createElement("option");
+                opt1.value = comSin;          // sin acento → aparece al buscar
+                comList.appendChild(opt1);
+
+                const opt1b = document.createElement("option");
+                opt1b.value = e.nombreComun;  // con acento → se inserta al seleccionar
+                comList.appendChild(opt1b);
+
+                const opt2 = document.createElement("option");
+                opt2.value = cienSin;
+                cienList.appendChild(opt2);
+
+                const opt2b = document.createElement("option");
+                opt2b.value = e.nombreCientifico;
+                cienList.appendChild(opt2b);
+            });
+
+            // Autocompletado cruzado (común ↔ científico)
+            comInput.addEventListener("input", () => {
+                const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
+                if (found) {
+                    comInput.value  = found.nombreComun;   // muestra versión con tilde
+                    cienInput.value = found.nombreCientifico;
+                }
+            });
+
+            cienInput.addEventListener("input", () => {
+                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
+                if (found) {
+                    cienInput.value = found.nombreCientifico;
+                    comInput.value  = found.nombreComun;
+                }
+            });
         })
         .catch(console.error);
-
-    comInput.addEventListener("input", () => {
-        const found = especiesData.find(x => x.nombreComun === comInput.value.trim());
-        cienInput.value = found ? found.nombreCientifico : "";
-    });
-    cienInput.addEventListener("input", () => {
-        const found = especiesData.find(x => x.nombreCientifico === cienInput.value.trim());
-        comInput.value = found ? found.nombreComun : "";
-    });
 });
 
 // Service Worker
@@ -634,15 +602,14 @@ if ('serviceWorker' in navigator) {
 // Botón cerrar aplicación
 const btnCerrar = document.getElementById('btnCerrar');
 if (btnCerrar) {
-  btnCerrar.addEventListener('click', () => {
-    window.close();
-    if (!window.closed) {
-      alert('Puedes cerrar esta pestaña desde el navegador.');
-    }
-  });
+    btnCerrar.addEventListener('click', () => {
+        window.close();
+        if (!window.closed) {
+            alert('Puedes cerrar esta pestaña desde el navegador.');
+        }
+    });
 }
 
-// Fecha actual por defecto (permitiendo cambiarla)
+// Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-

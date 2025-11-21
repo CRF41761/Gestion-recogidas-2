@@ -596,14 +596,21 @@ document.addEventListener("DOMContentLoaded", () => {
             especiesData = d;
             const comList = document.getElementById("especies-comun-list");
             const cienList = document.getElementById("especies-cientifico-list");
-            d.forEach(e => {
-                const opt1 = document.createElement("option");
-                opt1.value = e.nombreComun;
-                comList.appendChild(opt1);
-                const opt2 = document.createElement("option");
-                opt2.value = e.nombreCientifico;
-                cienList.appendChild(opt2);
-            });
+           // Rellenar datalists con versiones SIN acento para búsqueda fácil
+d.forEach(e => {
+  const comSin  = quitarAcentos(e.nombreComun);
+  const cienSin = quitarAcentos(e.nombreCientifico);
+
+  const opt1 = document.createElement("option");
+  opt1.value = e.nombreComun; // texto real con acento
+  opt1.label = comSin;        // etiqueta sin acento
+  comList.appendChild(opt1);
+
+  const opt2 = document.createElement("option");
+  opt2.value = e.nombreCientifico;
+  opt2.label = cienSin;
+  cienList.appendChild(opt2);
+});
         })
         .catch(console.error);
 
@@ -638,3 +645,4 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+

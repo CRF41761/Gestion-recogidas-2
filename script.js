@@ -584,37 +584,44 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(console.error);
 });
 
-// Carga de especies + autocompletado
+// Carga de especies + autocompletado INTELIGENTE
 document.addEventListener("DOMContentLoaded", () => {
-    const comInput  = document.getElementById("especie_comun");
-    const cienInput = document.getElementById("especie_cientifico");
-    let especiesData = [];
+  const comInput  = document.getElementById("especie_comun");
+  const cienInput = document.getElementById("especie_cientifico");
+  const comList   = document.getElementById("especies-comun-list");
+  const cienList  = document.getElementById("especies-cientifico-list");
 
-    fetch("especies.json")
-        .then(r => r.json())
-        .then(d => {
-            especiesData = d;
-            const comList = document.getElementById("especies-comun-list");
-            const cienList = document.getElementById("especies-cientifico-list");
-            d.forEach(e => {
-                const opt1 = document.createElement("option");
-                opt1.value = e.nombreComun;
-                comList.appendChild(opt1);
-                const opt2 = document.createElement("option");
-                opt2.value = e.nombreCientifico;
-                cienList.appendChild(opt2);
-            });
-        })
-        .catch(console.error);
+  fetch("especies.json")
+    .then(r => r.json())
+    .then(d => {
+      especiesData = d;
+      construirDiccionarios(d);
 
-    comInput.addEventListener("input", () => {
-        const found = especiesData.find(x => x.nombreComun === comInput.value.trim());
-        cienInput.value = found ? found.nombreCientifico : "";
-    });
-    cienInput.addEventListener("input", () => {
-        const found = especiesData.find(x => x.nombreCientifico === cienInput.value.trim());
-        comInput.value = found ? found.nombreComun : "";
-    });
+      // Rellenar datalists
+      d.forEach(e => {
+        const opt1 = document.createElement("option");
+        opt1.value = e.nombreComun;
+        comList.appendChild(opt1);
+
+        const opt2 = document.createElement("option");
+        opt2.value = e.nombreCientifico;
+        cienList.appendChild(opt2);
+      });
+
+      // Escritura en tiempo real
+      comInput.addEventListener("input", () => {
+        const key = quitarAcentos(comInput.value.trim());
+        const cien = dictComunCientifico[key];
+        if (cien) cienInput.value = cien;
+      });
+
+      cienInput.addEventListener("input", () => {
+        const key = quitarAcentos(cienInput.value.trim());
+        const com = dictCientificoComun[key];
+        if (com) comInput.value = com;
+      });
+    })
+    .catch(console.error);
 });
 
 // Service Worker
@@ -638,3 +645,21 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+// ----------  BÚSQUEDA INTELIGENTE CON/SIN ACENTOS  ----------
+function quitarAcentos(str) {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// Crear diccionarios normalizados una vez cargado el JSON
+let especiesData = [];
+const dictComunCientifico = {};   // clave: nombre común sin acentos → científico
+const dictCientificoComun = {};   // clave: científico sin acentos → común
+
+function construirDiccionarios(data) {
+  data.forEach(e => {
+    const comSin  = quitarAcentos(e.nombreComun);
+    const cienSin = quitarAcentos(e.nombreCientifico);
+    dictComunCientifico[comSin]  = e.nombreCientifico;
+    dictCientificoComun[cienSin] = e.nombreComun;
+  });
+}

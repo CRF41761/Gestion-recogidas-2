@@ -162,11 +162,11 @@ const mostrarRegistros = async () => {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="flex:1;">
                     <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
-                    <small style="color:#666;">📅 ${formatearFechaHora(reg.timestamp)}</small>
+                    <small style="color:#666;">?? ${formatearFechaHora(reg.timestamp)}</small>
                 </div>
                 <button onclick="eliminarYActualizar(${reg.id})" 
                         style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px; margin-left:10px;" 
-                        title="Eliminar registro">🗑️</button>
+                        title="Eliminar registro">???</button>
             </div>
             <details style="font-size:0.9em; color:#555; margin-top:8px;">
                 <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
@@ -470,7 +470,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const response = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
             const d = await response.json();
             
-            alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+            alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             
@@ -480,7 +480,7 @@ document.addEventListener("DOMContentLoaded", function () {
             
         } catch (err) {
             console.error(err);
-            alert("❌ Error al enviar. Los datos no se guardaron en la tablet.");
+            alert("? Error al enviar. Los datos no se guardaron en la tablet.");
         } finally {
             btn.disabled = false; 
             btn.textContent = "Enviar";
@@ -543,7 +543,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
             await importarRegistrosJSON(archivo);
-            alert('✅ Registros importados correctamente');
+            alert('? Registros importados correctamente');
             if (modal.style.display === 'block') {
                 await mostrarRegistros();
             }
@@ -551,7 +551,7 @@ document.addEventListener("DOMContentLoaded", function () {
             inputImportarJSON.value = '';
         } catch (error) {
             console.error('Error importando:', error);
-            alert('❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.');
+            alert('? Error al importar el archivo. Asegúrate de que sea un JSON válido.');
         }
     });
 
@@ -584,44 +584,37 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(console.error);
 });
 
-// Carga de especies + autocompletado INTELIGENTE
+// Carga de especies + autocompletado
 document.addEventListener("DOMContentLoaded", () => {
-  const comInput  = document.getElementById("especie_comun");
-  const cienInput = document.getElementById("especie_cientifico");
-  const comList   = document.getElementById("especies-comun-list");
-  const cienList  = document.getElementById("especies-cientifico-list");
+    const comInput  = document.getElementById("especie_comun");
+    const cienInput = document.getElementById("especie_cientifico");
+    let especiesData = [];
 
-  fetch("especies.json")
-    .then(r => r.json())
-    .then(d => {
-      especiesData = d;
-      construirDiccionarios(d);
+    fetch("especies.json")
+        .then(r => r.json())
+        .then(d => {
+            especiesData = d;
+            const comList = document.getElementById("especies-comun-list");
+            const cienList = document.getElementById("especies-cientifico-list");
+            d.forEach(e => {
+                const opt1 = document.createElement("option");
+                opt1.value = e.nombreComun;
+                comList.appendChild(opt1);
+                const opt2 = document.createElement("option");
+                opt2.value = e.nombreCientifico;
+                cienList.appendChild(opt2);
+            });
+        })
+        .catch(console.error);
 
-      // Rellenar datalists
-      d.forEach(e => {
-        const opt1 = document.createElement("option");
-        opt1.value = e.nombreComun;
-        comList.appendChild(opt1);
-
-        const opt2 = document.createElement("option");
-        opt2.value = e.nombreCientifico;
-        cienList.appendChild(opt2);
-      });
-
-      // Escritura en tiempo real
-      comInput.addEventListener("input", () => {
-        const key = quitarAcentos(comInput.value.trim());
-        const cien = dictComunCientifico[key];
-        if (cien) cienInput.value = cien;
-      });
-
-      cienInput.addEventListener("input", () => {
-        const key = quitarAcentos(cienInput.value.trim());
-        const com = dictCientificoComun[key];
-        if (com) comInput.value = com;
-      });
-    })
-    .catch(console.error);
+    comInput.addEventListener("input", () => {
+        const found = especiesData.find(x => x.nombreComun === comInput.value.trim());
+        cienInput.value = found ? found.nombreCientifico : "";
+    });
+    cienInput.addEventListener("input", () => {
+        const found = especiesData.find(x => x.nombreCientifico === cienInput.value.trim());
+        comInput.value = found ? found.nombreComun : "";
+    });
 });
 
 // Service Worker
@@ -645,21 +638,3 @@ if (btnCerrar) {
 // Fecha actual por defecto (permitiendo cambiarla)
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-// ----------  BÚSQUEDA INTELIGENTE CON/SIN ACENTOS  ----------
-function quitarAcentos(str) {
-  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
-
-// Crear diccionarios normalizados una vez cargado el JSON
-let especiesData = [];
-const dictComunCientifico = {};   // clave: nombre común sin acentos → científico
-const dictCientificoComun = {};   // clave: científico sin acentos → común
-
-function construirDiccionarios(data) {
-  data.forEach(e => {
-    const comSin  = quitarAcentos(e.nombreComun);
-    const cienSin = quitarAcentos(e.nombreCientifico);
-    dictComunCientifico[comSin]  = e.nombreCientifico;
-    dictCientificoComun[cienSin] = e.nombreComun;
-  });
-}

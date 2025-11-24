@@ -225,38 +225,37 @@
 
         <!-- Campo: Estado del Animal -->
         <fieldset>
-            <legend>Estado del Animal</legend>
-            <div class="checkbox-grid">
-                <!-- Primera columna -->
-                <div>
-                    <div>
-                        <label for="animal_vivo">Animal Vivo</label>
-                        <input type="radio" id="animal_vivo" name="estado_animal" value="Animal Vivo">
-                    </div>
-                    <div>
-                        <label for="cadaver">Cadáver</label>
-                        <input type="radio" id="cadaver" name="estado_animal" value="Cadáver">
-                    </div>
-                </div>
-
-                <!-- Segunda columna -->
-                <div>
-                    <div>
-                        <label for="recoge_centro">Recoge Centro</label>
-                        <input type="checkbox" id="recoge_centro" name="estado_animal" value="Recoge Centro">
-                    </div>
-                    <div>
-                        <label for="recuperacion">Recuperación</label>
-                        <input type="checkbox" id="recuperacion" name="estado_animal" value="Recuperación">
-                        <!-- Campo dinámico para código de anilla -->
-                        <span id="anillaWrapper" style="display:none; margin-left:8px;">
-                            <input type="text" id="anilla" name="anilla" placeholder="Código anilla" maxlength="30" style="width:140px; font-size:0.95em;">
-                        </span>
-                    </div>
-                </div>
+    <legend>Estado del Animal</legend>
+    <div class="checkbox-grid">
+        <!-- Primera columna -->
+        <div>
+            <div>
+                <label for="animal_vivo">Animal Vivo</label>
+                <input type="radio" id="animal_vivo" name="estado_animal" value="Animal Vivo" required>
             </div>
-        </fieldset>
+            <div>
+                <label for="cadaver">Cadáver</label>
+                <input type="radio" id="cadaver" name="estado_animal" value="Cadáver">
+            </div>
+        </div>
 
+        <!-- Segunda columna -->
+        <div>
+            <div>
+                <label for="recoge_centro">Recoge Centro</label>
+                <input type="checkbox" id="recoge_centro" name="estado_animal" value="Recoge Centro">
+            </div>
+            <div>
+                <label for="recuperacion">Recuperación</label>
+                <input type="checkbox" id="recuperacion" name="estado_animal" value="Recuperación">
+                <!-- Campo dinámico para código de anilla -->
+                <span id="anillaWrapper" style="display:none; margin-left:8px;">
+                    <input type="text" id="anilla" name="anilla" placeholder="Código anilla" maxlength="30" style="width:140px; font-size:0.95em;">
+                </span>
+            </div>
+        </div>
+    </div>
+</fieldset>
         <!-- Campos adicionales -->
         <div class="form-group" style="display:flex;align-items:center;gap:6px;">
             <label for="coordenadas">Coordenadas dadas o Dirección:</label>
@@ -332,6 +331,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 

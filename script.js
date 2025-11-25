@@ -327,7 +327,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada ")
+    // ✅ URL NUEVA con CORS configurado
+    fetch("https://script.google.com/macros/s/AKfycbzuMbCehoFpRYeDgE1QCjzJXlCO_rjdOpoMIqOLKY13mN_96xa8E6onsNQ8Bx0ulZc/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -384,6 +385,9 @@ document.addEventListener("DOMContentLoaded", function () {
         btn.disabled = true; 
         btn.textContent = "Enviando...";
 
+        // ✅ URL NUEVA con CORS configurado
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzuMbCehoFpRYeDgE1QCjzJXlCO_rjdOpoMIqOLKY13mN_96xa8E6onsNQ8Bx0ulZc/exec";
+
         const fd = new FormData(this);
         const data = {
             numero_entrada: document.getElementById("numero_entrada").value,
@@ -429,9 +433,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec ", {
+            await fetch(URL_SCRIPT, {
                 method: "POST",
-                mode: "no-cors",
+                mode: "no-cors",  // ← mantén esto para envío
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
@@ -441,7 +445,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada ");
+            const response = await fetch(`${URL_SCRIPT}?getNumeroEntrada`);
             const d = await response.json();
             alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');

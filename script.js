@@ -328,7 +328,7 @@ document.addEventListener("DOMContentLoaded", function () {
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
     // ✅ URL NUEVA con CORS configurado
-    fetch("https://script.google.com/macros/s/AKfycbz3usxyQKem0x9NR7aBxVAs7WIrYdiMoKe2FbS4r9maTe4V2K7GgnVWAqXxXC_KlsAg/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbxx0unKI4JlB0S56n9FW92AFhz9w5zQeECJeN-5VyjFAWxiJalHXHRYYx1JXuJE2Vr0/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -386,7 +386,7 @@ document.addEventListener("DOMContentLoaded", function () {
         btn.textContent = "Enviando...";
 
         // ✅ URL NUEVA con CORS configurado
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbz3usxyQKem0x9NR7aBxVAs7WIrYdiMoKe2FbS4r9maTe4V2K7GgnVWAqXxXC_KlsAg/exec";
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxx0unKI4JlB0S56n9FW92AFhz9w5zQeECJeN-5VyjFAWxiJalHXHRYYx1JXuJE2Vr0/exec";
 
         const fd = new FormData(this);
         const data = {
@@ -630,6 +630,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

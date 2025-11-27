@@ -13,7 +13,8 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 /* ============================================ */
 
-
+// ========== CONFIGURACIÓN ==========
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxHWMWiUTfPLiSrS4lAQD9lC4J5Bbrtky9nLuzDFbkBLqNviG3xiA19F2gxwEtx_EQH/exec";
 
 document.addEventListener("DOMContentLoaded", function () {
     /* ---------- CONFIRMACIÓN DE CANTIDAD DE EJEMPLARES ---------- */
@@ -120,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             return;
         }
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q= ${encodeURIComponent(raw)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -169,9 +170,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    // ✅ URL NUEVA con CORS configurado
-    fetch("https://script.google.com/macros/s/AKfycbwLYd9E2-45g1kPVGqC7bnT70Ew3NlWTbF7fgiGvGc-7cNri3Ie5vipN6Krm49AwnrU/exec?getNumeroEntrada")
-        .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
+    // Cargar número de entrada inicial
+    fetch(URL_SCRIPT + "?getNumeroEntrada")
+        .then(r => r.json())
+        .then(d => document.getElementById("numero_entrada").value = d.numeroEntrada)
         .catch(console.error);
 
     function validarInputDatalist(inputId, datalistId, mensajeError) {
@@ -191,17 +193,14 @@ document.addEventListener("DOMContentLoaded", function () {
     validarInputDatalist('especie_comun', 'especies-comun-list', 'Debes seleccionar una especie (nombre común) existente.');
     validarInputDatalist('especie_cientifico', 'especies-cientifico-list', 'Debes seleccionar una especie (nombre científico) existente.');
 
-    /* ---------- ENVÍO DEL FORMULARIO (UNIFICADO Y CORREGIDO) ---------- */
+    /* ---------- ENVÍO DEL FORMULARIO ---------- */
     document.getElementById("formulario").addEventListener("submit", function (e) {
-        
-        // 1. PRIMERO: Validación nativa del navegador (muestra "Completa este campo")
         if (!this.checkValidity()) {
             e.preventDefault();
             this.reportValidity();
             return;
         }
 
-        // 2. SEGUNDO: Validaciones personalizadas de especies
         const especieComunInput = document.getElementById("especie_comun");
         const especieComunList = Array.from(document.getElementById("especies-comun-list").options).map(opt => opt.value.trim());
         if (!especieComunInput.value.trim() || !especieComunList.includes(especieComunInput.value.trim())) {
@@ -220,15 +219,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // 3. TERCERO: Si todo es válido, proceder con el envío AJAX
-        e.preventDefault(); // Prevenir envío normal solo ahora
-        localStorage.removeItem('recogidasForm');
+        e.preventDefault();
         const btn = document.getElementById("enviarBtn");
         btn.disabled = true; 
         btn.textContent = "Enviando...";
-
-        // ✅ URL NUEVA con CORS configurado
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwLYd9E2-45g1kPVGqC7bnT70Ew3NlWTbF7fgiGvGc-7cNri3Ie5vipN6Krm49AwnrU/exec";
 
         const fd = new FormData(this);
         const data = {
@@ -275,106 +269,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
+            // ✅ Envío SIN headers (clave para no-cors)
             await fetch(URL_SCRIPT, {
                 method: "POST",
-                mode: "no-cors",  // ← mantén esto para envío
-                headers: { "Content-Type": "application/json" },
+                mode: "no-cors",
                 body: JSON.stringify(data)
             });
-            try {
-                await guardarRegistroLocal(data);
-                console.log('Registro guardado localmente sin número de entrada');
-            } catch (dbError) {
-                console.error('Error guardando en IndexedDB:', dbError);
-            }
-            const response = await fetch(`${URL_SCRIPT}?getNumeroEntrada`);
+
+            // ✅ Obtener número de entrada
+            const response = await fetch(URL_SCRIPT + "?getNumeroEntrada");
             const d = await response.json();
             alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
-            sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
-            const hoy = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha').value = hoy;
+            document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+
         } catch (err) {
-            console.error(err);
-            alert("❌ Error al enviar. Los datos no se guardaron en la tablet.");
+            console.error('Error al enviar:', err);
+            alert("❌ Error al enviar los datos. Verifica la conexión e inténtalo de nuevo.");
         } finally {
             btn.disabled = false;
             btn.textContent = "Enviar";
         }
     }
 
-    // Auto-guardado temporal (localStorage) mientras se rellena el formulario
-    const form = document.getElementById("formulario");
-    form.addEventListener('input', () => {
-        const obj = {};
-        Array.from(form.elements).forEach(el => {
-            if (!el.name) return;
-            if (el.type === 'checkbox') {
-                if (!obj[el.name]) obj[el.name] = [];
-                if (el.checked) obj[el.name].push(el.value);
-            } else if (el.type === 'radio') {
-                if (el.checked) obj[el.name] = el.value;
-            } else {
-                obj[el.name] = el.value;
-            }
-        });
-        localStorage.setItem('recogidasForm', JSON.stringify(obj));
-    });
-
-    // Modal de registros
-    const modal = document.getElementById('modalRegistros');
-    const btnVerRegistros = document.getElementById('btnVerRegistros');
-    const btnImportar = document.getElementById('btnImportar');
-    const btnCerrarModal = document.getElementById('btnCerrarModal');
-    const inputImportarJSON = document.getElementById('importarJSON');
-    const btnImportarModal = document.getElementById('btnImportarModal');
-
-    btnVerRegistros.addEventListener('click', async () => {
-        modal.style.display = 'block';
-        await mostrarRegistros();
-    });
-
-    btnCerrarModal.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-
-    btnImportar.addEventListener('click', () => {
-        inputImportarJSON.click();
-    });
-
-    btnImportarModal.addEventListener('click', () => {
-        inputImportarJSON.click();
-    });
-
-    inputImportarJSON.addEventListener('change', async (e) => {
-        const archivo = e.target.files[0];
-        if (!archivo) return;
-        if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
-        try {
-            await importarRegistrosJSON(archivo);
-            alert('✅ Registros importados correctamente');
-            if (modal.style.display === 'block') {
-                await mostrarRegistros();
-            }
-            inputImportarJSON.value = '';
-        } catch (error) {
-            console.error('Error importando:', error);
-            alert('❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.');
-        }
-    });
-
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-    });
+    // Fecha actual por defecto
+    document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
 });
-
-/* =====  AL ARRANCAR: limpiar si NO venimos de un envío correcto  ===== */
-(() => {
-    if (!sessionStorage.getItem('formEnviadoOK')) {
-        localStorage.removeItem('recogidasForm');
-    }
-    sessionStorage.removeItem('formEnviadoOK');
-})();
 
 // Carga de municipios
 document.addEventListener("DOMContentLoaded", () => {
@@ -391,13 +311,12 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(console.error);
 });
 
-// ---------- Carga de especies + autocompletado INTELIGENTE ----------
+// Carga de especies
 document.addEventListener("DOMContentLoaded", () => {
     const comInput  = document.getElementById("especie_comun");
     const cienInput = document.getElementById("especie_cientifico");
     let especiesData = [];
 
-    // Función para quitar acentos
     function quitarAcentos(str) {
         return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     }
@@ -409,17 +328,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const comList = document.getElementById("especies-comun-list");
             const cienList = document.getElementById("especies-cientifico-list");
 
-            // Rellenar datalists: versión SIN acento para buscar y CON acento para insertar
             d.forEach(e => {
                 const comSin  = quitarAcentos(e.nombreComun);
                 const cienSin = quitarAcentos(e.nombreCientifico);
 
                 const opt1 = document.createElement("option");
-                opt1.value = comSin;          // sin acento → aparece al buscar
+                opt1.value = comSin;
                 comList.appendChild(opt1);
 
                 const opt1b = document.createElement("option");
-                opt1b.value = e.nombreComun;  // con acento → se inserta al seleccionar
+                opt1b.value = e.nombreComun;
                 comList.appendChild(opt1b);
 
                 const opt2 = document.createElement("option");
@@ -431,11 +349,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 cienList.appendChild(opt2b);
             });
 
-            // Autocompletado cruzado (común ↔ científico)
             comInput.addEventListener("input", () => {
                 const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
                 if (found) {
-                    comInput.value  = found.nombreComun;   // muestra versión con tilde
+                    comInput.value  = found.nombreComun;
                     cienInput.value = found.nombreCientifico;
                 }
             });
@@ -468,27 +385,3 @@ if (btnCerrar) {
         }
     });
 }
-
-// Fecha actual por defecto
-const hoy = new Date().toISOString().split('T')[0];
-document.getElementById('fecha').value = hoy;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,4 +1,4 @@
-Actualiza mi script y enviamelo tambien completo:  /* ============================================
+/* ============================================
    ANTI-PULL-TO-REFRESH  (Chrome/Android)
    ============================================ */
 let touchStartY = 0;
@@ -13,7 +13,165 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 /* ============================================ */
 
+/* ============================================
+   INDEXEDDB - GESTIÓN DE REGISTROS LOCALES
+   ============================================ */
+const DB_NAME = 'RecogidasDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'registros';
 
+// Inicializar IndexedDB
+let db;
+const initDB = () => {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+            db = request.result;
+            resolve(db);
+        };
+        request.onupgradeneeded = (e) => {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                store.createIndex('fecha', 'fecha', { unique: false });
+                store.createIndex('municipio', 'municipio', { unique: false });
+            }
+        };
+    });
+};
+
+// Guardar registro en IndexedDB (sin número de entrada)
+const guardarRegistroLocal = (datos) => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const datosParaGuardar = { ...datos };
+        delete datosParaGuardar.numero_entrada;
+        datosParaGuardar.timestamp = new Date().toISOString();
+        datosParaGuardar.id = Date.now();
+        const request = store.add(datosParaGuardar);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+};
+
+// Obtener todos los registros
+const obtenerRegistros = () => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+};
+
+// Eliminar registro
+const eliminarRegistro = (id) => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.delete(id);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+};
+
+// Exportar registros a JSON
+const exportarRegistrosJSON = async () => {
+    const registros = await obtenerRegistros();
+    const dataStr = JSON.stringify(registros, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `registros_recogidas_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
+// Importar registros desde JSON
+const importarRegistrosJSON = (archivo) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const registros = JSON.parse(e.target.result);
+                if (!Array.isArray(registros)) throw new Error('El archivo no contiene un array válido');
+                for (const registro of registros) {
+                    if (registro.fecha && registro.especie_comun) await guardarRegistroLocal(registro);
+                }
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(archivo);
+    });
+};
+
+// Formatear fecha/hora legible
+const formatearFechaHora = (fechaISO) => {
+    const fecha = new Date(fechaISO);
+    const dia = fecha.getDate().toString().padStart(2, '0');
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const año = fecha.getFullYear();
+    const horas = fecha.getHours().toString().padStart(2, '0');
+    const minutos = fecha.getMinutes().toString().padStart(2, '0');
+    const segundos = fecha.getSeconds().toString().padStart(2, '0');
+    return `${dia}/${mes}/${año} ${horas}:${minutos}:${segundos}`;
+};
+
+// Mostrar registros en el modal
+const mostrarRegistros = async () => {
+    const registros = await obtenerRegistros();
+    const contenedor = document.getElementById('contenidoRegistros');
+    const importarEnModal = document.getElementById('importarEnModal');
+    if (registros.length === 0) {
+        contenedor.innerHTML = '<p style="color:#666;">No hay registros guardados localmente.</p>';
+        importarEnModal.style.display = 'block';
+        return;
+    }
+    importarEnModal.style.display = 'none';
+    registros.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    const html = registros.map(reg => `
+        <div style="border:1px solid #ddd; padding:12px; margin-bottom:12px; border-radius:6px; background:#f9f9f9;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="flex:1;">
+                    <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
+                    <small style="color:#666;">?? ${formatearFechaHora(reg.timestamp)}</small>
+                </div>
+                <button onclick="eliminarYActualizar(${reg.id})" 
+                        style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px; margin-left:10px;" 
+                        title="Eliminar registro">???</button>
+            </div>
+            <details style="font-size:0.9em; color:#555; margin-top:8px;">
+                <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
+                <pre style="margin:8px 0 0 0; padding:10px; background:#fff; border:1px solid #e0e0e0; border-radius:4px; white-space: pre-wrap; word-wrap: break-word; font-size:0.85em;">${JSON.stringify(reg, null, 2)}</pre>
+            </details>
+        </div>
+    `).join('');
+    contenedor.innerHTML = html;
+};
+
+// Eliminar y actualizar vista
+window.eliminarYActualizar = async (id) => {
+    if (confirm('¿Seguro que quieres eliminar este registro?')) {
+        await eliminarRegistro(id);
+        await mostrarRegistros();
+    }
+};
+
+// Inicializar DB al cargar
+initDB().then(() => {
+    console.log('IndexedDB inicializada correctamente');
+}).catch(err => {
+    console.error('Error inicializando IndexedDB:', err);
+    alert('Error al inicializar base de datos local. Los registros no se guardarán.');
+});
+/* ============================================ */
 
 document.addEventListener("DOMContentLoaded", function () {
     /* ---------- CONFIRMACIÓN DE CANTIDAD DE EJEMPLARES ---------- */
@@ -120,7 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             return;
         }
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=   ${encodeURIComponent(raw)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q= ${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -169,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    // ✅ URL NUEVA con CORS configurado
+    // ? URL NUEVA con CORS configurado
     fetch("https://script.google.com/macros/s/AKfycbxsmC4P-kHO83lOYR1rzyGO57CIzkJgq5biivg5YB9bi3rXWavlf7seIGxmg2bTJ1wA/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
@@ -227,7 +385,7 @@ document.addEventListener("DOMContentLoaded", function () {
         btn.disabled = true; 
         btn.textContent = "Enviando...";
 
-        // ✅ URL NUEVA con CORS configurado
+        // ? URL NUEVA con CORS configurado
         const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxsmC4P-kHO83lOYR1rzyGO57CIzkJgq5biivg5YB9bi3rXWavlf7seIGxmg2bTJ1wA/exec";
 
         const fd = new FormData(this);
@@ -277,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             await fetch(URL_SCRIPT, {
                 method: "POST",
-                mode: "no-cors",  // ← mantén esto para envío
+                mode: "no-cors",  // ? mantén esto para envío
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
@@ -289,14 +447,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             const response = await fetch(`${URL_SCRIPT}?getNumeroEntrada`);
             const d = await response.json();
-            alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+            alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').value = hoy;
         } catch (err) {
             console.error(err);
-            alert("❌ Error al enviar. Los datos no se guardaron en la tablet.");
+            alert("? Error al enviar. Los datos no se guardaron en la tablet.");
         } finally {
             btn.disabled = false;
             btn.textContent = "Enviar";
@@ -352,14 +510,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
         try {
             await importarRegistrosJSON(archivo);
-            alert('✅ Registros importados correctamente');
+            alert('? Registros importados correctamente');
             if (modal.style.display === 'block') {
                 await mostrarRegistros();
             }
             inputImportarJSON.value = '';
         } catch (error) {
             console.error('Error importando:', error);
-            alert('❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.');
+            alert('? Error al importar el archivo. Asegúrate de que sea un JSON válido.');
         }
     });
 
@@ -415,11 +573,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const cienSin = quitarAcentos(e.nombreCientifico);
 
                 const opt1 = document.createElement("option");
-                opt1.value = comSin;          // sin acento → aparece al buscar
+                opt1.value = comSin;          // sin acento ? aparece al buscar
                 comList.appendChild(opt1);
 
                 const opt1b = document.createElement("option");
-                opt1b.value = e.nombreComun;  // con acento → se inserta al seleccionar
+                opt1b.value = e.nombreComun;  // con acento ? se inserta al seleccionar
                 comList.appendChild(opt1b);
 
                 const opt2 = document.createElement("option");
@@ -431,7 +589,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 cienList.appendChild(opt2b);
             });
 
-            // Autocompletado cruzado (común ↔ científico)
+            // Autocompletado cruzado (común ? científico)
             comInput.addEventListener("input", () => {
                 const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
                 if (found) {
@@ -472,7 +630,6 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-
 
 
 

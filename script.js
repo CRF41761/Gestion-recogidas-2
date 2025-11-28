@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada ");
+            const response = await fetch("https://script.google.com/macros/s/AKfycbzvgJevXvY4ep35sYRS8xGviVAR9k3GyKMxuRHH477eEqIYWBkbxWy-jPZl84-5dNFh/exec?getNumeroEntrada");
             const d = await response.json();
             alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
@@ -626,3 +626,4 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+

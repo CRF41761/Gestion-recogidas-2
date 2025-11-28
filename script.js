@@ -395,9 +395,9 @@ document.addEventListener("DOMContentLoaded", function () {
       cantidad_animales: fd.get("cantidad_animales"),
       fecha: fd.get("fecha"),
       municipio: fd.get("municipio"),
-      posible_causa: fd.getAll("posible_causa"),
-      remitente: fd.getAll("remitente"),
-      estado_animal: fd.getAll("estado_animal"),
+      posible_causa: fd.getAll("posible_causa").join(", "),
+remitente: fd.getAll("remitente").join(", "),
+estado_animal: fd.getAll("estado_animal").join(", "),
       coordenadas: fd.get("coordenadas"),
       coordenadas_mapa: fd.get("coordenadas_mapa"),
       apoyo: fd.get("apoyo"),
@@ -632,3 +632,4 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+

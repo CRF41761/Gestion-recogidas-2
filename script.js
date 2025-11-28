@@ -327,9 +327,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const mapElement = document.getElementById("map");
   mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-  // 🔗 URL NUEVA con CORS configurado
+  // ✅ URL NUEVA con CORS configurado
   fetch("https://script.google.com/macros/s/AKfycbzYwDMbAaFWTaj8LjgO_sM5mGnoZldKN6BYbbT4jSouOgFE7w_AlWpZTIL7SZtA0vnm/exec?getNumeroEntrada")
-    .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
+    .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numeroEntrada)
     .catch(console.error);
 
   function validarInputDatalist(inputId, datalistId, mensajeError) {
@@ -396,8 +396,8 @@ document.addEventListener("DOMContentLoaded", function () {
       fecha: fd.get("fecha"),
       municipio: fd.get("municipio"),
       posible_causa: fd.getAll("posible_causa").join(", "),
-remitente: fd.getAll("remitente").join(", "),
-estado_animal: fd.getAll("estado_animal").join(", "),
+      remitente: fd.getAll("remitente").join(", "),
+      estado_animal: fd.getAll("estado_animal").join(", "),
       coordenadas: fd.get("coordenadas"),
       coordenadas_mapa: fd.get("coordenadas_mapa"),
       apoyo: fd.get("apoyo"),
@@ -431,12 +431,12 @@ estado_animal: fd.getAll("estado_animal").join(", "),
   });
 
   async function enviarDatos(data, btn) {
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxsmC4P-kHO83lOYR1rzyGO57CIzkJgq5biivg5YB9bi3rXWavlf7seIGxmg2bTJ1wA/exec";
-        try {
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzYwDMbAaFWTaj8LjgO_sM5mGnoZldKN6BYbbT4jSouOgFE7w_AlWpZTIL7SZtA0vnm/exec";
+    try {
       // 1. Envío: no-cors, no leemos respuesta
       await fetch(URL_SCRIPT, {
         method: "POST",
-        mode: "no-cors", // ✅ dejar así
+        mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       });
@@ -453,7 +453,7 @@ estado_animal: fd.getAll("estado_animal").join(", "),
       const response = await fetch(`${URL_SCRIPT}?getNumeroEntrada`);
       if (!response.ok) throw new Error("No se pudo obtener número de entrada");
       const d = await response.json();
-      alert(`✅ Número de entrada asignado: ${d.numero_Entrada}`);
+      alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
 
       sessionStorage.setItem('formEnviadoOK', '1');
       document.getElementById("formulario").reset();
@@ -632,8 +632,3 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-
-
-
-
-

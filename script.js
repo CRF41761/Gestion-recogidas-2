@@ -433,33 +433,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-           await fetch(URL_SCRIPT, {
-    method: "POST",
-    mode: "cors",  // ✅ Cambia a CORS
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-});
-            try {
-                await guardarRegistroLocal(data);
-                console.log('Registro guardado localmente sin número de entrada');
-            } catch (dbError) {
-                console.error('Error guardando en IndexedDB:', dbError);
-            }
-            const response = await fetch(`${URL_SCRIPT}?getNumeroEntrada`);
-            const d = await response.json();
-            alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
-            sessionStorage.setItem('formEnviadoOK', '1');
-            document.getElementById("formulario").reset();
-            const hoy = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha').value = hoy;
-        } catch (err) {
-            console.error(err);
-            alert("? Error al enviar. Los datos no se guardaron en la tablet.");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Enviar";
-        }
+    // 1. Envío: no-cors, no leemos respuesta
+    await fetch(URL_SCRIPT, {
+        method: "POST",
+        mode: "no-cors", // ✅ dejar así
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    // 2. Guardar localmente (sin número de entrada)
+    try {
+        await guardarRegistroLocal(data);
+        console.log('Registro guardado localmente sin número de entrada');
+    } catch (dbError) {
+        console.error('Error guardando en IndexedDB:', dbError);
     }
+
+    // 3. Pedir nuevo número de entrada (GET sí legible)
+    const response = await fetch(`${URL_SCRIPT}?getNumeroEntrada`);
+    if (!response.ok) throw new Error("No se pudo obtener número de entrada");
+    const d = await response.json();
+    alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+
+    sessionStorage.setItem('formEnviadoOK', '1');
+    document.getElementById("formulario").reset();
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha').value = hoy;
+
+} catch (err) {
+    console.error(err);
+    alert("❌ Error al enviar. Los datos no se guardaron en la tablet.");
+} finally {
+    btn.disabled = false;
+    btn.textContent = "Enviar";
+}
 
     // Auto-guardado temporal (localStorage) mientras se rellena el formulario
     const form = document.getElementById("formulario");
@@ -630,6 +637,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

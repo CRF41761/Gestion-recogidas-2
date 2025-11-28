@@ -453,7 +453,7 @@ estado_animal: fd.getAll("estado_animal").join(", "),
       const response = await fetch(`${URL_SCRIPT}?getNumeroEntrada`);
       if (!response.ok) throw new Error("No se pudo obtener número de entrada");
       const d = await response.json();
-      alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+      alert(`✅ Número de entrada asignado: ${d.numero_Entrada}`);
 
       sessionStorage.setItem('formEnviadoOK', '1');
       document.getElementById("formulario").reset();
@@ -632,4 +632,5 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 

@@ -433,12 +433,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch(URL_SCRIPT, {
-                method: "POST",
-                mode: "no-cors",  // ? mantén esto para envío
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
+           await fetch(URL_SCRIPT, {
+    method: "POST",
+    mode: "cors",  // ✅ Cambia a CORS
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+});
             try {
                 await guardarRegistroLocal(data);
                 console.log('Registro guardado localmente sin número de entrada');
@@ -630,6 +630,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

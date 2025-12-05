@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbzvgJevXvY4ep35sYRS8xGviVAR9k3GyKMxuRHH477eEqIYWBkbxWy-jPZl84-5dNFh/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbzlTJjVJcz5a32Nr4oTnhjNlxp957bm2ktENmqwg-Z-8R5YGWnx1Xb_UhMOF8iPNVP9/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -429,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbzvgJevXvY4ep35sYRS8xGviVAR9k3GyKMxuRHH477eEqIYWBkbxWy-jPZl84-5dNFh/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbzlTJjVJcz5a32Nr4oTnhjNlxp957bm2ktENmqwg-Z-8R5YGWnx1Xb_UhMOF8iPNVP9/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
@@ -626,4 +626,5 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 

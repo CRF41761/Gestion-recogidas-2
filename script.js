@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbyU4j1IGJFsmUyDVS7Oi2SXke625GHK44ZXwkOm4jiDl5qKRkrqk7pGFXsNqDiO7f-8/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbwP6-vugVYdtc40MRA1pG-y6Vw752URDsA5dN9Pq7QeuuZLH52NDdkczBZ02QHUb6RH/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -626,6 +626,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

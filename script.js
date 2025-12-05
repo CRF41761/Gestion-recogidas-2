@@ -429,23 +429,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            // 1. Enviamos con mode: cors y headers correctos
-await fetch("https://script.google.com/macros/s/AKfycbxtRTWTZQESBQfUgsljMuUdibZ3t4DkhNI_Z4ouQVPvs-S-GyQndtqn9Pop09O3wgcn/exec", {
-              method: "POST",
-  mode: "cors",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(data)
-});
-            try {
-                await guardarRegistroLocal(data);
-                console.log('Registro guardado localmente sin número de entrada');
-            } catch (dbError) {
-                console.error('Error guardando en IndexedDB:', dbError);
-            }
-            // 2. Obtenemos el número de entrada
-const d = await fetch("https://script.google.com/macros/s/AKfycbxtRTWTZQESBQfUgsljMuUdibZ3t4DkhNI_Z4ouQVPvs-S-GyQndtqn9Pop09O3wgcn/exec?getNumeroEntrada=true")
-              .then(r => r.json());
-alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+            // ✅ Envío con JSONP (sin CORS) y recibimos número en la misma llamada
+const callbackName = 'cb_' + Date.now();
+const url = `${SPREADSHEET_URL}?callback=${callbackName}&postData=` + encodeURIComponent(JSON.stringify(data));
+
+window[callbackName] = function(res) {
+  delete window[callbackName];
+  if (res && res.result === "success" && res.numeroEntrada) {
+    alert(`✅ Número de entrada asignado: ${res.numeroEntrada}`);
+    sessionStorage.setItem('formEnviadoOK', '1');
+    document.getElementById("formulario").reset();
+    document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+  } else {
+    alert("❌ Error al enviar. Inténtalo de nuevo.");
+  }
+  btn.disabled = false;
+  btn.textContent = "Enviar";
+};
+
+const script = document.createElement('script');
+script.src = url;
+document.body.appendChild(script);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];
@@ -628,6 +632,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

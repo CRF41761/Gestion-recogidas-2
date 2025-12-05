@@ -429,27 +429,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            // ✅ Envío con JSONP (sin CORS) y recibimos número en la misma llamada
-const callbackName = 'cb_' + Date.now();
-const url = `${SPREADSHEET_URL}?callback=${callbackName}&postData=` + encodeURIComponent(JSON.stringify(data));
+            // ✅ Envío con no-cors (no leemos respuesta)
+await fetch(SPREADSHEET_URL, {
+  method: "POST",
+  mode: "no-cors",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data)
+});
 
-window[callbackName] = function(res) {
-  delete window[callbackName];
-  if (res && res.result === "success" && res.numeroEntrada) {
-    alert(`✅ Número de entrada asignado: ${res.numeroEntrada}`);
-    sessionStorage.setItem('formEnviadoOK', '1');
-    document.getElementById("formulario").reset();
-    document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
-  } else {
-    alert("❌ Error al enviar. Inténtalo de nuevo.");
-  }
-  btn.disabled = false;
-  btn.textContent = "Enviar";
-};
-
-const script = document.createElement('script');
-script.src = url;
-document.body.appendChild(script);
+// ✅ Leemos el número después (con getNumeroEntrada)
+const d = await fetch(`${SPREADSHEET_URL}?getNumeroEntrada=true`)
+              .then(r => r.json());
+alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+sessionStorage.setItem('formEnviadoOK', '1');
+document.getElementById("formulario").reset();
+document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];
@@ -632,6 +626,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

@@ -327,9 +327,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbymnSwddhAHIwSKbc2V4OVj3V9FegKtHH5F44OoS5VelftUjZDKitP7Xw6FTowL8yL_/exec?getNumeroEntrada")
-        .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
-        .catch(console.error);
+    fetch(`https://script.google.com/macros/s/AKfycbymnSwddhAHIwSKbc2V4OVj3V9FegKtHH5F44OoS5VelftUjZDKitP7Xw6FTowL8yL_/exec?getNumeroEntrada&_=${Date.now()}`)
+  .then(r => r.json())
+  .then(d => {
+      console.log("Número recibido:", d.numeroEntrada);
+      document.getElementById("numero_entrada").value = d.numeroEntrada;
+  })
+  .catch(err => console.error("Fallo al obtener número:", err));
 
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
@@ -633,6 +637,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbwQsp9JZIAqO-5qb7FCZqFb5nes-f_WMM2sGmOcyKHm4eE1cdiSYKMkT0Y5eKge9A/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbymnSwddhAHIwSKbc2V4OVj3V9FegKtHH5F44OoS5VelftUjZDKitP7Xw6FTowL8yL_/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -430,7 +430,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function enviarDatos(data, btn) {
   try {
     // 1. Guardar en Sheets (no-cors: no bloquea)
-    await fetch("https://script.google.com/macros/s/AKfycbwQsp9JZIAqO-5qb7FCZqFb5nes-f_WMM2sGmOcyKHm4eE1cdiSYKMkT0Y5eKge9A/exec", {
+    await fetch("https://script.google.com/macros/s/AKfycbymnSwddhAHIwSKbc2V4OVj3V9FegKtHH5F44OoS5VelftUjZDKitP7Xw6FTowL8yL_/exec", {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
@@ -439,7 +439,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 2. Pedir número vía JSONP (para tablet)
     const script = document.createElement("script");
-    script.src = "https://script.google.com/macros/s/AKfycbwQsp9JZIAqO-5qb7FCZqFb5nes-f_WMM2sGmOcyKHm4eE1cdiSYKMkT0Y5eKge9A/exec?callback=mostrarNumero&getNumeroEntrada";
+    script.src = "https://script.google.com/macros/s/AKfycbymnSwddhAHIwSKbc2V4OVj3V9FegKtHH5F44OoS5VelftUjZDKitP7Xw6FTowL8yL_/exec?callback=mostrarNumero&getNumeroEntrada";
     document.body.appendChild(script);
     window.mostrarNumero = function(d) {
       alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
@@ -631,6 +631,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

@@ -423,7 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ✅ FUNCIÓN DE ENVÍO CORREGIDA (SIN no-cors, SIN JSONP)
     async function enviarDatos(data, btn) {
         try {
-            const response = await fetch("https://script.google.com/macros/s/AKfycbzgevU7jiEUofGL7r3OlZqbIj0iBS8nZHluBXinFp5wmv0d6FZVDFikECxRymyJ1Acz/exec", {
+            const response = await fetch("https://script.google.com/macros/s/AKfycbwd2Tl38H5YBeOBDVAi1wjYvzzZqeo5Fz4mOULwFWORdPblwOQlzvl13pF39rAixLM/exec", {
                 method: "POST",
                 headers: { "Content-Type": "application/json; charset=utf-8" },
                 body: JSON.stringify(data)
@@ -629,3 +629,4 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+

@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch(`https://script.google.com/macros/s/AKfycbymnSwddhAHIwSKbc2V4OVj3V9FegKtHH5F44OoS5VelftUjZDKitP7Xw6FTowL8yL_/exec?getNumeroEntrada&_=${Date.now()}`)
+    fetch(`https://script.google.com/macros/s/AKfycbzgevU7jiEUofGL7r3OlZqbIj0iBS8nZHluBXinFp5wmv0d6FZVDFikECxRymyJ1Acz/exec?getNumeroEntrada&_=${Date.now()}`)
   .then(r => r.json())
   .then(d => {
       console.log("Número recibido:", d.numeroEntrada);
@@ -436,7 +436,7 @@ if (file && file.size) {
     async function enviarDatos(data, btn) {
   try {
     // 1. Guardar en Sheets (no-cors: no bloquea)
-    await fetch("https://script.google.com/macros/s/AKfycbymnSwddhAHIwSKbc2V4OVj3V9FegKtHH5F44OoS5VelftUjZDKitP7Xw6FTowL8yL_/exec", {
+    await fetch("https://script.google.com/macros/s/AKfycbzgevU7jiEUofGL7r3OlZqbIj0iBS8nZHluBXinFp5wmv0d6FZVDFikECxRymyJ1Acz/exec", {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
@@ -445,7 +445,7 @@ if (file && file.size) {
 
     // 2. Pedir número vía JSONP (para tablet)
     const script = document.createElement("script");
-    script.src = "https://script.google.com/macros/s/AKfycbymnSwddhAHIwSKbc2V4OVj3V9FegKtHH5F44OoS5VelftUjZDKitP7Xw6FTowL8yL_/exec?callback=mostrarNumero&getNumeroEntrada";
+    script.src = "https://script.google.com/macros/s/AKfycbzgevU7jiEUofGL7r3OlZqbIj0iBS8nZHluBXinFp5wmv0d6FZVDFikECxRymyJ1Acz/exec";
     document.body.appendChild(script);
     window.mostrarNumero = function(d) {
       alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
@@ -637,6 +637,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbzaMvCNFMQUI0g6SpU-VVkV66UPTvxeIRjbELiGFvS4qfoEttB0qbbQ3ID6AYPv0E3s/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbxsNOF1dISeiAj25PcwRbV3Zboq5ouyJFNIJ63GuGmQLj157bnjBg2gOTgbA01KqDpb/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -428,34 +428,39 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     async function enviarDatos(data, btn) {
-        try {
-            await fetch("https://script.google.com/macros/s/AKfycbzaMvCNFMQUI0g6SpU-VVkV66UPTvxeIRjbELiGFvS4qfoEttB0qbbQ3ID6AYPv0E3s/exec", {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-            try {
-                await guardarRegistroLocal(data);
-                console.log('Registro guardado localmente sin número de entrada');
-            } catch (dbError) {
-                console.error('Error guardando en IndexedDB:', dbError);
-            }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbzaMvCNFMQUI0g6SpU-VVkV66UPTvxeIRjbELiGFvS4qfoEttB0qbbQ3ID6AYPv0E3s/exec?getNumeroEntrada");
-            const d = await response.json();
-            alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
-            sessionStorage.setItem('formEnviadoOK', '1');
-            document.getElementById("formulario").reset();
-            const hoy = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha').value = hoy;
-        } catch (err) {
-            console.error(err);
-            alert("? Error al enviar. Los datos no se guardaron en la tablet.");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Enviar";
-        }
-    }
+  try {
+    // 1. Guardar en Sheets (no-cors: no bloquea)
+    await fetch("https://script.google.com/macros/s/AKfycbxsNOF1dISeiAj25PcwRbV3Zboq5ouyJFNIJ63GuGmQLj157bnjBg2gOTgbA01KqDpb/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    // 2. Pedir número vía JSONP (para tablet)
+    const script = document.createElement("script");
+    script.src = "https://script.google.com/macros/s/AKfycbxsNOF1dISeiAj25PcwRbV3Zboq5ouyJFNIJ63GuGmQLj157bnjBg2gOTgbA01KqDpb/exec?callback=mostrarNumero&getNumeroEntrada";
+    document.body.appendChild(script);
+    window.mostrarNumero = function(d) {
+      alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+      sessionStorage.setItem('formEnviadoOK', '1');
+      document.getElementById("formulario").reset();
+      document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+      document.body.removeChild(script);
+      delete window.mostrarNumero;
+    };
+
+    // 3. Guardar localmente (IndexedDB)
+    try { await guardarRegistroLocal(data); } catch (e) { console.error('DB:', e); }
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ Error al enviar. Los datos no se guardaron.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Enviar";
+  }
+}
 
     // Auto-guardado temporal (localStorage) mientras se rellena el formulario
     const form = document.getElementById("formulario");
@@ -626,6 +631,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

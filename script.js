@@ -415,16 +415,18 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         const file = fd.get("foto");
-        if (file && file.size) {
-            const reader = new FileReader();
-            reader.onload = ev => { 
-                data.foto = ev.target.result; 
-                enviarDatos(data, btn); 
-            };
-            reader.readAsDataURL(file);
-        } else {
-            enviarDatos(data, btn);
-        }
+if (file && file.size) {
+    const reader = new FileReader();
+    reader.onload = ev => { 
+        data.foto = ev.target.result; 
+        console.log("DEBUG -> data justo antes de enviar:", data); // <-- AQUÍ
+        enviarDatos(data, btn); 
+    };
+    reader.readAsDataURL(file);
+} else {
+    console.log("DEBUG -> data justo antes de enviar:", data); // <-- Y AQUÍ
+    enviarDatos(data, btn);
+}
     });
 
     async function enviarDatos(data, btn) {
@@ -631,6 +633,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

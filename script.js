@@ -429,58 +429,65 @@ if (file && file.size) {
 
     async function enviarDatos(data, btn) {
   try {
-    // 1. Enviar datos a Google Sheets
-    await fetch("https://script.google.com/macros/s/AKfycbwMQFRQqn3lK1SnLgTwEztIOun6UJh8Vm5QEX4D2-DBcTmsul2wm7LrDJptZ2AX1xkz/exec", {
+    // ✅ URL LIMPIA (sin espacios) y modo CORS correcto
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwMQFRQqn3lK1SnLgTwEztIOun6UJh8Vm5QEX4D2-DBcTmsul2wm7LrDJptZ2AX1xkz/exec";
+    
+    // ✅ ÚNICA PETICIÓN que devuelve el número directamente
+    const response = await fetch(GAS_URL, {
       method: "POST",
-      mode: "no-cors",
+      mode: "cors", // ¡¡¡CRÍTICO PARA LEER LA RESPUESTA!!!
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
 
-    // 2. Guardar en IndexedDB (primero, antes de resetear)
-    try {
-      await guardarRegistroLocal(data);
-      console.log('Registro guardado localmente');
-    } catch (dbError) {
-      console.error('Error guardando en IndexedDB:', dbError);
+    if (!response.ok) {
+      throw new Error(`Error HTTP ${response.status}`);
     }
 
-    // 3. Obtener número de entrada y LIMPIAR FORMULARIO
-    const timestamp = Date.now();
-    const response = await fetch(`https://script.google.com/macros/s/AKfycbwMQFRQqn3lK1SnLgTwEztIOun6UJh8Vm5QEX4D2-DBcTmsul2wm7LrDJptZ2AX1xkz/exec?getNumeroEntrada&_=${timestamp}`);
+    const resultado = await response.json();
     
-    const d = await response.json();
-    alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+    if (!resultado.numeroEntrada) {
+      throw new Error("Respuesta inválida: no se recibió el número de entrada");
+    }
+
+    // ✅ Eliminar guardado local ANTES de mostrar éxito
+    localStorage.removeItem('recogidasForm');
     
-    // 4. LIMPIEZA TOTAL DEL FORMULARIO
-    sessionStorage.setItem('formEnviadoOK', '1');
-    localStorage.removeItem('recogidasForm'); // Eliminar autoguardado temporal
+    // ✅ Mostrar número de entrada
+    alert(`✅ Número de entrada asignado: ${resultado.numeroEntrada}`);
     
-    // Resetear TODO el formulario
+    // ✅ Limpiar formulario completo
     document.getElementById("formulario").reset();
+    document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+    document.getElementById("numero_entrada").value = resultado.numeroEntrada;
     
-    // Restaurar campos que necesitan valores específicos después del reset
-    const hoy = new Date().toISOString().split('T')[0];
-    document.getElementById('fecha').value = hoy;
-    document.getElementById("numero_entrada").value = d.numeroEntrada;
-    
-    // Limpiar mapa y coordenadas
+    // Limpiar mapa
     document.getElementById("coordenadas_mapa").value = "";
     document.getElementById("coordenadas").value = "";
-    if (window.marker) {
-      window.map.removeLayer(window.marker);
-      window.marker = null;
+    if (marker) {
+      map.removeLayer(marker);
+      marker = null;
     }
     
     // Limpiar campo de anilla
     const anillaWrapper = document.getElementById('anillaWrapper');
     if (anillaWrapper) {
       anillaWrapper.style.display = 'none';
+      document.getElementById('anilla').value = '';
     }
 
   } catch (err) {
-    console.error(err);
-    alert("❌ Error al enviar. Los datos no se guardaron.\n" + (err.message || "Error desconocido"));
+    console.error("Error al enviar:", err);
+    
+    // ✅ OFFLINE-FIRST: guardar en IndexedDB para reintentar
+    try {
+      await guardarRegistroLocal(data);
+      alert("⚠️ Datos guardados localmente. Se intentarán enviar cuando haya conexión.");
+    } catch (dbError) {
+      console.error('Error guardando en IndexedDB:', dbError);
+      alert("❌ Error grave: los datos no pudieron guardarse. Por favor, inténtalo de nuevo.");
+    }
+    
   } finally {
     btn.disabled = false;
     btn.textContent = "Enviar";
@@ -655,6 +662,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

@@ -430,7 +430,7 @@ if (file && file.size) {
     async function enviarDatos(data, btn) {
   try {
     // ✅ URL LIMPIA (sin espacios) y modo CORS correcto
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwTRlY0uBth5lUDqTg9mBoxd48LE9DetaJDQbzyJjxYN7a0Gx7HxZG3k4gaK-kTBXuo/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxoEfb4Rndf9qQputbZcN1xAF6KYAWha8WBkGJLch_yg2Bt94APkIDdQzhUd0k7caSM/exec";
     
     // ✅ ÚNICA PETICIÓN que devuelve el número directamente
     const response = await fetch(GAS_URL, {
@@ -662,6 +662,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

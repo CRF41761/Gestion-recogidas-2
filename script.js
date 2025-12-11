@@ -402,7 +402,7 @@ document.addEventListener("DOMContentLoaded", function () {
             coordenadas: fd.get("coordenadas"),
             coordenadas_mapa: fd.get("coordenadas_mapa"),
             apoyo: fd.get("apoyo"),
-            cra_km: fd.get("cra_km"),
+            cra_y_km: fd.get("cra_y_km"),
             observaciones: (() => {
                 let txt = fd.get("observaciones")?.trim() || "";
                 const anillaInput = document.getElementById('anilla');
@@ -637,5 +637,6 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 

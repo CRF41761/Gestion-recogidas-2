@@ -327,13 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch(`https://script.google.com/macros/s/AKfycbwMQFRQqn3lK1SnLgTwEztIOun6UJh8Vm5QEX4D2-DBcTmsul2wm7LrDJptZ2AX1xkz/exec?getNumeroEntrada&_=  ${Date.now()}`)
-  .then(r => r.json())
-  .then(d => {
-      console.log("Número recibido:", d.numeroEntrada);
-      document.getElementById("numero_entrada").value = d.numeroEntrada;
-  })
-  .catch(err => console.error("Fallo al obtener número:", err));
+   
 
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
@@ -435,7 +429,7 @@ if (file && file.size) {
 
     async function enviarDatos(data, btn) {
   try {
-    // 1. Guardar en Sheets (no-cors: no bloquea)
+    // 1. Enviar datos a Google Sheets
     await fetch("https://script.google.com/macros/s/AKfycbwMQFRQqn3lK1SnLgTwEztIOun6UJh8Vm5QEX4D2-DBcTmsul2wm7LrDJptZ2AX1xkz/exec", {
       method: "POST",
       mode: "no-cors",
@@ -443,31 +437,55 @@ if (file && file.size) {
       body: JSON.stringify(data)
     });
 
-    // 2. Pedir número vía JSONP (para tablet)
-    const script = document.createElement("script");
-    script.src = "https://script.google.com/macros/s/AKfycbwMQFRQqn3lK1SnLgTwEztIOun6UJh8Vm5QEX4D2-DBcTmsul2wm7LrDJptZ2AX1xkz/exec";
-    document.body.appendChild(script);
-    window.mostrarNumero = function(d) {
-      alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
-      sessionStorage.setItem('formEnviadoOK', '1');
-      document.getElementById("formulario").reset();
-      document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
-      document.body.removeChild(script);
-      delete window.mostrarNumero;
-    };
+    // 2. Guardar en IndexedDB (primero, antes de resetear)
+    try {
+      await guardarRegistroLocal(data);
+      console.log('Registro guardado localmente');
+    } catch (dbError) {
+      console.error('Error guardando en IndexedDB:', dbError);
+    }
 
-    // 3. Guardar localmente (IndexedDB)
-    try { await guardarRegistroLocal(data); } catch (e) { console.error('DB:', e); }
+    // 3. Obtener número de entrada y LIMPIAR FORMULARIO
+    const timestamp = Date.now();
+    const response = await fetch(`https://script.google.com/macros/s/AKfycbwMQFRQqn3lK1SnLgTwEztIOun6UJh8Vm5QEX4D2-DBcTmsul2wm7LrDJptZ2AX1xkz/exec?getNumeroEntrada&_=${timestamp}`);
+    
+    const d = await response.json();
+    alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+    
+    // 4. LIMPIEZA TOTAL DEL FORMULARIO
+    sessionStorage.setItem('formEnviadoOK', '1');
+    localStorage.removeItem('recogidasForm'); // Eliminar autoguardado temporal
+    
+    // Resetear TODO el formulario
+    document.getElementById("formulario").reset();
+    
+    // Restaurar campos que necesitan valores específicos después del reset
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha').value = hoy;
+    document.getElementById("numero_entrada").value = d.numeroEntrada;
+    
+    // Limpiar mapa y coordenadas
+    document.getElementById("coordenadas_mapa").value = "";
+    document.getElementById("coordenadas").value = "";
+    if (window.marker) {
+      window.map.removeLayer(window.marker);
+      window.marker = null;
+    }
+    
+    // Limpiar campo de anilla
+    const anillaWrapper = document.getElementById('anillaWrapper');
+    if (anillaWrapper) {
+      anillaWrapper.style.display = 'none';
+    }
 
   } catch (err) {
     console.error(err);
-    alert("❌ Error al enviar. Los datos no se guardaron.");
+    alert("❌ Error al enviar. Los datos no se guardaron.\n" + (err.message || "Error desconocido"));
   } finally {
     btn.disabled = false;
     btn.textContent = "Enviar";
   }
 }
-
     // Auto-guardado temporal (localStorage) mientras se rellena el formulario
     const form = document.getElementById("formulario");
     form.addEventListener('input', () => {
@@ -637,6 +655,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

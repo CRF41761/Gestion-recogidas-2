@@ -443,7 +443,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function enviarDatos(data, btn) {
       try {
         // ✅ URL CORREGIDA (¡SIN ESPACIOS AL FINAL!)
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxoEfb4Rndf9qQputbZcN1xAF6KYAWha8WBkGJLch_yg2Bt94APkIDdQzhUd0k7caSM/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbySzC8S4GMv7Epe2_e8bPLBbNrzB4HSn2YMooIxKC-NgzD4jps3C5gXcX615fE37hbd/exec";
         
         console.log("🚀 Enviando datos a:", GAS_URL);
         
@@ -733,3 +733,4 @@ const fechaInput = document.getElementById('fecha');
 if (fechaInput) {
     fechaInput.value = hoy;
 }
+

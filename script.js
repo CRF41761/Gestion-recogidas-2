@@ -141,11 +141,11 @@ const mostrarRegistros = async () => {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="flex:1;">
                     <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
-                    <small style="color:#666;">⏰ ${formatearFechaHora(reg.timestamp)}</small>
+                    <small style="color:#666;">?? ${formatearFechaHora(reg.timestamp)}</small>
                 </div>
                 <button onclick="eliminarYActualizar(${reg.id})" 
                         style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px; margin-left:10px;" 
-                        title="Eliminar registro">×</button>
+                        title="Eliminar registro">???</button>
             </div>
             <details style="font-size:0.9em; color:#555; margin-top:8px;">
                 <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             return;
         }
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=   ${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -301,17 +301,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    const coordInput = document.getElementById("coordenadas");
-    if (coordInput) {
-        coordInput.addEventListener("change", e => buscarOCoordenadas(e.target.value));
-    }
-    
+    document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");
     if (btnLocalizar) {
-        btnLocalizar.addEventListener("click", () => {
-            const coordValue = coordInput ? coordInput.value : '';
-            buscarOCoordenadas(coordValue);
-        });
+        btnLocalizar.addEventListener("click", () => buscarOCoordenadas(document.getElementById("coordenadas").value));
     }
 
     const locateButton = document.createElement("button");
@@ -332,15 +325,13 @@ document.addEventListener("DOMContentLoaded", function () {
         iniciarSeguimiento();
     });
     const mapElement = document.getElementById("map");
-    if (mapElement) {
-        mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
-    }
+    mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+
+   
 
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
         const datalist = document.getElementById(datalistId);
-        if (!input || !datalist) return;
-        
         input.addEventListener('blur', function () {
             const opciones = Array.from(datalist.options).map(opt => opt.value.trim());
             if (input.value.trim() === "") return;
@@ -355,206 +346,163 @@ document.addEventListener("DOMContentLoaded", function () {
     validarInputDatalist('especie_comun', 'especies-comun-list', 'Debes seleccionar una especie (nombre común) existente.');
     validarInputDatalist('especie_cientifico', 'especies-cientifico-list', 'Debes seleccionar una especie (nombre científico) existente.');
 
-    /* ---------- ENVÍO DEL FORMULARIO (CORREGIDO) ---------- */
-    const formulario = document.getElementById("formulario");
-    if (formulario) {
-        formulario.addEventListener("submit", function (e) {
-            // 1. PRIMERO: Validación nativa del navegador (muestra "Completa este campo")
-            if (!this.checkValidity()) {
-                e.preventDefault();
-                this.reportValidity();
-                return;
-            }
+    /* ---------- ENVÍO DEL FORMULARIO (UNIFICADO Y CORREGIDO) ---------- */
+    document.getElementById("formulario").addEventListener("submit", function (e) {
+        
+        // 1. PRIMERO: Validación nativa del navegador (muestra "Completa este campo")
+        if (!this.checkValidity()) {
+            e.preventDefault();
+            this.reportValidity();
+            return;
+        }
 
-            // 2. SEGUNDO: Validaciones personalizadas de especies
-            const especieComunInput = document.getElementById("especie_comun");
-            const especieComunList = Array.from(document.getElementById("especies-comun-list").options).map(opt => opt.value.trim());
-            if (especieComunInput && (!especieComunInput.value.trim() || !especieComunList.includes(especieComunInput.value.trim()))) {
-                alert("Debes seleccionar una especie (nombre común) válida.");
-                especieComunInput.focus();
-                e.preventDefault();
-                return;
-            }
-            
-            const especieCientificoInput = document.getElementById("especie_cientifico");
-            const especieCientificoList = Array.from(document.getElementById("especies-cientifico-list").options).map(opt => opt.value.trim());
-            if (especieCientificoInput && (!especieCientificoInput.value.trim() || !especieCientificoList.includes(especieCientificoInput.value.trim()))) {
-                alert("Debes seleccionar una especie (nombre científico) válida.");
-                especieCientificoInput.focus();
-                e.preventDefault();
-                return;
-            }
+        // 2. SEGUNDO: Validaciones personalizadas de especies
+        const especieComunInput = document.getElementById("especie_comun");
+        const especieComunList = Array.from(document.getElementById("especies-comun-list").options).map(opt => opt.value.trim());
+        if (!especieComunInput.value.trim() || !especieComunList.includes(especieComunInput.value.trim())) {
+            alert("Debes seleccionar una especie (nombre común) válida.");
+            especieComunInput.focus();
+            e.preventDefault();
+            return;
+        }
+        
+        const especieCientificoInput = document.getElementById("especie_cientifico");
+        const especieCientificoList = Array.from(document.getElementById("especies-cientifico-list").options).map(opt => opt.value.trim());
+        if (!especieCientificoInput.value.trim() || !especieCientificoList.includes(especieCientificoInput.value.trim())) {
+            alert("Debes seleccionar una especie (nombre científico) válida.");
+            especieCientificoInput.focus();
+            e.preventDefault();
+            return;
+        }
 
-            // 3. TERCERO: Si todo es válido, proceder con el envío AJAX
-            e.preventDefault(); // Prevenir envío normal solo ahora
-            localStorage.removeItem('recogidasForm');
-            const btn = document.getElementById("enviarBtn");
-            if (btn) {
-                btn.disabled = true; 
-                btn.textContent = "Enviando...";
-            }
+        // 3. TERCERO: Si todo es válido, proceder con el envío AJAX
+        e.preventDefault(); // Prevenir envío normal solo ahora
+        localStorage.removeItem('recogidasForm');
+        const btn = document.getElementById("enviarBtn");
+        btn.disabled = true; 
+        btn.textContent = "Enviando...";
 
-            const fd = new FormData(this);
-            const data = {
-                numero_entrada: document.getElementById("numero_entrada")?.value || '',
-                especie_comun: fd.get("especie_comun"),
-                especie_cientifico: fd.get("especie_cientifico"),
-                cantidad_animales: fd.get("cantidad_animales"),
-                fecha: fd.get("fecha"),
-                municipio: fd.get("municipio"),
-                posible_causa: fd.getAll("posible_causa"),
-                remitente: fd.getAll("remitente"),
-                estado_animal: fd.getAll("estado_animal"),
-                coordenadas: fd.get("coordenadas"),
-                coordenadas_mapa: fd.get("coordenadas_mapa"),
-                apoyo: fd.get("apoyo"),
-                cra_y_km: fd.get("cra_y_km"),
-                observaciones: (() => {
-                    let txt = fd.get("observaciones")?.trim() || "";
-                    const anillaInput = document.getElementById('anilla');
-                    const recuperacionChecked = document.getElementById('recuperacion')?.checked;
-                    if (recuperacionChecked && anillaInput) {
-                        const anilla = anillaInput.value.trim();
-                        if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
-                    }
-                    return txt;
-                })(),
-                cumplimentado_por: fd.get("cumplimentado_por"),
-                telefono_remitente: fd.get("telefono_remitente"),
-                foto: ""
-            };
+        const fd = new FormData(this);
+        const data = {
+            numero_entrada: document.getElementById("numero_entrada").value,
+            especie_comun: fd.get("especie_comun"),
+            especie_cientifico: fd.get("especie_cientifico"),
+            cantidad_animales: fd.get("cantidad_animales"),
+            fecha: fd.get("fecha"),
+            municipio: fd.get("municipio"),
+            posible_causa: fd.getAll("posible_causa"),
+            remitente: fd.getAll("remitente"),
+            estado_animal: fd.getAll("estado_animal"),
+            coordenadas: fd.get("coordenadas"),
+            coordenadas_mapa: fd.get("coordenadas_mapa"),
+            apoyo: fd.get("apoyo"),
+            cra_y_km: fd.get("cra_y_km"),
+            observaciones: (() => {
+                let txt = fd.get("observaciones")?.trim() || "";
+                const anillaInput = document.getElementById('anilla');
+                const recuperacionChecked = document.getElementById('recuperacion')?.checked;
+                if (recuperacionChecked && anillaInput) {
+                    const anilla = anillaInput.value.trim();
+                    if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
+                }
+                return txt;
+            })(),
+            cumplimentado_por: fd.get("cumplimentado_por"),
+            telefono_remitente: fd.get("telefono_remitente"),
+            foto: ""
+        };
 
-            const file = fd.get("foto");
-            if (file && file.size) {
-                const reader = new FileReader();
-                reader.onload = ev => { 
-                    data.foto = ev.target.result; 
-                    console.log("DEBUG -> data justo antes de enviar:", data);
-                    if (btn) enviarDatos(data, btn); 
-                };
-                reader.readAsDataURL(file);
-            } else {
-                console.log("DEBUG -> data justo antes de enviar:", data);
-                if (btn) enviarDatos(data, btn);
-            }
-        });
-    }
+        const file = fd.get("foto");
+if (file && file.size) {
+    const reader = new FileReader();
+    reader.onload = ev => { 
+        data.foto = ev.target.result; 
+        console.log("DEBUG -> data justo antes de enviar:", data); // <-- AQUÍ
+        enviarDatos(data, btn); 
+    };
+    reader.readAsDataURL(file);
+} else {
+    console.log("DEBUG -> data justo antes de enviar:", data); // <-- Y AQUÍ
+    enviarDatos(data, btn);
+}
+    });
 
     async function enviarDatos(data, btn) {
-      try {
-        // ✅ URL CORREGIDA (¡SIN ESPACIOS AL FINAL!)
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyYa_6wjq8ZMUk_ZDQn3RxEJPIy6nZznH7Bpso41mYFapOOeL6ohsYs2erOXiDnrZEO/exec";    
-        console.log("🚀 Enviando datos a:", GAS_URL);
-        
-        const response = await fetch(GAS_URL, {
-          method: "POST",
-          mode: "cors", // ¡¡¡CRÍTICO PARA LEER LA RESPUESTA!!!
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
+  try {
+    // 1. Enviar datos a Google Sheets
+    await fetch("https://script.google.com/macros/s/AKfycbxtkc8IUjxvWlJjHSXNOa1_N1GS0TVATBfKjTLzcn_16xP4e0hdXcn174h2FWdhpKRt/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
 
-        console.log("📡 Respuesta HTTP:", response.status, response.statusText);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error("❌ Error del servidor:", errorText);
-          throw new Error(`Error HTTP ${response.status}: ${errorText.substring(0, 200)}`);
-        }
-
-        const resultado = await response.json();
-        console.log("✅ Respuesta recibida:", resultado);
-        
-        if (!resultado.success || !resultado.numeroEntrada) {
-          throw new Error("Respuesta inválida del servidor: " + JSON.stringify(resultado));
-        }
-
-        // ✅ Eliminar guardado local ANTES de mostrar éxito
-        localStorage.removeItem('recogidasForm');
-        
-        // ✅ Mostrar número de entrada
-        alert(`✅ Número de entrada asignado: ${resultado.numeroEntrada}`);
-        
-        // ✅ Limpiar formulario completo
-        if (formulario) {
-            formulario.reset();
-            document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
-            document.getElementById("numero_entrada").value = resultado.numeroEntrada;
-            
-            // Limpiar mapa
-            document.getElementById("coordenadas_mapa").value = "";
-            document.getElementById("coordenadas").value = "";
-            if (marker) {
-                map.removeLayer(marker);
-                marker = null;
-            }
-            
-            // Limpiar campo de anilla
-            const anillaWrapper = document.getElementById('anillaWrapper');
-            const anillaInput = document.getElementById('anilla');
-            if (anillaWrapper && anillaInput) {
-                anillaWrapper.style.display = 'none';
-                anillaInput.value = '';
-            }
-        }
-
-      } catch (err) {
-        console.error("❌ Error detallado:", err);
-        
-        // ✅ Verificar conexión antes de guardar
-        if (navigator.onLine) {
-            alert(`❌ Error de conexión: ${err.message || 'Error desconocido'}. Por favor, verifica los datos e inténtalo de nuevo.`);
-        } else {
-            try {
-                await guardarRegistroLocal(data);
-                alert("⚠️ Sin conexión a internet. Datos guardados localmente para enviar más tarde.");
-            } catch (dbError) {
-                console.error('Error guardando en IndexedDB:', dbError);
-                alert("❌ Error grave: no se pudieron guardar los datos. Por favor, inténtalo de nuevo.");
-            }
-        }
-        
-      } finally {
-        if (btn) {
-            btn.disabled = false;
-            btn.textContent = "Enviar";
-        }
-      }
+    // 2. Guardar en IndexedDB (primero, antes de resetear)
+    try {
+      await guardarRegistroLocal(data);
+      console.log('Registro guardado localmente');
+    } catch (dbError) {
+      console.error('Error guardando en IndexedDB:', dbError);
     }
 
+    // 3. Obtener número de entrada y LIMPIAR FORMULARIO
+    const timestamp = Date.now();
+    const response = await fetch(`https://script.google.com/macros/s/AKfycbxtkc8IUjxvWlJjHSXNOa1_N1GS0TVATBfKjTLzcn_16xP4e0hdXcn174h2FWdhpKRt/exec?getNumeroEntrada&_=${timestamp}`);
+    
+    const d = await response.json();
+    alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
+    
+    // 4. LIMPIEZA TOTAL DEL FORMULARIO
+    sessionStorage.setItem('formEnviadoOK', '1');
+    localStorage.removeItem('recogidasForm'); // Eliminar autoguardado temporal
+    
+    // Resetear TODO el formulario
+    document.getElementById("formulario").reset();
+    
+    // Restaurar campos que necesitan valores específicos después del reset
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha').value = hoy;
+    document.getElementById("numero_entrada").value = d.numeroEntrada;
+    
+    // Limpiar mapa y coordenadas
+    document.getElementById("coordenadas_mapa").value = "";
+    document.getElementById("coordenadas").value = "";
+    if (window.marker) {
+      window.map.removeLayer(window.marker);
+      window.marker = null;
+    }
+    
+    // Limpiar campo de anilla
+    const anillaWrapper = document.getElementById('anillaWrapper');
+    if (anillaWrapper) {
+      anillaWrapper.style.display = 'none';
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("? Error al enviar. Los datos no se guardaron.\n" + (err.message || "Error desconocido"));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Enviar";
+  }
+}
     // Auto-guardado temporal (localStorage) mientras se rellena el formulario
-    if (formulario) {
-        formulario.addEventListener('input', () => {
-            try {
-                const obj = {};
-                Array.from(formulario.elements).forEach(el => {
-                    if (!el.name) return;
-                    
-                    // Manejar checkboxes correctamente
-                    if (el.type === 'checkbox') {
-                        if (!obj[el.name]) obj[el.name] = [];
-                        if (el.checked && !obj[el.name].includes(el.value)) {
-                            obj[el.name].push(el.value);
-                        }
-                    } 
-                    // Manejar radiobuttons
-                    else if (el.type === 'radio') {
-                        if (el.checked) obj[el.name] = el.value;
-                    } 
-                    // Manejar otros tipos de inputs
-                    else {
-                        // Si ya existe como array (por checkboxes), convertir a string
-                        if (Array.isArray(obj[el.name])) {
-                            obj[el.name] = obj[el.name].join(', ');
-                        }
-                        obj[el.name] = el.value;
-                    }
-                });
-                localStorage.setItem('recogidasForm', JSON.stringify(obj));
-            } catch (error) {
-                console.error('Error en autoguardado:', error);
+    const form = document.getElementById("formulario");
+    form.addEventListener('input', () => {
+        const obj = {};
+        Array.from(form.elements).forEach(el => {
+            if (!el.name) return;
+            if (el.type === 'checkbox') {
+                if (!obj[el.name]) obj[el.name] = [];
+                if (el.checked) obj[el.name].push(el.value);
+            } else if (el.type === 'radio') {
+                if (el.checked) obj[el.name] = el.value;
+            } else {
+                obj[el.name] = el.value;
             }
         });
-    }
+        localStorage.setItem('recogidasForm', JSON.stringify(obj));
+    });
 
     // Modal de registros
     const modal = document.getElementById('modalRegistros');
@@ -564,57 +512,43 @@ document.addEventListener("DOMContentLoaded", function () {
     const inputImportarJSON = document.getElementById('importarJSON');
     const btnImportarModal = document.getElementById('btnImportarModal');
 
-    if (btnVerRegistros) {
-        btnVerRegistros.addEventListener('click', async () => {
-            if (modal) {
-                modal.style.display = 'block';
+    btnVerRegistros.addEventListener('click', async () => {
+        modal.style.display = 'block';
+        await mostrarRegistros();
+    });
+
+    btnCerrarModal.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    btnImportar.addEventListener('click', () => {
+        inputImportarJSON.click();
+    });
+
+    btnImportarModal.addEventListener('click', () => {
+        inputImportarJSON.click();
+    });
+
+    inputImportarJSON.addEventListener('change', async (e) => {
+        const archivo = e.target.files[0];
+        if (!archivo) return;
+        if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
+        try {
+            await importarRegistrosJSON(archivo);
+            alert('? Registros importados correctamente');
+            if (modal.style.display === 'block') {
                 await mostrarRegistros();
             }
-        });
-    }
+            inputImportarJSON.value = '';
+        } catch (error) {
+            console.error('Error importando:', error);
+            alert('? Error al importar el archivo. Asegúrate de que sea un JSON válido.');
+        }
+    });
 
-    if (btnCerrarModal) {
-        btnCerrarModal.addEventListener('click', () => {
-            if (modal) modal.style.display = 'none';
-        });
-    }
-
-    if (btnImportar) {
-        btnImportar.addEventListener('click', () => {
-            if (inputImportarJSON) inputImportarJSON.click();
-        });
-    }
-
-    if (btnImportarModal) {
-        btnImportarModal.addEventListener('click', () => {
-            if (inputImportarJSON) inputImportarJSON.click();
-        });
-    }
-
-    if (inputImportarJSON) {
-        inputImportarJSON.addEventListener('change', async (e) => {
-            const archivo = e.target.files[0];
-            if (!archivo) return;
-            if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
-            try {
-                await importarRegistrosJSON(archivo);
-                alert('✅ Registros importados correctamente');
-                if (modal && modal.style.display === 'block') {
-                    await mostrarRegistros();
-                }
-                inputImportarJSON.value = '';
-            } catch (error) {
-                console.error('Error importando:', error);
-                alert('❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.');
-            }
-        });
-    }
-
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.style.display = 'none';
-        });
-    }
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+    });
 });
 
 /* =====  AL ARRANCAR: limpiar si NO venimos de un envío correcto  ===== */
@@ -631,13 +565,11 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(r => r.json())
         .then(d => {
             const list = document.getElementById("municipios-list");
-            if (list) {
-                d.municipios.forEach(m => {
-                    const opt = document.createElement("option");
-                    opt.value = m;
-                    list.appendChild(opt);
-                });
-            }
+            d.municipios.forEach(m => {
+                const opt = document.createElement("option");
+                opt.value = m;
+                list.appendChild(opt);
+            });
         })
         .catch(console.error);
 });
@@ -660,50 +592,44 @@ document.addEventListener("DOMContentLoaded", () => {
             const comList = document.getElementById("especies-comun-list");
             const cienList = document.getElementById("especies-cientifico-list");
 
-            if (comList && cienList) {
-                // Rellenar datalists: versión SIN acento para buscar y CON acento para insertar
-                d.forEach(e => {
-                    const comSin  = quitarAcentos(e.nombreComun);
-                    const cienSin = quitarAcentos(e.nombreCientifico);
+            // Rellenar datalists: versión SIN acento para buscar y CON acento para insertar
+            d.forEach(e => {
+                const comSin  = quitarAcentos(e.nombreComun);
+                const cienSin = quitarAcentos(e.nombreCientifico);
 
-                    const opt1 = document.createElement("option");
-                    opt1.value = comSin;          // sin acento ? aparece al buscar
-                    comList.appendChild(opt1);
+                const opt1 = document.createElement("option");
+                opt1.value = comSin;          // sin acento ? aparece al buscar
+                comList.appendChild(opt1);
 
-                    const opt1b = document.createElement("option");
-                    opt1b.value = e.nombreComun;  // con acento ? se inserta al seleccionar
-                    comList.appendChild(opt1b);
+                const opt1b = document.createElement("option");
+                opt1b.value = e.nombreComun;  // con acento ? se inserta al seleccionar
+                comList.appendChild(opt1b);
 
-                    const opt2 = document.createElement("option");
-                    opt2.value = cienSin;
-                    cienList.appendChild(opt2);
+                const opt2 = document.createElement("option");
+                opt2.value = cienSin;
+                cienList.appendChild(opt2);
 
-                    const opt2b = document.createElement("option");
-                    opt2b.value = e.nombreCientifico;
-                    cienList.appendChild(opt2b);
-                });
+                const opt2b = document.createElement("option");
+                opt2b.value = e.nombreCientifico;
+                cienList.appendChild(opt2b);
+            });
 
-                // Autocompletado cruzado (común ? científico)
-                if (comInput) {
-                    comInput.addEventListener("input", () => {
-                        const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
-                        if (found) {
-                            comInput.value  = found.nombreComun;   // muestra versión con tilde
-                            if (cienInput) cienInput.value = found.nombreCientifico;
-                        }
-                    });
+            // Autocompletado cruzado (común ? científico)
+            comInput.addEventListener("input", () => {
+                const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
+                if (found) {
+                    comInput.value  = found.nombreComun;   // muestra versión con tilde
+                    cienInput.value = found.nombreCientifico;
                 }
+            });
 
-                if (cienInput) {
-                    cienInput.addEventListener("input", () => {
-                        const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
-                        if (found) {
-                            cienInput.value = found.nombreCientifico;
-                            if (comInput) comInput.value  = found.nombreComun;
-                        }
-                    });
+            cienInput.addEventListener("input", () => {
+                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
+                if (found) {
+                    cienInput.value = found.nombreCientifico;
+                    comInput.value  = found.nombreComun;
                 }
-            }
+            });
         })
         .catch(console.error);
 });
@@ -728,10 +654,8 @@ if (btnCerrar) {
 
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
-const fechaInput = document.getElementById('fecha');
-if (fechaInput) {
-    fechaInput.value = hoy;
-}
+document.getElementById('fecha').value = hoy;
+
 
 
 

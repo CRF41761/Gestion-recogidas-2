@@ -445,25 +445,45 @@ if (file && file.size) {
       console.error('Error guardando en IndexedDB:', dbError);
     }
 
-    // 3. Obtener número de entrada y LIMPIAR FORMULARIO
+        // 3. Obtener número de entrada y LIMPIAR FORMULARIO
     const timestamp = Date.now();
-    const response = await fetch(`https://script.google.com/macros/s/AKfycbw-wHCkb6P9LHbWwgnWhbV60kTd96GZY6b9Xoq-nBAhDLERhWjWhfJMpXME13tXObYS/exec?getNumeroEntrada&_=${timestamp}`);
-    
-    const d = await response.json();
-    alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
-    
+    const url = `https://script.google.com/macros/s/AKfycbw-wHCkb6P9LHbWwgnWhbV60kTd96GZY6b9Xoq-nBAhDLERhWjWhfJMpXME13tXObYS/exec?getNumeroEntrada&_=${timestamp}`;
+
+    console.log("🔍 Petición a:", url);
+
+    const response = await fetch(url);
+
+    console.log("📡 Estado HTTP:", response.status);
+    console.log("📎 Headers:", Object.fromEntries(response.headers.entries()));
+
+    const textResponse = await response.text();
+    console.log("📄 Respuesta cruda del servidor:", textResponse);
+
+    let d;
+    try {
+      d = JSON.parse(textResponse);
+    } catch (parseError) {
+      throw new Error(`La respuesta NO es JSON. Contenido: ${textResponse}`);
+    }
+
+    if (d.numeroEntrada == null) {
+      throw new Error(`El JSON no contiene 'numeroEntrada'. Contenido: ${JSON.stringify(d)}`);
+    }
+
+    alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+
     // 4. LIMPIEZA TOTAL DEL FORMULARIO
     sessionStorage.setItem('formEnviadoOK', '1');
     localStorage.removeItem('recogidasForm'); // Eliminar autoguardado temporal
-    
+
     // Resetear TODO el formulario
     document.getElementById("formulario").reset();
-    
+
     // Restaurar campos que necesitan valores específicos después del reset
     const hoy = new Date().toISOString().split('T')[0];
     document.getElementById('fecha').value = hoy;
     document.getElementById("numero_entrada").value = d.numeroEntrada;
-    
+
     // Limpiar mapa y coordenadas
     document.getElementById("coordenadas_mapa").value = "";
     document.getElementById("coordenadas").value = "";
@@ -471,7 +491,7 @@ if (file && file.size) {
       window.map.removeLayer(window.marker);
       window.marker = null;
     }
-    
+
     // Limpiar campo de anilla
     const anillaWrapper = document.getElementById('anillaWrapper');
     if (anillaWrapper) {
@@ -655,6 +675,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

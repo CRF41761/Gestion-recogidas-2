@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             return;
         }
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q= ${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -326,6 +326,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+
+    fetch("https://script.google.com/macros/s/AKfycbyVBt-tdm5jAmz1lbKnbLVf_JPjeTpXH3CXm_EyTCuJwW5ttjqaTRf3gJPk9Z7U9oy5/exec?getNumeroEntrada ")
+        .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
+        .catch(console.error);
 
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
@@ -394,7 +398,7 @@ document.addEventListener("DOMContentLoaded", function () {
             coordenadas: fd.get("coordenadas"),
             coordenadas_mapa: fd.get("coordenadas_mapa"),
             apoyo: fd.get("apoyo"),
-            cra_y_km: fd.get("cra_y_km"),
+            cra_km: fd.get("cra_km"),
             observaciones: (() => {
                 let txt = fd.get("observaciones")?.trim() || "";
                 const anillaInput = document.getElementById('anilla');
@@ -425,47 +429,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            // 1. Enviar datos (sin leer respuesta)
-            await fetch("https://script.google.com/macros/s/AKfycbzypxZ4OtybZVa0JyzUG6WIX8jGq0Q7NrDlAP_BKQJdmrSHdyq84fmtSNLNpf1hp6WS/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbyVBt-tdm5jAmz1lbKnbLVf_JPjeTpXH3CXm_EyTCuJwW5ttjqaTRf3gJPk9Z7U9oy5/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
-
-            // 2. Guardar en IndexedDB
             try {
                 await guardarRegistroLocal(data);
-                console.log('Registro guardado localmente');
+                console.log('Registro guardado localmente sin número de entrada');
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-
-            // 3. Obtener número de entrada (sí leer respuesta)
-            const response = await fetch("https://script.google.com/macros/s/AKfycbzypxZ4OtybZVa0JyzUG6WIX8jGq0Q7NrDlAP_BKQJdmrSHdyq84fmtSNLNpf1hp6WS/exec?getNumeroEntrada");
-            
+            const response = await fetch("https://script.google.com/macros/s/AKfycbyVBt-tdm5jAmz1lbKnbLVf_JPjeTpXH3CXm_EyTCuJwW5ttjqaTRf3gJPk9Z7U9oy5/exec?getNumeroEntrada");
             const d = await response.json();
             alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
-            
-            // 4. LIMPIEZA TOTAL
             sessionStorage.setItem('formEnviadoOK', '1');
-            localStorage.removeItem('recogidasForm');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').value = hoy;
-            document.getElementById("numero_entrada").value = d.numeroEntrada;
-            document.getElementById("coordenadas_mapa").value = "";
-            document.getElementById("coordenadas").value = "";
-            if (window.marker) {
-                window.map.removeLayer(window.marker);
-                window.marker = null;
-            }
-            const anillaWrapper = document.getElementById('anillaWrapper');
-            if (anillaWrapper) anillaWrapper.style.display = 'none';
-
         } catch (err) {
             console.error(err);
-            alert("❌ Error al enviar. Los datos no se guardaron.\n" + (err.message || "Error desconocido"));
+            alert("❌ Error al enviar. Los datos no se guardaron en la tablet.");
         } finally {
             btn.disabled = false;
             btn.textContent = "Enviar";

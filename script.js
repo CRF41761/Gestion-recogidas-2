@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbzUTIYgP8qE4SIdQcWk5BQ_WqmK7EBlUmwzQ_NVH-GfG_IZ1tilVcfTkUQ2dJPvcMrR/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycby3DC62XfFcUsjeYTtZ6tsSen68lbKqpUqZc6FIbcLke31OxMgJlN-V3_dF8gwmImo6/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -429,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbzUTIYgP8qE4SIdQcWk5BQ_WqmK7EBlUmwzQ_NVH-GfG_IZ1tilVcfTkUQ2dJPvcMrR/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycby3DC62XfFcUsjeYTtZ6tsSen68lbKqpUqZc6FIbcLke31OxMgJlN-V3_dF8gwmImo6/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbzUTIYgP8qE4SIdQcWk5BQ_WqmK7EBlUmwzQ_NVH-GfG_IZ1tilVcfTkUQ2dJPvcMrR/exec?getNumeroEntrada");
+            const response = await fetch("https://script.google.com/macros/s/AKfycby3DC62XfFcUsjeYTtZ6tsSen68lbKqpUqZc6FIbcLke31OxMgJlN-V3_dF8gwmImo6/exec?getNumeroEntrada");
             const d = await response.json();
             alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
@@ -621,3 +621,4 @@ if (btnCerrar) {
             alert('Puedes cerrar esta pestaña desde el navegador.');
         }
     });
+

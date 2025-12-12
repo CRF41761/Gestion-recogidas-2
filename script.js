@@ -141,11 +141,11 @@ const mostrarRegistros = async () => {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="flex:1;">
                     <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
-                    <small style="color:#666;">?? ${formatearFechaHora(reg.timestamp)}</small>
+                    <small style="color:#666;">📅 ${formatearFechaHora(reg.timestamp)}</small>
                 </div>
                 <button onclick="eliminarYActualizar(${reg.id})" 
                         style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px; margin-left:10px;" 
-                        title="Eliminar registro">???</button>
+                        title="Eliminar registro">🗑️</button>
             </div>
             <details style="font-size:0.9em; color:#555; margin-top:8px;">
                 <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             return;
         }
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=   ${encodeURIComponent(raw)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -326,8 +326,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
-
-   
 
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
@@ -413,99 +411,67 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         const file = fd.get("foto");
-if (file && file.size) {
-    const reader = new FileReader();
-    reader.onload = ev => { 
-        data.foto = ev.target.result; 
-        console.log("DEBUG -> data justo antes de enviar:", data); // <-- AQUÍ
-        enviarDatos(data, btn); 
-    };
-    reader.readAsDataURL(file);
-} else {
-    console.log("DEBUG -> data justo antes de enviar:", data); // <-- Y AQUÍ
-    enviarDatos(data, btn);
-}
+        if (file && file.size) {
+            const reader = new FileReader();
+            reader.onload = ev => { 
+                data.foto = ev.target.result; 
+                enviarDatos(data, btn); 
+            };
+            reader.readAsDataURL(file);
+        } else {
+            enviarDatos(data, btn);
+        }
     });
 
     async function enviarDatos(data, btn) {
-  try {
-    // 1. Enviar datos a Google Sheets
-    await fetch("https://script.google.com/macros/s/AKfycbxvv6cgAdFe5JkikDvZsALzLVqXk8yDP_QS9uSEAnQG76kRWaIPJ61YxmaDz9E2CE4/exec", {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
+        try {
+            // 1. Enviar datos (sin leer respuesta)
+            await fetch("https://script.google.com/macros/s/AKfycbzypxZ4OtybZVa0JyzUG6WIX8jGq0Q7NrDlAP_BKQJdmrSHdyq84fmtSNLNpf1hp6WS/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
 
-    // 2. Guardar en IndexedDB (primero, antes de resetear)
-    try {
-      await guardarRegistroLocal(data);
-      console.log('Registro guardado localmente');
-    } catch (dbError) {
-      console.error('Error guardando en IndexedDB:', dbError);
+            // 2. Guardar en IndexedDB
+            try {
+                await guardarRegistroLocal(data);
+                console.log('Registro guardado localmente');
+            } catch (dbError) {
+                console.error('Error guardando en IndexedDB:', dbError);
+            }
+
+            // 3. Obtener número de entrada (sí leer respuesta)
+            const response = await fetch("https://script.google.com/macros/s/AKfycbzypxZ4OtybZVa0JyzUG6WIX8jGq0Q7NrDlAP_BKQJdmrSHdyq84fmtSNLNpf1hp6WS/exec?getNumeroEntrada");
+            
+            const d = await response.json();
+            alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
+            
+            // 4. LIMPIEZA TOTAL
+            sessionStorage.setItem('formEnviadoOK', '1');
+            localStorage.removeItem('recogidasForm');
+            document.getElementById("formulario").reset();
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = hoy;
+            document.getElementById("numero_entrada").value = d.numeroEntrada;
+            document.getElementById("coordenadas_mapa").value = "";
+            document.getElementById("coordenadas").value = "";
+            if (window.marker) {
+                window.map.removeLayer(window.marker);
+                window.marker = null;
+            }
+            const anillaWrapper = document.getElementById('anillaWrapper');
+            if (anillaWrapper) anillaWrapper.style.display = 'none';
+
+        } catch (err) {
+            console.error(err);
+            alert("❌ Error al enviar. Los datos no se guardaron.\n" + (err.message || "Error desconocido"));
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Enviar";
+        }
     }
 
-        // 3. Obtener número de entrada y LIMPIAR FORMULARIO
-    const timestamp = Date.now();
-    const url = `https://script.google.com/macros/s/AKfycbxvv6cgAdFe5JkikDvZsALzLVqXk8yDP_QS9uSEAnQG76kRWaIPJ61YxmaDz9E2CE4/exec?getnumeroentrada&_=${timestamp}`;
-
-    console.log("🔍 Petición a:", url);
-
-    const response = await fetch(url);
-
-    console.log("📡 Estado HTTP:", response.status);
-    console.log("📎 Headers:", Object.fromEntries(response.headers.entries()));
-
-    const textResponse = await response.text();
-    console.log("📄 Respuesta cruda del servidor:", textResponse);
-
-    let d;
-    try {
-      d = JSON.parse(textResponse);
-    } catch (parseError) {
-      throw new Error(`La respuesta NO es JSON. Contenido: ${textResponse}`);
-    }
-
-    if (d.numeroEntrada == null) {
-      throw new Error(`El JSON no contiene 'numeroEntrada'. Contenido: ${JSON.stringify(d)}`);
-    }
-
-    alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
-
-    // 4. LIMPIEZA TOTAL DEL FORMULARIO
-    sessionStorage.setItem('formEnviadoOK', '1');
-    localStorage.removeItem('recogidasForm'); // Eliminar autoguardado temporal
-
-    // Resetear TODO el formulario
-    document.getElementById("formulario").reset();
-
-    // Restaurar campos que necesitan valores específicos después del reset
-    const hoy = new Date().toISOString().split('T')[0];
-    document.getElementById('fecha').value = hoy;
-    document.getElementById("numero_entrada").value = d.numeroEntrada;
-
-    // Limpiar mapa y coordenadas
-    document.getElementById("coordenadas_mapa").value = "";
-    document.getElementById("coordenadas").value = "";
-    if (window.marker) {
-      window.map.removeLayer(window.marker);
-      window.marker = null;
-    }
-
-    // Limpiar campo de anilla
-    const anillaWrapper = document.getElementById('anillaWrapper');
-    if (anillaWrapper) {
-      anillaWrapper.style.display = 'none';
-    }
-
-  } catch (err) {
-    console.error(err);
-    alert("? Error al enviar. Los datos no se guardaron.\n" + (err.message || "Error desconocido"));
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Enviar";
-  }
-}
     // Auto-guardado temporal (localStorage) mientras se rellena el formulario
     const form = document.getElementById("formulario");
     form.addEventListener('input', () => {
@@ -555,14 +521,14 @@ if (file && file.size) {
         if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
         try {
             await importarRegistrosJSON(archivo);
-            alert('? Registros importados correctamente');
+            alert('✅ Registros importados correctamente');
             if (modal.style.display === 'block') {
                 await mostrarRegistros();
             }
             inputImportarJSON.value = '';
         } catch (error) {
             console.error('Error importando:', error);
-            alert('? Error al importar el archivo. Asegúrate de que sea un JSON válido.');
+            alert('❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.');
         }
     });
 
@@ -618,11 +584,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const cienSin = quitarAcentos(e.nombreCientifico);
 
                 const opt1 = document.createElement("option");
-                opt1.value = comSin;          // sin acento ? aparece al buscar
+                opt1.value = comSin;          // sin acento → aparece al buscar
                 comList.appendChild(opt1);
 
                 const opt1b = document.createElement("option");
-                opt1b.value = e.nombreComun;  // con acento ? se inserta al seleccionar
+                opt1b.value = e.nombreComun;  // con acento → se inserta al seleccionar
                 comList.appendChild(opt1b);
 
                 const opt2 = document.createElement("option");
@@ -634,7 +600,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 cienList.appendChild(opt2b);
             });
 
-            // Autocompletado cruzado (común ? científico)
+            // Autocompletado cruzado (común ↔ científico)
             comInput.addEventListener("input", () => {
                 const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
                 if (found) {
@@ -675,12 +641,3 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-
-
-
-
-
-
-
-
-

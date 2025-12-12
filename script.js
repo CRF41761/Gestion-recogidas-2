@@ -430,7 +430,7 @@ if (file && file.size) {
     async function enviarDatos(data, btn) {
   try {
     // 1. Enviar datos a Google Sheets
-    await fetch("https://script.google.com/macros/s/AKfycbw-wHCkb6P9LHbWwgnWhbV60kTd96GZY6b9Xoq-nBAhDLERhWjWhfJMpXME13tXObYS/exec", {
+    await fetch("https://script.google.com/macros/s/AKfycbxvv6cgAdFe5JkikDvZsALzLVqXk8yDP_QS9uSEAnQG76kRWaIPJ61YxmaDz9E2CE4/exec", {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
@@ -447,7 +447,7 @@ if (file && file.size) {
 
         // 3. Obtener número de entrada y LIMPIAR FORMULARIO
     const timestamp = Date.now();
-    const url = `https://script.google.com/macros/s/AKfycbw-wHCkb6P9LHbWwgnWhbV60kTd96GZY6b9Xoq-nBAhDLERhWjWhfJMpXME13tXObYS/exec?getNumeroEntrada&_=${timestamp}`;
+    const url = `https://script.google.com/macros/s/AKfycbxvv6cgAdFe5JkikDvZsALzLVqXk8yDP_QS9uSEAnQG76kRWaIPJ61YxmaDz9E2CE4/exec?getnumeroentrada&_=${timestamp}`;
 
     console.log("🔍 Petición a:", url);
 
@@ -675,6 +675,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

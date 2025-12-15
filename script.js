@@ -443,14 +443,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             const response = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
             const d = await response.json();
-            alert(`¿Número de entrada asignado: ${d.numeroEntrada}`);
+            alert(`Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').value = hoy;
         } catch (err) {
             console.error(err);
-            alert("¿Error al enviar. Los datos no se guardaron en la tablet.");
+            alert("Error al enviar. Los datos no se guardaron en la tablet.");
         } finally {
             btn.disabled = false;
             btn.textContent = "Enviar";
@@ -626,6 +626,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

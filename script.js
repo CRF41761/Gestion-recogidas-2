@@ -141,11 +141,11 @@ const mostrarRegistros = async () => {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="flex:1;">
                     <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
-                    <small style="color:#666;">?? ${formatearFechaHora(reg.timestamp)}</small>
+                    <small style="color:#666;">📅 ${formatearFechaHora(reg.timestamp)}</small>
                 </div>
                 <button onclick="eliminarYActualizar(${reg.id})" 
                         style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px; margin-left:10px;" 
-                        title="Eliminar registro">???</button>
+                        title="Eliminar registro">🗑️</button>
             </div>
             <details style="font-size:0.9em; color:#555; margin-top:8px;">
                 <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             return;
         }
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q= ${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbxJW70kSH_GIzPnMKw1k-HXxu__mqdUj3JnBuv-k3pgS1O-JEUR5E6MDmrQ9qaIu0jb/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada ")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -348,7 +348,17 @@ document.addEventListener("DOMContentLoaded", function () {
     validarInputDatalist('especie_comun', 'especies-comun-list', 'Debes seleccionar una especie (nombre común) existente.');
     validarInputDatalist('especie_cientifico', 'especies-cientifico-list', 'Debes seleccionar una especie (nombre científico) existente.');
 
+    /* ---------- ENVÍO DEL FORMULARIO (UNIFICADO Y CORREGIDO) ---------- */
     document.getElementById("formulario").addEventListener("submit", function (e) {
+        
+        // 1. PRIMERO: Validación nativa del navegador (muestra "Completa este campo")
+        if (!this.checkValidity()) {
+            e.preventDefault();
+            this.reportValidity();
+            return;
+        }
+
+        // 2. SEGUNDO: Validaciones personalizadas de especies
         const especieComunInput = document.getElementById("especie_comun");
         const especieComunList = Array.from(document.getElementById("especies-comun-list").options).map(opt => opt.value.trim());
         if (!especieComunInput.value.trim() || !especieComunList.includes(especieComunInput.value.trim())) {
@@ -357,6 +367,7 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
             return;
         }
+        
         const especieCientificoInput = document.getElementById("especie_cientifico");
         const especieCientificoList = Array.from(document.getElementById("especies-cientifico-list").options).map(opt => opt.value.trim());
         if (!especieCientificoInput.value.trim() || !especieCientificoList.includes(especieCientificoInput.value.trim())) {
@@ -365,14 +376,13 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
             return;
         }
-    }, true);
 
-    /* ---------- ENVÍO DEL FORMULARIO ---------- */
-    document.getElementById("formulario").addEventListener("submit", function (e) {
-        e.preventDefault();
+        // 3. TERCERO: Si todo es válido, proceder con el envío AJAX
+        e.preventDefault(); // Prevenir envío normal solo ahora
         localStorage.removeItem('recogidasForm');
         const btn = document.getElementById("enviarBtn");
-        btn.disabled = true; btn.textContent = "Enviando...";
+        btn.disabled = true; 
+        btn.textContent = "Enviando...";
 
         const fd = new FormData(this);
         const data = {
@@ -407,7 +417,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const file = fd.get("foto");
         if (file && file.size) {
             const reader = new FileReader();
-            reader.onload = ev => { data.foto = ev.target.result; enviarDatos(data, btn); };
+            reader.onload = ev => { 
+                data.foto = ev.target.result; 
+                enviarDatos(data, btn); 
+            };
             reader.readAsDataURL(file);
         } else {
             enviarDatos(data, btn);
@@ -416,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbxJW70kSH_GIzPnMKw1k-HXxu__mqdUj3JnBuv-k3pgS1O-JEUR5E6MDmrQ9qaIu0jb/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
@@ -428,16 +441,16 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbxJW70kSH_GIzPnMKw1k-HXxu__mqdUj3JnBuv-k3pgS1O-JEUR5E6MDmrQ9qaIu0jb/exec");
+            const response = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
             const d = await response.json();
-            alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
+            alert(`✅ Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').value = hoy;
         } catch (err) {
             console.error(err);
-            alert("? Error al enviar. Los datos no se guardaron en la tablet.");
+            alert("❌ Error al enviar. Los datos no se guardaron en la tablet.");
         } finally {
             btn.disabled = false;
             btn.textContent = "Enviar";
@@ -493,14 +506,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
         try {
             await importarRegistrosJSON(archivo);
-            alert('? Registros importados correctamente');
+            alert('✅ Registros importados correctamente');
             if (modal.style.display === 'block') {
                 await mostrarRegistros();
             }
             inputImportarJSON.value = '';
         } catch (error) {
             console.error('Error importando:', error);
-            alert('? Error al importar el archivo. Asegúrate de que sea un JSON válido.');
+            alert('❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.');
         }
     });
 
@@ -556,11 +569,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const cienSin = quitarAcentos(e.nombreCientifico);
 
                 const opt1 = document.createElement("option");
-                opt1.value = comSin;          // sin acento ? aparece al buscar
+                opt1.value = comSin;          // sin acento → aparece al buscar
                 comList.appendChild(opt1);
 
                 const opt1b = document.createElement("option");
-                opt1b.value = e.nombreComun;  // con acento ? se inserta al seleccionar
+                opt1b.value = e.nombreComun;  // con acento → se inserta al seleccionar
                 comList.appendChild(opt1b);
 
                 const opt2 = document.createElement("option");
@@ -572,7 +585,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 cienList.appendChild(opt2b);
             });
 
-            // Autocompletado cruzado (común ? científico)
+            // Autocompletado cruzado (común ↔ científico)
             comInput.addEventListener("input", () => {
                 const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
                 if (found) {
@@ -613,4 +626,3 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-

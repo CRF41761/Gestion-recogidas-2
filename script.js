@@ -506,14 +506,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
         try {
             await importarRegistrosJSON(archivo);
-            alert('? Registros importados correctamente');
+            alert("¿Registros importados correctamente");
             if (modal.style.display === 'block') {
                 await mostrarRegistros();
             }
             inputImportarJSON.value = '';
         } catch (error) {
             console.error('Error importando:', error);
-            alert('? Error al importar el archivo. Asegúrate de que sea un JSON válido.');
+            alert("¿Error al importar el archivo. Asegúrate de que sea un JSON válido.");
         }
     });
 
@@ -626,5 +626,6 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 

@@ -464,7 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
         Array.from(form.elements).forEach(el => {
             if (!el.name) return;
             if (el.type === 'checkbox') {
-                if (!obj[el.name]) obj[el.name] = [];
+                if (!Array.isArray(obj[el.name])) obj[el.name] = [];
                 if (el.checked) obj[el.name].push(el.value);
             } else if (el.type === 'radio') {
                 if (el.checked) obj[el.name] = el.value;
@@ -626,6 +626,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

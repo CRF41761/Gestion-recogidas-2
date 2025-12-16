@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbx6lwHj0LZUSoH3_DEsygUHA7-Dt7LF9o9AttWd2INTE0Zd-9-rNVxk4wF5BXhJU56V/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -429,28 +429,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbx6lwHj0LZUSoH3_DEsygUHA7-Dt7LF9o9AttWd2INTE0Zd-9-rNVxk4wF5BXhJU56V/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
                 method: "POST",
                 mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
-           console.log("✅ POST enviado al servidor");
             try {
                 await guardarRegistroLocal(data);
                 console.log('Registro guardado localmente sin número de entrada');
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbx6lwHj0LZUSoH3_DEsygUHA7-Dt7LF9o9AttWd2INTE0Zd-9-rNVxk4wF5BXhJU56V/exec?getNumeroEntrada");
+            const response = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
             const d = await response.json();
-            alert(`Número de entrada asignado: ${d.numeroEntrada}`);
+            alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').value = hoy;
         } catch (err) {
             console.error(err);
-            alert("Error al enviar. Los datos no se guardaron en la tablet.");
+            alert("? Error al enviar. Los datos no se guardaron en la tablet.");
         } finally {
             btn.disabled = false;
             btn.textContent = "Enviar";
@@ -464,7 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
         Array.from(form.elements).forEach(el => {
             if (!el.name) return;
             if (el.type === 'checkbox') {
-                if (!Array.isArray(obj[el.name])) obj[el.name] = [];
+                if (!obj[el.name]) obj[el.name] = [];
                 if (el.checked) obj[el.name].push(el.value);
             } else if (el.type === 'radio') {
                 if (el.checked) obj[el.name] = el.value;
@@ -506,14 +506,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
         try {
             await importarRegistrosJSON(archivo);
-            alert("Registros importados correctamente");
+            alert('? Registros importados correctamente');
             if (modal.style.display === 'block') {
                 await mostrarRegistros();
             }
             inputImportarJSON.value = '';
         } catch (error) {
             console.error('Error importando:', error);
-            alert("Error al importar el archivo. Asegúrate de que sea un JSON válido.");
+            alert('? Error al importar el archivo. Asegúrate de que sea un JSON válido.');
         }
     });
 
@@ -626,16 +626,3 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-
-
-
-
-
-
-
-
-
-
-
-
-

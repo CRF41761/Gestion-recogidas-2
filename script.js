@@ -434,6 +434,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 mode: "no-cors",
                 body: JSON.stringify(data)
             });
+           console.log("✅ POST enviado al servidor");
             try {
                 await guardarRegistroLocal(data);
                 console.log('Registro guardado localmente sin número de entrada');
@@ -625,6 +626,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

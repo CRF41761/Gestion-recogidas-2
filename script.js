@@ -432,7 +432,6 @@ document.addEventListener("DOMContentLoaded", function () {
             await fetch("https://script.google.com/macros/s/AKfycbzJ7187ZwgSY1H2ik0F9L9NJ27yGt2VvLKSOploFG1xhKWXDuuen6PqdzHQpkNyHx7R/exec", {
                 method: "POST",
                 mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
             try {
@@ -626,6 +625,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

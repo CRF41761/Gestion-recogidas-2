@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbzJ7187ZwgSY1H2ik0F9L9NJ27yGt2VvLKSOploFG1xhKWXDuuen6PqdzHQpkNyHx7R/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbz3ZZ1aUm3BHMrme5fFiJF_v4hm9CIhOgSG4ksCt78KiyWMQnd5jtKN0SYho71mgTg7/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -429,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbzJ7187ZwgSY1H2ik0F9L9NJ27yGt2VvLKSOploFG1xhKWXDuuen6PqdzHQpkNyHx7R/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbz3ZZ1aUm3BHMrme5fFiJF_v4hm9CIhOgSG4ksCt78KiyWMQnd5jtKN0SYho71mgTg7/exec", {
                 method: "POST",
                 mode: "no-cors",
                 body: JSON.stringify(data)
@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbzJ7187ZwgSY1H2ik0F9L9NJ27yGt2VvLKSOploFG1xhKWXDuuen6PqdzHQpkNyHx7R/exec?getNumeroEntrada");
+            const response = await fetch("https://script.google.com/macros/s/AKfycbz3ZZ1aUm3BHMrme5fFiJF_v4hm9CIhOgSG4ksCt78KiyWMQnd5jtKN0SYho71mgTg7/exec?getNumeroEntrada");
             const d = await response.json();
             alert(`Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
@@ -626,6 +626,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

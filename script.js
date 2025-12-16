@@ -141,11 +141,11 @@ const mostrarRegistros = async () => {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="flex:1;">
                     <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
-                    <small style="color:#666;">?? ${formatearFechaHora(reg.timestamp)}</small>
+                    <small style="color:#666;">📅 ${formatearFechaHora(reg.timestamp)}</small>
                 </div>
                 <button onclick="eliminarYActualizar(${reg.id})" 
                         style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px; margin-left:10px;" 
-                        title="Eliminar registro">???</button>
+                        title="Eliminar registro">🗑️</button>
             </div>
             <details style="font-size:0.9em; color:#555; margin-top:8px;">
                 <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
@@ -327,10 +327,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbzJ7187ZwgSY1H2ik0F9L9NJ27yGt2VvLKSOploFG1xhKWXDuuen6PqdzHQpkNyHx7R/exec?getNumeroEntrada")
-        .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
-        .catch(console.error);
-
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
         const datalist = document.getElementById(datalistId);
@@ -429,28 +425,64 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
+            // 1. ENVIAR DATOS (con no-cors)
             await fetch("https://script.google.com/macros/s/AKfycbzJ7187ZwgSY1H2ik0F9L9NJ27yGt2VvLKSOploFG1xhKWXDuuen6PqdzHQpkNyHx7R/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
+
+            // 2. LIMPIEZA: Guardar en IndexedDB
             try {
                 await guardarRegistroLocal(data);
-                console.log('Registro guardado localmente sin número de entrada');
+                console.log('Registro guardado localmente');
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbzJ7187ZwgSY1H2ik0F9L9NJ27yGt2VvLKSOploFG1xhKWXDuuen6PqdzHQpkNyHx7R/exec?getNumeroEntrada");
+
+            // 3. OBTENER NÚMERO DE ENTRADA (SIN no-cors)
+            const timestamp = Date.now();
+            const response = await fetch(`https://script.google.com/macros/s/AKfycbzJ7187ZwgSY1H2ik0F9L9NJ27yGt2VvLKSOploFG1xhKWXDuuen6PqdzHQpkNyHx7R/exec?getNumeroEntrada&_=${timestamp}`);
+            
+            // 4. MANEJO DE RESPUESTA
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const d = await response.json();
-            alert(`Número de entrada asignado: ${d.numeroEntrada}`);
+            if (d.numeroEntrada == null) {
+                throw new Error("El servidor no devolvió 'numeroEntrada'");
+            }
+            
+            const numeroAsignado = d.numeroEntrada;
+            alert(`✅ Número de entrada asignado: ${numeroAsignado}`);
+            
+            // 5. LIMPIEZA TOTAL DEL FORMULARIO
             sessionStorage.setItem('formEnviadoOK', '1');
+            localStorage.removeItem('recogidasForm');
+            
             document.getElementById("formulario").reset();
+            
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').value = hoy;
+            document.getElementById("numero_entrada").value = numeroAsignado;
+            
+            // Limpiar mapa y coordenadas
+            document.getElementById("coordenadas_mapa").value = "";
+            document.getElementById("coordenadas").value = "";
+            if (window.marker) {
+                window.map.removeLayer(window.marker);
+                window.marker = null;
+            }
+            
+            // Limpiar campo de anilla
+            const anillaWrapper = document.getElementById('anillaWrapper');
+            if (anillaWrapper) anillaWrapper.style.display = 'none';
+
         } catch (err) {
-            console.error(err);
-            alert("Error al enviar. Los datos no se guardaron en la tablet.");
+            console.error("❌ Error:", err);
+            alert(`❌ Error al enviar: ${err.message || "Error desconocido. Verifica la consola para más detalles."}`);
         } finally {
             btn.disabled = false;
             btn.textContent = "Enviar";
@@ -506,14 +538,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
         try {
             await importarRegistrosJSON(archivo);
-            alert("Registros importados correctamente");
+            alert('✅ Registros importados correctamente');
             if (modal.style.display === 'block') {
                 await mostrarRegistros();
             }
             inputImportarJSON.value = '';
         } catch (error) {
             console.error('Error importando:', error);
-            alert("Error al importar el archivo. Asegúrate de que sea un JSON válido.");
+            alert('❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.');
         }
     });
 
@@ -524,9 +556,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /* =====  AL ARRANCAR: limpiar si NO venimos de un envío correcto  ===== */
 (() => {
+    // Inicializar número de entrada SOLO si no venimos de un envío correcto
     if (!sessionStorage.getItem('formEnviadoOK')) {
-        localStorage.removeItem('recogidasForm');
+        const initNumeroEntrada = async () => {
+            try {
+                const timestamp = Date.now();
+                const response = await fetch(`https://script.google.com/macros/s/AKfycbzJ7187ZwgSY1H2ik0F9L9NJ27yGt2VvLKSOploFG1xhKWXDuuen6PqdzHQpkNyHx7R/exec?getNumeroEntrada&_=${timestamp}`);
+                
+                if (!response.ok) {
+                    console.error("Error HTTP al inicializar número:", response.status);
+                    return;
+                }
+                
+                const d = await response.json();
+                if (d.numeroEntrada != null) {
+                    document.getElementById("numero_entrada").value = d.numeroEntrada;
+                } else {
+                    console.error("Respuesta sin numeroEntrada:", d);
+                }
+            } catch (error) {
+                console.error("❌ Error al inicializar número de entrada:", error);
+                // Opcional: mostrar mensaje de error al usuario
+            }
+        };
+        
+        initNumeroEntrada();
     }
+    
+    // Limpiar sessionStorage siempre
     sessionStorage.removeItem('formEnviadoOK');
 })();
 
@@ -569,11 +626,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const cienSin = quitarAcentos(e.nombreCientifico);
 
                 const opt1 = document.createElement("option");
-                opt1.value = comSin;          // sin acento ? aparece al buscar
+                opt1.value = comSin;          // sin acento → aparece al buscar
                 comList.appendChild(opt1);
 
                 const opt1b = document.createElement("option");
-                opt1b.value = e.nombreComun;  // con acento ? se inserta al seleccionar
+                opt1b.value = e.nombreComun;  // con acento → se inserta al seleccionar
                 comList.appendChild(opt1b);
 
                 const opt2 = document.createElement("option");
@@ -585,7 +642,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 cienList.appendChild(opt2b);
             });
 
-            // Autocompletado cruzado (común ? científico)
+            // Autocompletado cruzado (común ↔ científico)
             comInput.addEventListener("input", () => {
                 const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
                 if (found) {
@@ -626,11 +683,3 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-
-
-
-
-
-
-
-

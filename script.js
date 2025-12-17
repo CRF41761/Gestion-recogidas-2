@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbzYrwoec4CjReakONCj8gBZhV1tbWfEtk1XxI_GT1KN3Ea5l1wXGHWr51Rp610GH6Fv/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -429,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbzYrwoec4CjReakONCj8gBZhV1tbWfEtk1XxI_GT1KN3Ea5l1wXGHWr51Rp610GH6Fv/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
+            const response = await fetch("https://script.google.com/macros/s/AKfycbzYrwoec4CjReakONCj8gBZhV1tbWfEtk1XxI_GT1KN3Ea5l1wXGHWr51Rp610GH6Fv/exec?getNumeroEntrada");
             const d = await response.json();
             alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
@@ -626,3 +626,4 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+

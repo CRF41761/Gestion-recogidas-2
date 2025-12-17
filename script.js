@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbwS2njefJyZD3iKzZS9DZApFqnVNxOE5MqOD5G8wbBat162TKFfzyNZEbPn1-MQExR-/exec?getNumeroEntrada")
+    fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada")
         .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
         .catch(console.error);
 
@@ -429,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbwS2njefJyZD3iKzZS9DZApFqnVNxOE5MqOD5G8wbBat162TKFfzyNZEbPn1-MQExR-/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
@@ -441,16 +441,16 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbwS2njefJyZD3iKzZS9DZApFqnVNxOE5MqOD5G8wbBat162TKFfzyNZEbPn1-MQExR-/exec?getNumeroEntrada");
+            const response = await fetch("https://script.google.com/macros/s/AKfycbxbEuN7xEosZeIkmjVSJRabhFdMHHh2zh5VI5c0nInRZOw9nyQSWw774lEQ2UDqbY46/exec?getNumeroEntrada");
             const d = await response.json();
-            alert(` Número de entrada asignado: ${d.numeroEntrada}`);
+            alert(`? Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').value = hoy;
         } catch (err) {
             console.error(err);
-            alert(" Error al enviar. Los datos no se guardaron en la tablet.");
+            alert("? Error al enviar. Los datos no se guardaron en la tablet.");
         } finally {
             btn.disabled = false;
             btn.textContent = "Enviar";
@@ -626,7 +626,3 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-
-
-
-

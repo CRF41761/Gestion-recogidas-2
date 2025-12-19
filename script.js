@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-        fetch("https://script.google.com/macros/s/AKfycbzNAHg2SsWATcKJ8FtoYnbQx5ulWFuPmbkSA9yd58aosrKUs7jRrP6SGcKu_Rh2RSPC/exec?funcion=getNumeroEntrada", {
+        fetch("https://script.google.com/macros/s/AKfycbxyx3V18D8NhSwbEWRHcm4MlRQaElOYnr8I1DGQaXHtB6z33qkrtkECXZvX5eLfoqLx/exec?funcion=getNumeroEntrada", {
         method: "GET",
         mode: "cors"
     })
@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbzNAHg2SsWATcKJ8FtoYnbQx5ulWFuPmbkSA9yd58aosrKUs7jRrP6SGcKu_Rh2RSPC/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbxyx3V18D8NhSwbEWRHcm4MlRQaElOYnr8I1DGQaXHtB6z33qkrtkECXZvX5eLfoqLx/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
@@ -453,7 +453,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-                        const response = await fetch("https://script.google.com/macros/s/AKfycbzNAHg2SsWATcKJ8FtoYnbQx5ulWFuPmbkSA9yd58aosrKUs7jRrP6SGcKu_Rh2RSPC/exec?funcion=getNumeroEntrada", {
+                        const response = await fetch("https://script.google.com/macros/s/AKfycbxyx3V18D8NhSwbEWRHcm4MlRQaElOYnr8I1DGQaXHtB6z33qkrtkECXZvX5eLfoqLx/exec?funcion=getNumeroEntrada", {
                 method: "GET",
                 mode: "cors"
             });
@@ -642,5 +642,6 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 

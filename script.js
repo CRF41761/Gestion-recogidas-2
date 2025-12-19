@@ -327,9 +327,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    fetch("https://script.google.com/macros/s/AKfycbzNAHg2SsWATcKJ8FtoYnbQx5ulWFuPmbkSA9yd58aosrKUs7jRrP6SGcKu_Rh2RSPC/exec?getNumeroEntrada")
-        .then(r => r.json()).then(d => document.getElementById("numero_entrada").value = d.numero_entrada)
-        .catch(console.error);
+        fetch("https://script.google.com/macros/s/AKfycbzNAHg2SsWATcKJ8FtoYnbQx5ulWFuPmbkSA9yd58aosrKUs7jRrP6SGcKu_Rh2RSPC/exec?funcion=getNumeroEntrada", {
+        method: "GET",
+        mode: "cors"
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById("numero_entrada").value = data.numeroEntrada;
+    })
+    .catch(error => {
+        console.error('Error al obtener el número de entrada:', error);
+        alert('No se pudo cargar el número de entrada. Verifique su conexión.');
+    });
 
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
@@ -441,9 +453,13 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-            const response = await fetch("https://script.google.com/macros/s/AKfycbzNAHg2SsWATcKJ8FtoYnbQx5ulWFuPmbkSA9yd58aosrKUs7jRrP6SGcKu_Rh2RSPC/exec?getNumeroEntrada");
+                        const response = await fetch("https://script.google.com/macros/s/AKfycbzNAHg2SsWATcKJ8FtoYnbQx5ulWFuPmbkSA9yd58aosrKUs7jRrP6SGcKu_Rh2RSPC/exec?funcion=getNumeroEntrada", {
+                method: "GET",
+                mode: "cors"
+            });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const d = await response.json();
-            alert(` Número de entrada asignado: ${d.numeroEntrada}`);
+            alert(`Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];
@@ -626,4 +642,5 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 

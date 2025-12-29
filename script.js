@@ -41,12 +41,13 @@ const initDB = () => {
     });
 };
 
-// Guardar registro en IndexedDB (AHORA PUEDE incluir numero_entrada si ya se asignó)
+// Guardar registro en IndexedDB (sin número de entrada al guardar localmente antes del envío)
 const guardarRegistroLocal = (datos) => {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
         const datosParaGuardar = { ...datos };
+        delete datosParaGuardar.numero_entrada;
         datosParaGuardar.timestamp = new Date().toISOString();
         datosParaGuardar.id = Date.now();
         const request = store.add(datosParaGuardar);
@@ -326,8 +327,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    // ✅ ELIMINADO: la llamada a getNumeroEntrada al cargar
-    // El campo numero_entrada permanecerá vacío hasta el envío
+    // ✅ ELIMINADO: la llamada a getNumeroEntrada al cargar la página
+    // El campo numero_entrada quedará vacío (como debe ser)
 
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
@@ -384,7 +385,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const fd = new FormData(this);
         const data = {
-            // ✅ NO incluimos numero_entrada aquí
+            numero_entrada: document.getElementById("numero_entrada").value, // Aunque esté vacío, lo incluimos (no se usa)
             especie_comun: fd.get("especie_comun"),
             especie_cientifico: fd.get("especie_cientifico"),
             cantidad_animales: fd.get("cantidad_animales"),
@@ -425,50 +426,67 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // ✅ FUNCIÓN ACTUALIZADA: usa no-cors en POST y lee el número tras el envío
     async function enviarDatos(data, btn) {
-    try {
-        // Paso 1: Enviar los datos (no podemos leer la respuesta con no-cors)
-        await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec", {
-            method: "POST",
-            mode: "no-cors", // ← seguimos usando no-cors
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
+        try {
+            // 1. Enviar con no-cors (como antes)
+            await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
 
-        // Pequeña pausa para dar tiempo al servidor a procesar (mejora la fiabilidad)
-        await new Promise(resolve => setTimeout(resolve, 1000));
+            // 2. Esperar un poco para que el servidor termine
+            await new Promise(resolve => setTimeout(resolve, 800));
 
-        // Paso 2: Ahora sí, pedimos el último número asignado
-        const response = await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec?funcion=getNumeroEntrada", {
-            method: "GET",
-            mode: "cors"
-        });
+            // 3. Obtener todos los datos para leer el último número guardado
+            const response = await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec?funcion=getAllData", {
+                method: "GET",
+                mode: "cors"
+            });
 
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const d = await response.json();
-        const numeroAsignado = d.numeroEntrada; // este es el último número + 1 → pero el que se guardó es este -1
+            if (!response.ok) throw new Error(`Error al obtener los datos: ${response.status}`);
+            const allData = await response.json();
 
-        // ⚠️ Aquí está el truco: el número que se guardó es d.numeroEntrada - 1
-        const numeroGuardado = numeroAsignado - 1;
+            // 4. El número de entrada está en la columna 0 de la última fila
+            const ultimaFila = allData[allData.length - 1];
+            const numeroGuardado = ultimaFila[0];
 
-        // Guardamos en IndexedDB con el número correcto
-        const dataConNumero = { ...data, numero_entrada: numeroGuardado };
-        await guardarRegistroLocal(dataConNumero);
+            // 5. Guardar en IndexedDB con el número real
+            const dataConNumero = { ...data, numero_entrada: numeroGuardado };
+            // Reutilizamos la misma función, pero ahora sí incluimos el número
+            await guardarRegistroLocalConNumero(dataConNumero);
 
-        alert(`✅ Entrada registrada correctamente\nNúmero de entrada asignado: ${numeroGuardado}`);
-        sessionStorage.setItem('formEnviadoOK', '1');
-        document.getElementById("formulario").reset();
-        const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fecha').value = hoy;
+            // 6. Mostrar resultado
+            alert(`✅ Entrada registrada correctamente\nNúmero de entrada: ${numeroGuardado}`);
+            sessionStorage.setItem('formEnviadoOK', '1');
+            document.getElementById("formulario").reset();
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = hoy;
 
-    } catch (err) {
-        console.error("Error al enviar:", err);
-        alert("❌ Error al enviar los datos. Verifique su conexión e inténtelo de nuevo.");
-    } finally {
-        btn.disabled = false;
-        btn.textContent = "Enviar";
+        } catch (err) {
+            console.error("Error al enviar:", err);
+            alert("❌ Error al enviar. Verifique su conexión.");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Enviar";
+        }
     }
-}
+
+    // Nueva función auxiliar para guardar con número (solo usada tras el envío)
+    const guardarRegistroLocalConNumero = (datos) => {
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const datosParaGuardar = { ...datos };
+            datosParaGuardar.timestamp = new Date().toISOString();
+            datosParaGuardar.id = Date.now();
+            const request = store.add(datosParaGuardar);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    };
 
     // Auto-guardado temporal (localStorage) mientras se rellena el formulario
     const form = document.getElementById("formulario");
@@ -608,7 +626,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             cienInput.addEventListener("input", () => {
-                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
+                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentes(cienInput.value.trim()));
                 if (found) {
                     cienInput.value = found.nombreCientifico;
                     comInput.value  = found.nombreComun;
@@ -639,4 +657,3 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-

@@ -426,44 +426,49 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     async function enviarDatos(data, btn) {
-        try {
-            // ✅ Usamos mode: "cors" para poder leer la respuesta
-            const postResponse = await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec", {
-                method: "POST",
-                mode: "cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
+    try {
+        // Paso 1: Enviar los datos (no podemos leer la respuesta con no-cors)
+        await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec", {
+            method: "POST",
+            mode: "no-cors", // ← seguimos usando no-cors
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
 
-            if (!postResponse.ok) {
-                throw new Error(`Error HTTP: ${postResponse.status}`);
-            }
+        // Pequeña pausa para dar tiempo al servidor a procesar (mejora la fiabilidad)
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-            const resultado = await postResponse.json();
+        // Paso 2: Ahora sí, pedimos el último número asignado
+        const response = await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec?funcion=getNumeroEntrada", {
+            method: "GET",
+            mode: "cors"
+        });
 
-            if (resultado.result !== "success") {
-                throw new Error(resultado.message || "Error al guardar en el servidor");
-            }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const d = await response.json();
+        const numeroAsignado = d.numeroEntrada; // este es el último número + 1 → pero el que se guardó es este -1
 
-            // ✅ Guardamos en IndexedDB CON el número asignado
-            const dataConNumero = { ...data, numero_entrada: resultado.numero };
-            await guardarRegistroLocal(dataConNumero);
-            console.log('Registro guardado localmente con número de entrada:', resultado.numero);
+        // ⚠️ Aquí está el truco: el número que se guardó es d.numeroEntrada - 1
+        const numeroGuardado = numeroAsignado - 1;
 
-            alert(`✅ Entrada registrada correctamente\nNúmero de entrada asignado: ${resultado.numero}`);
-            sessionStorage.setItem('formEnviadoOK', '1');
-            document.getElementById("formulario").reset();
-            const hoy = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha').value = hoy;
+        // Guardamos en IndexedDB con el número correcto
+        const dataConNumero = { ...data, numero_entrada: numeroGuardado };
+        await guardarRegistroLocal(dataConNumero);
 
-        } catch (err) {
-            console.error("Error al enviar:", err);
-            alert("❌ Error al enviar los datos. Verifique su conexión e inténtelo de nuevo.");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Enviar";
-        }
+        alert(`✅ Entrada registrada correctamente\nNúmero de entrada asignado: ${numeroGuardado}`);
+        sessionStorage.setItem('formEnviadoOK', '1');
+        document.getElementById("formulario").reset();
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha').value = hoy;
+
+    } catch (err) {
+        console.error("Error al enviar:", err);
+        alert("❌ Error al enviar los datos. Verifique su conexión e inténtelo de nuevo.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Enviar";
     }
+}
 
     // Auto-guardado temporal (localStorage) mientras se rellena el formulario
     const form = document.getElementById("formulario");
@@ -634,3 +639,4 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+

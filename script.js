@@ -428,7 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function enviarDatos(data, btn) {
         try {
             // ✅ Envía con CORS y espera la respuesta
-            const postResponse = await fetch("https://script.google.com/macros/s/AKfycbygBbChYzCrEFDUBgZ9V180GoPajhrX9PZzOpQ3_M6xl_oa--LTOjRNIWUYyapiBeeK/exec", {
+            const postResponse = await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec", {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
@@ -636,3 +636,4 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+

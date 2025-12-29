@@ -41,13 +41,12 @@ const initDB = () => {
     });
 };
 
-// Guardar registro en IndexedDB (sin número de entrada)
+// Guardar registro en IndexedDB (AHORA PUEDE incluir numero_entrada si ya se asignó)
 const guardarRegistroLocal = (datos) => {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
         const datosParaGuardar = { ...datos };
-        delete datosParaGuardar.numero_entrada;
         datosParaGuardar.timestamp = new Date().toISOString();
         datosParaGuardar.id = Date.now();
         const request = store.add(datosParaGuardar);
@@ -141,11 +140,11 @@ const mostrarRegistros = async () => {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="flex:1;">
                     <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
-                    <small style="color:#666;">?? ${formatearFechaHora(reg.timestamp)}</small>
+                    <small style="color:#666;">📅 ${formatearFechaHora(reg.timestamp)}</small>
                 </div>
                 <button onclick="eliminarYActualizar(${reg.id})" 
                         style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px; margin-left:10px;" 
-                        title="Eliminar registro">???</button>
+                        title="Eliminar registro">×</button>
             </div>
             <details style="font-size:0.9em; color:#555; margin-top:8px;">
                 <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
@@ -327,11 +326,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-       
-    .catch(error => {
-        console.error('Error al obtener el número de entrada:', error);
-        alert('No se pudo cargar el número de entrada. Verifique su conexión.');
-    });
+    // ✅ ELIMINADO: la llamada a getNumeroEntrada al cargar
+    // El campo numero_entrada permanecerá vacío hasta el envío
 
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
@@ -388,7 +384,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const fd = new FormData(this);
         const data = {
-            numero_entrada: document.getElementById("numero_entrada").value,
+            // ✅ NO incluimos numero_entrada aquí
             especie_comun: fd.get("especie_comun"),
             especie_cientifico: fd.get("especie_cientifico"),
             cantidad_animales: fd.get("cantidad_animales"),
@@ -431,32 +427,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec", {
+            // ✅ Usamos mode: "cors" para poder leer la respuesta
+            const postResponse = await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec", {
                 method: "POST",
-                mode: "no-cors",
+                mode: "cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
-            try {
-                await guardarRegistroLocal(data);
-                console.log('Registro guardado localmente sin número de entrada');
-            } catch (dbError) {
-                console.error('Error guardando en IndexedDB:', dbError);
+
+            if (!postResponse.ok) {
+                throw new Error(`Error HTTP: ${postResponse.status}`);
             }
-                        const response = await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec?funcion=getNumeroEntrada", {
-                method: "GET",
-                mode: "cors"
-            });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const d = await response.json();
-            alert(`Número de entrada asignado: ${d.numeroEntrada}`);
+
+            const resultado = await postResponse.json();
+
+            if (resultado.result !== "success") {
+                throw new Error(resultado.message || "Error al guardar en el servidor");
+            }
+
+            // ✅ Guardamos en IndexedDB CON el número asignado
+            const dataConNumero = { ...data, numero_entrada: resultado.numero };
+            await guardarRegistroLocal(dataConNumero);
+            console.log('Registro guardado localmente con número de entrada:', resultado.numero);
+
+            alert(`✅ Entrada registrada correctamente\nNúmero de entrada asignado: ${resultado.numero}`);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').value = hoy;
+
         } catch (err) {
-            console.error(err);
-            alert("? Error al enviar. Los datos no se guardaron en la tablet.");
+            console.error("Error al enviar:", err);
+            alert("❌ Error al enviar los datos. Verifique su conexión e inténtelo de nuevo.");
         } finally {
             btn.disabled = false;
             btn.textContent = "Enviar";
@@ -512,14 +514,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!confirm('¿Importar este archivo? Esto añadirá los registros a la base de datos local.')) return;
         try {
             await importarRegistrosJSON(archivo);
-            alert('? Registros importados correctamente');
+            alert('✅ Registros importados correctamente');
             if (modal.style.display === 'block') {
                 await mostrarRegistros();
             }
             inputImportarJSON.value = '';
         } catch (error) {
             console.error('Error importando:', error);
-            alert('? Error al importar el archivo. Asegúrate de que sea un JSON válido.');
+            alert('❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.');
         }
     });
 
@@ -575,11 +577,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const cienSin = quitarAcentos(e.nombreCientifico);
 
                 const opt1 = document.createElement("option");
-                opt1.value = comSin;          // sin acento ? aparece al buscar
+                opt1.value = comSin;          // sin acento → aparece al buscar
                 comList.appendChild(opt1);
 
                 const opt1b = document.createElement("option");
-                opt1b.value = e.nombreComun;  // con acento ? se inserta al seleccionar
+                opt1b.value = e.nombreComun;  // con acento → se inserta al seleccionar
                 comList.appendChild(opt1b);
 
                 const opt2 = document.createElement("option");
@@ -591,7 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 cienList.appendChild(opt2b);
             });
 
-            // Autocompletado cruzado (común ? científico)
+            // Autocompletado cruzado (común → científico)
             comInput.addEventListener("input", () => {
                 const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
                 if (found) {
@@ -632,5 +634,3 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
-
-

@@ -327,17 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-        fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec?funcion=getNumeroEntrada", {
-        method: "GET",
-        mode: "cors"
-    })
-    .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return response.json();
-    })
-    .then(data => {
-        document.getElementById("numero_entrada").value = data.numeroEntrada;
-    })
+       
     .catch(error => {
         console.error('Error al obtener el número de entrada:', error);
         alert('No se pudo cargar el número de entrada. Verifique su conexión.');
@@ -642,4 +632,5 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 

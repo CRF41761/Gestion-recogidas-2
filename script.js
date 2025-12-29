@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             return;
         }
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=  ${encodeURIComponent(raw)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -327,7 +327,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
-    // ✅ NO se carga el número de entrada al inicio (se obtiene tras el envío)
+        fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec?funcion=getNumeroEntrada", {
+        method: "GET",
+        mode: "cors"
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById("numero_entrada").value = data.numeroEntrada;
+    })
+    .catch(error => {
+        console.error('Error al obtener el número de entrada:', error);
+        alert('No se pudo cargar el número de entrada. Verifique su conexión.');
+    });
 
     function validarInputDatalist(inputId, datalistId, mensajeError) {
         const input = document.getElementById(inputId);
@@ -427,33 +441,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function enviarDatos(data, btn) {
         try {
-            // ✅ Envía con CORS y espera la respuesta
-            const postResponse = await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec", {
                 method: "POST",
-                mode: "cors",
+                mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
-
-            if (!postResponse.ok) throw new Error(`HTTP error! status: ${postResponse.status}`);
-
-            const resultado = await postResponse.json();
-
-            if (resultado.result !== "success") {
-                throw new Error(resultado.message || "Error desconocido al enviar datos");
-            }
-
-            // ✅ Usa el número real devuelto por el servidor
-            const numeroAsignado = resultado.numeroEntrada;
-
             try {
                 await guardarRegistroLocal(data);
                 console.log('Registro guardado localmente sin número de entrada');
             } catch (dbError) {
                 console.error('Error guardando en IndexedDB:', dbError);
             }
-
-            alert(`Número de entrada asignado: ${numeroAsignado}`);
+                        const response = await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec?funcion=getNumeroEntrada", {
+                method: "GET",
+                mode: "cors"
+            });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const d = await response.json();
+            alert(`Número de entrada asignado: ${d.numeroEntrada}`);
             sessionStorage.setItem('formEnviadoOK', '1');
             document.getElementById("formulario").reset();
             const hoy = new Date().toISOString().split('T')[0];

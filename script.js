@@ -430,7 +430,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function enviarDatos(data, btn) {
         try {
             // 1. Enviar con no-cors (como antes)
-            await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbxk2P8nHpCiORaG5P80xm7RUbv4gVBgWuu6uHBSJu7dY7qlz522wdeXUQwUxhFf9qZN/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
             await new Promise(resolve => setTimeout(resolve, 800));
 
             // 3. Obtener todos los datos para leer el último número guardado
-            const response = await fetch("https://script.google.com/macros/s/AKfycbyh8Wxw0bBUIJJlUF6CtPjbrJtpmpe2hbe_46Y0jLRpNPQS-wOm6AwdYGo3DMMgEr9P/exec?funcion=getAllData", {
+            const response = await fetch("https://script.google.com/macros/s/AKfycbxk2P8nHpCiORaG5P80xm7RUbv4gVBgWuu6uHBSJu7dY7qlz522wdeXUQwUxhFf9qZN/exec?funcion=getAllData", {
                 method: "GET",
                 mode: "cors"
             });
@@ -657,3 +657,4 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+

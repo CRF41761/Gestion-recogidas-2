@@ -428,51 +428,87 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ✅ FUNCIÓN ACTUALIZADA: usa no-cors en POST y lee el número tras el envío
     async function enviarDatos(data, btn) {
-        try {
-            // 1. Enviar con no-cors (como antes)
-            await fetch("https://script.google.com/macros/s/AKfycbxk2P8nHpCiORaG5P80xm7RUbv4gVBgWuu6uHBSJu7dY7qlz522wdeXUQwUxhFf9qZN/exec", {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
+    try {
+        const cantidad = Math.max(1, parseInt(data.cantidad_animales) || 1);
 
-            // 2. Esperar un poco para que el servidor termine
-            await new Promise(resolve => setTimeout(resolve, 800));
+        // 1. Enviar el formulario (sin leer respuesta, por no-cors)
+        await fetch("https://script.google.com/macros/s/AKfycbx3ay8RSCouloU2vF4cGjeXZfV_n_mS9_mnVs7itx2EZXTGFqnVxhBUd21BedKrfKFx/exec", {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
 
-            // 3. Obtener todos los datos para leer el último número guardado
-            const response = await fetch("https://script.google.com/macros/s/AKfycbxk2P8nHpCiORaG5P80xm7RUbv4gVBgWuu6uHBSJu7dY7qlz522wdeXUQwUxhFf9qZN/exec?funcion=getAllData", {
-                method: "GET",
-                mode: "cors"
-            });
+        // 2. Esperar un poco para que el servidor termine
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-            if (!response.ok) throw new Error(`Error al obtener los datos: ${response.status}`);
-            const allData = await response.json();
+        // 3. Obtener todos los datos para leer las últimas N filas
+        const response = await fetch("https://script.google.com/macros/s/AKfycbx3ay8RSCouloU2vF4cGjeXZfV_n_mS9_mnVs7itx2EZXTGFqnVxhBUd21BedKrfKFx/exec?funcion=getAllData", {
+            method: "GET",
+            mode: "cors"
+        });
 
-            // 4. El número de entrada está en la columna 0 de la última fila
-            const ultimaFila = allData[allData.length - 1];
-            const numeroGuardado = ultimaFila[0];
+        if (!response.ok) throw new Error(`Error al obtener los datos: ${response.status}`);
+        const allData = await response.json();
 
-            // 5. Guardar en IndexedDB con el número real
-            const dataConNumero = { ...data, numero_entrada: numeroGuardado };
-            // Reutilizamos la misma función, pero ahora sí incluimos el número
-            await guardarRegistroLocalConNumero(dataConNumero);
+        // 4. Tomar las últimas "cantidad" filas
+        const ultimasFilas = allData.slice(-cantidad);
+        if (ultimasFilas.length === 0) throw new Error("No se encontraron filas guardadas");
 
-            // 6. Mostrar resultado
-            alert(`✅ Entrada registrada correctamente\nNúmero de entrada: ${numeroGuardado}`);
-            sessionStorage.setItem('formEnviadoOK', '1');
-            document.getElementById("formulario").reset();
-            const hoy = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha').value = hoy;
+        // 5. Extraer números y guardar en IndexedDB
+        const numeros = [];
+        for (let i = 0; i < ultimasFilas.length; i++) {
+            const fila = ultimasFilas[i];
+            const numero = fila[0]; // columna 0 = número de entrada
+            numeros.push(numero);
 
-        } catch (err) {
-            console.error("Error al enviar:", err);
-            alert("❌ Error al enviar. Verifique su conexión.");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Enviar";
+            // Preparar datos para guardar (una entrada por animal)
+            const entradaIndividual = {
+                ...data,
+                numero_entrada: numero,
+                cantidad_animales: 1, // cada entrada local es 1 animal
+                // Opcional: sobrescribir con valores reales guardados
+                especie_comun: fila[1],
+                especie_cientifico: fila[2],
+                fecha: fila[4],
+                municipio: fila[5],
+                posible_causa: fila[6],
+                remitente: fila[7],
+                estado_animal: fila[8],
+                coordenadas: fila[9],
+                coordenadas_mapa: fila[10],
+                apoyo: fila[11],
+                cra_km: fila[12],
+                observaciones: fila[13],
+                cumplimentado_por: fila[14],
+                telefono_remitente: fila[15],
+                foto: fila[16]
+            };
+
+            await guardarRegistroLocalConNumero(entradaIndividual);
         }
+
+        // 6. Mostrar resultado al usuario
+        let mensajeNumeros;
+        if (numeros.length === 1) {
+            mensajeNumeros = `Número de entrada: ${numeros[0]}`;
+        } else {
+            mensajeNumeros = `Números de entrada: ${numeros.join(", ")}`;
+        }
+
+        alert(`✅ ${cantidad} registro(s) guardado(s) correctamente\n${mensajeNumeros}`);
+        sessionStorage.setItem('formEnviadoOK', '1');
+        document.getElementById("formulario").reset();
+        document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+
+    } catch (err) {
+        console.error("Error al enviar:", err);
+        alert("❌ Error al enviar. Verifique su conexión.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Enviar";
     }
+}
 
     // Nueva función auxiliar para guardar con número (solo usada tras el envío)
     const guardarRegistroLocalConNumero = (datos) => {
@@ -657,4 +693,5 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 

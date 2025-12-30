@@ -432,7 +432,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const cantidad = Math.max(1, parseInt(data.cantidad_animales) || 1);
 
         // 1. Enviar el formulario (sin leer respuesta, por no-cors)
-        await fetch("https://script.google.com/macros/s/AKfycbx3ay8RSCouloU2vF4cGjeXZfV_n_mS9_mnVs7itx2EZXTGFqnVxhBUd21BedKrfKFx/exec", {
+        await fetch("https://script.google.com/macros/s/AKfycbwJ5HaFC2T-cYlOkBRSwh2i2kl666Es5SFTsbzSa4bWqGczQr3qzpWPqlrpypxNyeSU/exec", {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
@@ -443,7 +443,7 @@ document.addEventListener("DOMContentLoaded", function () {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // 3. Obtener todos los datos para leer las últimas N filas
-        const response = await fetch("https://script.google.com/macros/s/AKfycbx3ay8RSCouloU2vF4cGjeXZfV_n_mS9_mnVs7itx2EZXTGFqnVxhBUd21BedKrfKFx/exec?funcion=getAllData", {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbwJ5HaFC2T-cYlOkBRSwh2i2kl666Es5SFTsbzSa4bWqGczQr3qzpWPqlrpypxNyeSU/exec?funcion=getAllData", {
             method: "GET",
             mode: "cors"
         });
@@ -693,5 +693,6 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 

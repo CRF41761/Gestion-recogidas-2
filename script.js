@@ -688,6 +688,276 @@ document.addEventListener("DOMContentLoaded", function () {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.style.display = 'none';
     });
+   // ==================================================
+// 🐦 ASISTENTE DE USUARIO - "PÁJARO AYUDANTE" CON SONIDO Y VUELO
+// Gestión de Recogidas - Aparece tras 10s de inactividad
+// ==================================================
+(function() {
+    if (document.getElementById('birdAssistant')) return;
+
+    // ====== 1. Función para generar sonido suave (sin archivos) ======
+    function playChime() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime); // Nota A5
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.2);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 1.2);
+        } catch (e) {
+            console.warn("Audio no disponible:", e);
+        }
+    }
+
+    // ====== 2. Crear el pájaro (SVG con animación de vuelo) ======
+    const bird = document.createElement('div');
+    bird.id = 'birdAssistant';
+    bird.innerHTML = `
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="#27ae60" style="pointer-events:none; transition:transform 0.3s;">
+            <path d="M12 2C8.5 2 5.7 4.8 5.7 8.3c0 2.5 1.5 4.7 3.6 5.8l-1.3 2.6c-.2.5.1 1.1.6 1.1h.1c.2 0 .3-.1.4-.2l1.5-1.1c1.3.4 2.7.4 4 0l1.5 1.1c.1.1.2.2.4.2h.1c.5 0 .8-.6.6-1.1l-1.3-2.6c2.1-1.1 3.6-3.3 3.6-5.8C18.3 4.8 15.5 2 12 2zm0 10c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+        </svg>
+    `;
+    Object.assign(bird.style, {
+        position: 'fixed',
+        bottom: '-100px', // Empieza fuera de vista
+        right: '-50px',
+        cursor: 'pointer',
+        zIndex: '10000',
+        background: '#fff',
+        borderRadius: '50%',
+        padding: '6px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+        opacity: '0',
+        transform: 'translateX(0) rotate(0deg)',
+        transition: 'all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28)'
+    });
+    document.body.appendChild(bird);
+
+    // ====== 3. Modal (igual que antes, sin cambios) ======
+    const modal = document.createElement('div');
+    modal.id = 'birdModal';
+    modal.innerHTML = `
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:10001; opacity:0; pointer-events:none; transition:opacity 0.3s;">
+            <div style="background:#fff; border-radius:12px; width:90%; max-width:500px; max-height:80vh; overflow:auto; box-shadow:0 6px 20px rgba(0,0,0,0.3);">
+                <div style="background:#2c3e50; color:white; padding:16px; border-radius:12px 12px 0 0; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+                    🆘 ¿Necesitas ayuda?
+                    <button id="closeBirdModal" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">×</button>
+                </div>
+                <div id="birdModalContent" style="padding:16px; font-size:15px; line-height:1.5; color:#2c3e50;">
+                    <!-- Contenido dinámico -->
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // ====== 4. Contenido de ayuda (igual que antes) ======
+    const helpSections = {
+        coordsFormat: `
+            <h3>📍 Formatos admitidos en "Coordenadas dadas o dirección"</h3>
+            <p><strong>1. Dirección:</strong> Ej. <code>Ayuntamiento de Valencia</code></p>
+            <p><strong>2. Grados decimales:</strong> Ej. <code>39.47, -0.38</code> (usa punto como separador decimal)</p>
+            <p><strong>3. Coordenadas UTM (WGS84):</strong></p>
+            <ul style="margin-top:8px; padding-left:20px;">
+                <li><code>731053 4413603</code> → asume zona 30N (Comunidad Valenciana)</li>
+                <li><code>731053 4413603 30N</code> → zona explícita</li>
+                <li>No uses comas decimales ni letras "E/N" sueltas</li>
+            </ul>
+            <p style="margin-top:12px;"><em>Tras escribir, pulsa ENTER o el botón "Localizar".</em></p>
+        `,
+        coordsNoMarker: `
+            <h3>🔍 No aparece el marcador en el mapa</h3>
+            <ul style="padding-left:20px;">
+                <li>Asegúrate de pulsar ENTER o "Localizar"</li>
+                <li>Verifica que las coordenadas estén en formato válido</li>
+                <li>Si usas UTM, deben ser números enteros (ej. 731053 4413603)</li>
+                <li>Prueba con una dirección conocida para descartar fallos de red</li>
+            </ul>
+        `,
+        especiesComo: `
+            <h3>🦉 Cómo elegir especie común/científica</h3>
+            <p>Escribe parte del nombre común (ej. "búho") y selecciona de la lista desplegable.</p>
+            <p>El campo científico se rellena automáticamente.</p>
+            <p><strong>Importante:</strong> Solo puedes elegir especies de la lista oficial. No se admiten nombres libres.</p>
+        `,
+        especiesNoAparece: `
+            <h3>⚠️ Mi especie no aparece en la lista</h3>
+            <ul style="padding-left:20px;">
+                <li>Revisa mayúsculas y acentos (ej. "águila" ≠ "aguila")</li>
+                <li>Si sigue sin aparecer, contacta con el administrador para añadirla al fichero <code>especies.json</code></li>
+            </ul>
+        `,
+        numeroEntrada: `
+            <h3>🔢 ¿Dónde está mi número de entrada?</h3>
+            <p>Se genera <strong>automáticamente tras enviar</strong> el formulario.</p>
+            <p>Aparece en la alerta de confirmación y se guarda en "Registros locales".</p>
+        `,
+        falloEnvio: `
+            <h3>📡 ¿Qué pasa si falla el envío?</h3>
+            <p>Si no hay conexión a internet:</p>
+            <ul style="padding-left:20px;">
+                <li>El registro se guarda <strong>localmente en tu dispositivo</strong></li>
+                <li>Puedes verlo y reenviarlo desde el botón <strong>"Ver registros guardados"</strong></li>
+                <li>¡Nunca se pierde un registro!</li>
+            </ul>
+        `,
+        registrosLocales: `
+            <h3>💾 Cómo ver o enviar registros guardados</h3>
+            <p>Pulsa el botón <strong>"Ver registros guardados"</strong> (abajo del formulario).</p>
+            <p>Allí puedes:</p>
+            <ul style="padding-left:20px;">
+                <li>Ver detalles completos</li>
+                <li>Eliminar registros</li>
+                <li>Reenviar a Google Sheets</li>
+                <li>Exportar/importar como copia de seguridad (JSON)</li>
+            </ul>
+        `,
+        recuperacionAnilla: `
+            <h3>🪶 ¿Cuándo marcar "Recuperación con anilla"?</h3>
+            <p>Márcalo <strong>solo si el animal llevaba anilla identificativa</strong>.</p>
+            <p>Luego introduce el código de la anilla en el campo que aparece.</p>
+            <p>Esta información se añadirá automáticamente a "Observaciones".</p>
+        `,
+        camposAdicionales: `
+            <h3>📋 ¿Qué poner en "Posible causa" o "Remitente"?</h3>
+            <p><strong>Posible causa:</strong> Elige una o varias opciones (ej. atropello, electrocución, colisión).</p>
+            <p><strong>Remitente:</strong> Quién encontró/comunicó el animal (ciudadano, agente forestal, veterinario, etc.).</p>
+            <p><strong>Municipio:</strong> Empieza a escribir para autocompletar (debe coincidir con la lista oficial).</p>
+        `
+    };
+
+    // ====== 5. Funciones de interacción (igual que antes) ======
+    function showHelp(contentKey) {
+        document.getElementById('birdModalContent').innerHTML = helpSections[contentKey];
+        modal.style.display = 'block';
+        setTimeout(() => {
+            modal.children[0].style.opacity = '1';
+            modal.children[0].style.pointerEvents = 'auto';
+        }, 10);
+    }
+
+    function closeModal() {
+        modal.children[0].style.opacity = '0';
+        modal.children[0].style.pointerEvents = 'none';
+        setTimeout(() => modal.style.display = 'none', 300);
+    }
+
+    document.getElementById('closeBirdModal').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    function showMainMenu() {
+        const menu = `
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div onclick="showHelp('coordsFormat')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+                    <strong>Coordenadas</strong><br><small>Formatos admitidos</small>
+                </div>
+                <div onclick="showHelp('coordsNoMarker')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+                    <strong>Coordenadas</strong><br><small>No aparece marcador</small>
+                </div>
+                <div onclick="showHelp('especiesComo')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+                    <strong>Especies</strong><br><small>Cómo elegir</small>
+                </div>
+                <div onclick="showHelp('especiesNoAparece')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+                    <strong>Especies</strong><br><small>No aparece mi especie</small>
+                </div>
+                <div onclick="showHelp('numeroEntrada')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+                    <strong>Número entrada</strong><br><small>¿Dónde está?</small>
+                </div>
+                <div onclick="showHelp('falloEnvio')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+                    <strong>Fallo de envío</strong><br><small>¿Qué hago?</small>
+                </div>
+                <div onclick="showHelp('registrosLocales')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+                    <strong>Registros locales</strong><br><small>Ver/reenviar</small>
+                </div>
+                <div onclick="showHelp('recuperacionAnilla')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+                    <strong>Recuperación</strong><br><small>Anilla</small>
+                </div>
+                <div onclick="showHelp('camposAdicionales')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd; grid-column: span 2;">
+                    <strong>Otros campos</strong><br><small>Posible causa, remitente, etc.</small>
+                </div>
+            </div>
+            <button onclick="closeModal()" style="width:100%; margin-top:16px; padding:8px; background:#7f8c8d; color:white; border:none; border-radius:6px; font-weight:bold;">
+                Cerrar
+            </button>
+        `;
+        document.getElementById('birdModalContent').innerHTML = menu;
+        modal.style.display = 'block';
+        setTimeout(() => {
+            modal.children[0].style.opacity = '1';
+            modal.children[0].style.pointerEvents = 'auto';
+        }, 10);
+    }
+
+    window.showHelp = showHelp;
+    window.closeModal = closeModal;
+
+    bird.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showMainMenu();
+    });
+
+    // ====== 6. Animación de aparición con vuelo y sonido ======
+    function showBird() {
+        if (localStorage.getItem('birdDismissed') === 'true') return;
+        
+        playChime(); // 🔊 Sonido suave
+        
+        // Posicionar inicialmente fuera de la pantalla
+        bird.style.bottom = '-100px';
+        bird.style.right = '-50px';
+        bird.style.opacity = '0';
+        bird.style.display = 'block';
+        
+        // Pequeña pausa para asegurar el reinicio de la animación
+        setTimeout(() => {
+            bird.style.bottom = '20px';
+            bird.style.right = '20px';
+            bird.style.opacity = '1';
+            // Añadir aleteo sutil al hacer hover
+            bird.addEventListener('mouseenter', () => {
+                bird.querySelector('svg').style.transform = 'rotate(-5deg)';
+            });
+            bird.addEventListener('mouseleave', () => {
+                bird.querySelector('svg').style.transform = 'rotate(0deg)';
+            });
+        }, 50);
+    }
+
+    // ====== 7. Gestión de inactividad ======
+    let inactivityTimer;
+    const ACTIVATION_DELAY = 10000; // 10 segundos
+
+    function resetTimer() {
+        clearTimeout(inactivityTimer);
+        if (localStorage.getItem('birdDismissed') !== 'true') {
+            inactivityTimer = setTimeout(showBird, ACTIVATION_DELAY);
+        }
+    }
+
+    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+        document.addEventListener(event, resetTimer, true);
+    });
+
+    // Iniciar temporizador
+    resetTimer();
+
+    // Permitir ocultar permanentemente
+    bird.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        if (confirm("¿Quieres ocultar este ayudante permanentemente?")) {
+            localStorage.setItem('birdDismissed', 'true');
+            bird.style.opacity = '0';
+            setTimeout(() => bird.style.display = 'none', 500);
+        }
+    });
+})();
 });
 
 /* =====  AL ARRANCAR: limpiar si NO venimos de un envío correcto  ===== */
@@ -794,6 +1064,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

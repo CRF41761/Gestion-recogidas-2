@@ -763,7 +763,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             cienInput.addEventListener("input", () => {
-                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentes(cienInput.value.trim()));
+                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
                 if (found) {
                     cienInput.value = found.nombreCientifico;
                     comInput.value  = found.nombreComun;
@@ -794,6 +794,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

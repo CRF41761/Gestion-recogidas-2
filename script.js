@@ -12,7 +12,86 @@ document.addEventListener('touchmove', e => {
   if (scrollTop === 0 && deltaY > 0) e.preventDefault();
 }, { passive: false });
 /* ============================================ */
+/* ============================================
+   CONVERSIÓN UTM → LAT/LON (WGS84) - España (Comunidad Valenciana)
+   ============================================ */
+function utmToLatLon(easting, northing, zoneNumber, northernHemisphere = true) {
+    const a = 6378137.0;
+    const eccSquared = 0.00669438;
+    const k0 = 0.9996;
 
+    const eccPrimeSquared = eccSquared / (1 - eccSquared);
+    const e1 = (1 - Math.sqrt(1 - eccSquared)) / (1 + Math.sqrt(1 - eccSquared));
+    const rad2deg = 180 / Math.PI;
+
+    easting -= 500000.0;
+    let arcLength = northing / k0;
+    if (!northernHemisphere) arcLength -= 10000000.0;
+
+    const mu = arcLength / (a * (1 - eccSquared / 4.0 - 3 * eccSquared * eccSquared / 64.0 - 5 * eccSquared * eccSquared * eccSquared / 256.0));
+    const ei = (3 * e1 / 2 - 27 * e1 * e1 * e1 / 32.0) * Math.sin(2 * mu) +
+               (21 * e1 * e1 / 16 - 55 * e1 * e1 * e1 * e1 / 32.0) * Math.sin(4 * mu) +
+               (151 * e1 * e1 * e1 / 96.0) * Math.sin(6 * mu);
+    const phi1 = mu + ei;
+
+    const n = a / Math.sqrt(1 - eccSquared * Math.sin(phi1) * Math.sin(phi1));
+    const t = Math.tan(phi1) * Math.tan(phi1);
+    const c = eccPrimeSquared * Math.cos(phi1) * Math.cos(phi1);
+    const r = a * (1 - eccSquared) / Math.pow(1 - eccSquared * Math.sin(phi1) * Math.sin(phi1), 1.5);
+    const d = easting / (n * k0);
+
+    let lat = phi1 - (n * Math.tan(phi1) / r) *
+        (d * d / 2.0 -
+         d * d * d * d / 24.0 * (5 + 3 * t + 10 * c - 4 * c * c - 9 * eccPrimeSquared) +
+         d * d * d * d * d * d / 720.0 * (61 + 90 * t + 298 * c + 45 * t * t - 252 * eccPrimeSquared - 3 * c * c));
+
+    let lon = (d -
+        d * d * d / 6.0 * (1 + 2 * t + c) +
+        d * d * d * d * d / 120.0 * (5 - 2 * c + 28 * t - 3 * c * c + 8 * eccPrimeSquared + 24 * t * t)) / Math.cos(phi1);
+
+    const lonOrigin = (zoneNumber - 1) * 6 - 180 + 3;
+    lat = lat * rad2deg;
+    lon = lonOrigin + lon * rad2deg;
+
+    return { lat, lon };
+}
+
+function parseUTM(input) {
+    let clean = input.trim().toUpperCase();
+    clean = clean.replace(/,/g, ' ').replace(/\s+/g, ' ');
+
+    const parts = clean.split(' ');
+    const nums = [];
+    let zonePart = null;
+
+    for (const p of parts) {
+        if (/^\d{5,7}$/.test(p)) {
+            nums.push(parseInt(p, 10));
+        } else if (/^\d{1,2}[NS]$/.test(p)) {
+            zonePart = p;
+        }
+    }
+
+    if (nums.length < 2) return null;
+
+    const easting = nums[0];
+    const northing = nums[1];
+
+    if (easting < 100000 || easting > 999999 || northing < 4000000 || northing > 5000000) {
+        return null;
+    }
+
+    let zoneNumber = 30;
+    let northern = true;
+
+    if (zonePart) {
+        zoneNumber = parseInt(zonePart.slice(0, -1), 10);
+        northern = zonePart.endsWith('N');
+        if (zoneNumber < 1 || zoneNumber > 60) return null;
+    }
+
+    return { easting, northing, zoneNumber, northern };
+}
 /* ============================================
    INDEXEDDB - GESTIÓN DE REGISTROS LOCALES
    ============================================ */
@@ -693,6 +772,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

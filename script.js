@@ -344,12 +344,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
     function buscarOCoordenadas(raw) {
-        raw = raw.trim();
-        if (!raw) return;
-        const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
-        if (partes.length === 2 && !isNaN(parseFloat(partes[0])) && !isNaN(parseFloat(partes[1]))) {
-            const lat = parseFloat(partes[0]);
-            const lng = parseFloat(partes[1]);
+    raw = raw.trim();
+    if (!raw) return;
+
+    // 1. Intentar UTM primero
+    const utm = parseUTM(raw);
+    if (utm) {
+        try {
+            const { lat, lon } = utmToLatLon(utm.easting, utm.northing, utm.zoneNumber, utm.northern);
+            detenerSeguimiento();
+            if (marker) marker.setLatLng([lat, lon]);
+            else marker = L.marker([lat, lon]).addTo(map);
+            map.setView([lat, lon], 13);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lon.toFixed(5);
+            return;
+        } catch (err) {
+            console.error("Error convirtiendo UTM:", err);
+        }
+    }
+
+    // 2. Intentar coordenadas decimales (lat, lng)
+    const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
+    if (partes.length === 2 && !isNaN(parseFloat(partes[0])) && !isNaN(parseFloat(partes[1]))) {
+        const lat = parseFloat(partes[0]);
+        const lng = parseFloat(partes[1]);
+        if (Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
             detenerSeguimiento();
             if (marker) marker.setLatLng([lat, lng]);
             else marker = L.marker([lat, lng]).addTo(map);
@@ -357,28 +376,31 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             return;
         }
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
-        fetch(url)
-            .then(r => r.json())
-            .then(data => {
-                if (!data || data.length === 0) {
-                    alert("No se ha encontrado la dirección.");
-                    return;
-                }
-                const lat = parseFloat(data[0].lat);
-                const lng = parseFloat(data[0].lon);
-                detenerSeguimiento();
-                if (marker) marker.setLatLng([lat, lng]);
-                else marker = L.marker([lat, lng]).addTo(map);
-                map.setView([lat, lng], 16);
-                document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Error al buscar la dirección.");
-            });
     }
+
+    // 3. Si no, tratar como dirección
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
+    fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            if (!data || data.length === 0) {
+                alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
+                return;
+            }
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+            detenerSeguimiento();
+            if (marker) marker.setLatLng([lat, lng]);
+            else marker = L.marker([lat, lng]).addTo(map);
+            map.setView([lat, lng], 16);
+            document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error al buscar la dirección.");
+        });
+}
 
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");
@@ -772,6 +794,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

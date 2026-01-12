@@ -589,10 +589,10 @@ document.addEventListener("DOMContentLoaded", function () {
             await guardarRegistroLocalConNumero(entradaIndividual);
         }
 
-        // 6. Mostrar resultado al usuario (con formato inteligente de rangos)
+        // 6. Mostrar resultado al usuario (SIN HTML, limpio para alert)
 let mensajeNumeros;
 if (numeros.length === 1) {
-    mensajeNumeros = `Número de entrada: <strong>${numeros[0]}</strong>`;
+    mensajeNumeros = `Número de entrada: ${numeros[0]}`;
 } else {
     // Detectar si son consecutivos
     const esConsecutivo = numeros.every((num, i) => {
@@ -602,19 +602,17 @@ if (numeros.length === 1) {
     
     if (esConsecutivo && numeros.length >= 5) {
         // Mostrar rango para 5+ números consecutivos
-        mensajeNumeros = `Rango asignado: <strong>${numeros[0]}-${numeros[numeros.length - 1]}</strong> (${numeros.length} animales)`;
+        mensajeNumeros = `Rango asignado: ${numeros[0]}-${numeros[numeros.length - 1]} (${numeros.length} animales)`;
     } else if (esConsecutivo && numeros.length <= 4) {
         // Mostrar lista corta para 2-4 números
-        mensajeNumeros = `Números de entrada: <strong>${numeros.join(", ")}</strong>`;
+        mensajeNumeros = `Números de entrada: ${numeros.join(", ")}`;
     } else {
         // Números no consecutivos (caso raro): mostrar inicio...fin
-        mensajeNumeros = `Números asignados: <strong>${numeros[0]}, ${numeros[1]}, …, ${numeros[numeros.length - 1]}</strong> (${numeros.length} animales)`;
+        mensajeNumeros = `Números asignados: ${numeros[0]}, ${numeros[1]}, …, ${numeros[numeros.length - 1]} (${numeros.length} animales)`;
     }
 }
 
-alert(`✅ ${cantidad} registro(s) guardado(s) correctamente\n${mensajeNumeros}`);
-
-        alert(`✅ ${cantidad} registro(s) guardado(s) correctamente\n${mensajeNumeros}`);
+alert(`✅ ${cantidad} registro(s) guardado(s) correctamente\n\n${mensajeNumeros}`);
         sessionStorage.setItem('formEnviadoOK', '1');
         document.getElementById("formulario").reset();
         document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
@@ -1074,6 +1072,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

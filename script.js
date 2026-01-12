@@ -589,7 +589,7 @@ document.addEventListener("DOMContentLoaded", function () {
             await guardarRegistroLocalConNumero(entradaIndividual);
         }
 
-        // 6. Mostrar resultado al usuario (SIN HTML, limpio para alert)
+        // 6. Mostrar resultado al usuario
 let mensajeNumeros;
 if (numeros.length === 1) {
     mensajeNumeros = `Número de entrada: ${numeros[0]}`;
@@ -1072,6 +1072,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

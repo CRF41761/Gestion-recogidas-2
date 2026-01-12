@@ -589,12 +589,11 @@ document.addEventListener("DOMContentLoaded", function () {
             await guardarRegistroLocalConNumero(entradaIndividual);
         }
 
-        // 6. Mostrar resultado al usuario (con SweetAlert2 y formato inteligente)
+        // 6. Mostrar resultado al usuario (con SweetAlert2 y números GIGANTES)
 let mensajeNumeros;
 if (numeros.length === 1) {
-    mensajeNumeros = `Número de entrada: <strong>${numeros[0]}</strong>`;
+    mensajeNumeros = `Número de entrada: <span class="numeros-grandes">${numeros[0]}</span>`;
 } else {
-    // Detectar si son consecutivos
     const esConsecutivo = numeros.every((num, i) => {
         if (i === 0) return true;
         return num === numeros[i - 1] + 1;
@@ -602,20 +601,20 @@ if (numeros.length === 1) {
     
     if (esConsecutivo && numeros.length >= 5) {
         // Mostrar rango para 5+ números consecutivos
-        mensajeNumeros = `Rango asignado: <strong>${numeros[0]}-${numeros[numeros.length - 1]}</strong> (${numeros.length} animales)`;
+        mensajeNumeros = `Rango asignado: <span class="numeros-grandes">${numeros[0]}-${numeros[numeros.length - 1]}</span> (${numeros.length} animales)`;
     } else if (esConsecutivo && numeros.length <= 4) {
         // Mostrar lista corta para 2-4 números
-        mensajeNumeros = `Números de entrada: <strong>${numeros.join(", ")}</strong>`;
+        mensajeNumeros = `Números de entrada: <span class="numeros-grandes">${numeros.join(", ")}</span>`;
     } else {
         // Números no consecutivos (caso raro): mostrar inicio...fin
-        mensajeNumeros = `Números asignados: <strong>${numeros[0]}, ${numeros[1]}, …, ${numeros[numeros.length - 1]}</strong> (${numeros.length} animales)`;
+        mensajeNumeros = `Números asignados: <span class="numeros-grandes">${numeros[0]}, ${numeros[1]}, …, ${numeros[numeros.length - 1]}</span> (${numeros.length} animales)`;
     }
 }
 
 Swal.fire({
     icon: 'success',
     title: `${cantidad} registro(s) guardado(s)`,
-    html: mensajeNumeros, // SweetAlert2 SÍ soporta HTML
+    html: mensajeNumeros,
     confirmButtonText: 'Aceptar',
     confirmButtonColor: '#28a745',
     width: '600px',
@@ -1084,6 +1083,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

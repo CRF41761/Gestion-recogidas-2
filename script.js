@@ -589,13 +589,30 @@ document.addEventListener("DOMContentLoaded", function () {
             await guardarRegistroLocalConNumero(entradaIndividual);
         }
 
-        // 6. Mostrar resultado al usuario
-        let mensajeNumeros;
-        if (numeros.length === 1) {
-            mensajeNumeros = `Número de entrada: ${numeros[0]}`;
-        } else {
-            mensajeNumeros = `Números de entrada: ${numeros.join(", ")}`;
-        }
+        // 6. Mostrar resultado al usuario (con formato inteligente de rangos)
+let mensajeNumeros;
+if (numeros.length === 1) {
+    mensajeNumeros = `Número de entrada: <strong>${numeros[0]}</strong>`;
+} else {
+    // Detectar si son consecutivos
+    const esConsecutivo = numeros.every((num, i) => {
+        if (i === 0) return true;
+        return num === numeros[i - 1] + 1;
+    });
+    
+    if (esConsecutivo && numeros.length >= 5) {
+        // Mostrar rango para 5+ números consecutivos
+        mensajeNumeros = `Rango asignado: <strong>${numeros[0]}-${numeros[numeros.length - 1]}</strong> (${numeros.length} animales)`;
+    } else if (esConsecutivo && numeros.length <= 4) {
+        // Mostrar lista corta para 2-4 números
+        mensajeNumeros = `Números de entrada: <strong>${numeros.join(", ")}</strong>`;
+    } else {
+        // Números no consecutivos (caso raro): mostrar inicio...fin
+        mensajeNumeros = `Números asignados: <strong>${numeros[0]}, ${numeros[1]}, …, ${numeros[numeros.length - 1]}</strong> (${numeros.length} animales)`;
+    }
+}
+
+alert(`✅ ${cantidad} registro(s) guardado(s) correctamente\n${mensajeNumeros}`);
 
         alert(`✅ ${cantidad} registro(s) guardado(s) correctamente\n${mensajeNumeros}`);
         sessionStorage.setItem('formEnviadoOK', '1');
@@ -1057,6 +1074,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

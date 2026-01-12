@@ -246,3 +246,17 @@ input[list] {
     line-height: 1.5;
     font-weight: normal;
 }
+/* Estilo para los números de entrada (solo los números serán gigantes) */
+.numeros-grandes {
+    font-size: 2.5rem !important;  /* 🔥 MUCHO MÁS GRANDE */
+    font-weight: bold;
+    color: #28a745;  /* Verde para que resalte */
+    display: inline-block; /* Para mejor control del espacio */
+    line-height: 1.2;
+}
+
+/* Tamaño normal para el resto del texto en SweetAlert2 */
+.swal2-html-large {
+    font-size: 1.2rem !important; /* Texto descriptivo normal */
+    line-height: 1.5;
+}

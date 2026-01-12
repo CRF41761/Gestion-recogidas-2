@@ -218,6 +218,7 @@ const formatearFechaHora = (fechaISO) => {
 };
 
 // Mostrar registros en el modal
+// Mostrar registros en el modal (con botón CARGAR)
 const mostrarRegistros = async () => {
     const registros = await obtenerRegistros();
     const contenedor = document.getElementById('contenidoRegistros');
@@ -236,9 +237,14 @@ const mostrarRegistros = async () => {
                     <strong style="color:#333; font-size:1.1em;">${reg.especie_comun || 'Sin especie'}</strong><br>
                     <small style="color:#666;">📅 ${formatearFechaHora(reg.timestamp)}</small>
                 </div>
-                <button onclick="eliminarYActualizar(${reg.id})" 
-                        style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px; margin-left:10px;" 
-                        title="Eliminar registro">×</button>
+                <div style="display:flex; gap:5px;">
+                    <button onclick="cargarRegistroEnFormulario(${reg.id})" 
+                            style="background:#28a745; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:13px; flex-shrink:0;" 
+                            title="Cargar registro">📋 Cargar</button>
+                    <button onclick="eliminarYActualizar(${reg.id})" 
+                            style="background:#dc3545; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; font-size:14px; flex-shrink:0; width:30px; height:30px;" 
+                            title="Eliminar registro">×</button>
+                </div>
             </div>
             <details style="font-size:0.9em; color:#555; margin-top:8px;">
                 <summary style="cursor:pointer; color:#17a2b8;">Ver detalles completos</summary>
@@ -1097,6 +1103,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

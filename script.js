@@ -668,39 +668,17 @@ document.addEventListener("DOMContentLoaded", function () {
         const ultimasFilas = allData.slice(-cantidad);
         if (ultimasFilas.length === 0) throw new Error("No se encontraron filas guardadas");
 
-        // 5. Extraer números y guardar en IndexedDB
-        const numeros = [];
-        for (let i = 0; i < ultimasFilas.length; i++) {
-            const fila = ultimasFilas[i];
-            const numero = fila[0]; // columna 0 = número de entrada
-            numeros.push(numero);
+        // 5. Guardar UN ÚNICO registro en IndexedDB con la cantidad real
+const registroCompleto = {
+    ...data,                            // Todos los datos del formulario
+    timestamp: new Date().toISOString(), // Para ordenarlos
+    id: Date.now()                       // Para identificarlos
+};
 
-            // Preparar datos para guardar (una entrada por animal)
-            const entradaIndividual = {
-                ...data,
-                numero_entrada: numero,
-                cantidad_animales: 1, // cada entrada local es 1 animal
-                // Opcional: sobrescribir con valores reales guardados
-                especie_comun: fila[1],
-                especie_cientifico: fila[2],
-                fecha: fila[4],
-                municipio: fila[5],
-                posible_causa: fila[6],
-                remitente: fila[7],
-                estado_animal: fila[8],
-                coordenadas: fila[9],
-                coordenadas_mapa: fila[10],
-                apoyo: fila[11],
-                cra_km: fila[12],
-                observaciones: fila[13],
-                cumplimentado_por: fila[14],
-                telefono_remitente: fila[15],
-                foto: fila[16]
-            };
+await guardarRegistroLocalConNumero(registroCompleto);
 
-            await guardarRegistroLocalConNumero(entradaIndividual);
-        }
-
+// Obtener números SOLO para mostrar en el alert (no para guardar)
+const numeros = ultimasFilas.map(fila => fila[0]);
         // 6. Mostrar resultado al usuario (con SweetAlert2 y números GIGANTES)
 let mensajeNumeros;
 if (numeros.length === 1) {
@@ -1195,6 +1173,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

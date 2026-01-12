@@ -217,7 +217,6 @@ const formatearFechaHora = (fechaISO) => {
     return `${dia}/${mes}/${año} ${horas}:${minutos}:${segundos}`;
 };
 
-// Mostrar registros en el modal
 // Mostrar registros en el modal (con botón CARGAR)
 const mostrarRegistros = async () => {
     const registros = await obtenerRegistros();
@@ -1103,6 +1102,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

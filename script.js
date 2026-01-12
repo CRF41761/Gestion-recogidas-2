@@ -254,11 +254,104 @@ const mostrarRegistros = async () => {
     contenedor.innerHTML = html;
 };
 
-// Eliminar y actualizar vista
-window.eliminarYActualizar = async (id) => {
-    if (confirm('¿Seguro que quieres eliminar este registro?')) {
-        await eliminarRegistro(id);
-        await mostrarRegistros();
+
+// Función para cargar un registro guardado en el formulario
+window.cargarRegistroEnFormulario = async function(id) {
+    try {
+        // Obtener registro de IndexedDB
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(id);
+        
+        request.onsuccess = async () => {
+            const registro = request.result;
+            if (!registro) {
+                alert('❌ No se encontró el registro');
+                return;
+            }
+
+            // Cerrar modal
+            document.getElementById('modalRegistros').style.display = 'none';
+
+            // Limpiar formulario
+            document.getElementById('formulario').reset();
+
+            // Rellenar campos simples
+            document.getElementById('especie_comun').value = registro.especie_comun || '';
+            document.getElementById('especie_cientifico').value = registro.especie_cientifico || '';
+            document.getElementById('cantidad_animales').value = registro.cantidad_animales || '';
+            document.getElementById('fecha').value = registro.fecha || '';
+            document.getElementById('municipio').value = registro.municipio || '';
+            document.getElementById('coordenadas').value = registro.coordenadas || '';
+            document.getElementById('coordenadas_mapa').value = registro.coordenadas_mapa || '';
+            document.getElementById('apoyo').value = registro.apoyo || '';
+            document.getElementById('cra_km').value = registro.cra_km || '';
+            document.getElementById('observaciones').value = registro.observaciones || '';
+            document.getElementById('cumplimentado_por').value = registro.cumplimentado_por || '';
+            document.getElementById('telefono_remitente').value = registro.telefono_remitente || '';
+
+            // Activar autocompletado
+            document.getElementById('especie_comun').dispatchEvent(new Event('input'));
+
+            // Rellenar checkboxes de posible_causa
+            document.querySelectorAll('input[name="posible_causa"]').forEach(cb => cb.checked = false);
+            if (Array.isArray(registro.posible_causa)) {
+                registro.posible_causa.forEach(valor => {
+                    const cb = document.querySelector(`input[name="posible_causa"][value="${valor}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+
+            // Rellenar checkboxes de remitente
+            document.querySelectorAll('input[name="remitente"]').forEach(cb => cb.checked = false);
+            if (Array.isArray(registro.remitente)) {
+                registro.remitente.forEach(valor => {
+                    const cb = document.querySelector(`input[name="remitente"][value="${valor}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+
+            // Rellenar estado_animal
+            document.querySelectorAll('input[name="estado_animal"]').forEach(cb => cb.checked = false);
+            if (Array.isArray(registro.estado_animal)) {
+                registro.estado_animal.forEach(valor => {
+                    // Para checkbox "Recoge Centro"
+                    if (valor === 'Recoge Centro') {
+                        const cb = document.querySelector('input[type="checkbox"][name="estado_animal"][value="Recoge Centro"]');
+                        if (cb) cb.checked = true;
+                    }
+                    // Para radio "Animal Vivo" o "Cadáver"
+                    if (valor === 'Animal Vivo' || valor === 'Cadáver') {
+                        const radio = document.querySelector(`input[type="radio"][name="estado_animal"][value="${valor}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                    // Para checkbox "Recuperación"
+                    if (valor === 'Recuperación') {
+                        const cb = document.getElementById('recuperacion');
+                        if (cb) cb.checked = true;
+                        document.getElementById('anillaWrapper').style.display = 'inline-block';
+                        
+                        // Extraer anilla de observaciones si existe
+                        const match = (registro.observaciones || '').match(/Anilla: (\w+)/);
+                        if (match) {
+                            document.getElementById('anilla').value = match[1];
+                        }
+                    }
+                });
+            }
+
+            // Limpiar foto (no se puede pre-rellenar)
+            document.getElementById('foto').value = '';
+
+            alert(`✅ Registro cargado:\n${registro.especie_comun || 'Sin especie'}`);
+        };
+        
+        request.onerror = () => {
+            alert('❌ Error al cargar el registro');
+        };
+    } catch (error) {
+        console.error('Error al cargar registro:', error);
+        alert('❌ Error al cargar el registro');
     }
 };
 
@@ -1102,6 +1195,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

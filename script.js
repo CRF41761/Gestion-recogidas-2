@@ -589,10 +589,10 @@ document.addEventListener("DOMContentLoaded", function () {
             await guardarRegistroLocalConNumero(entradaIndividual);
         }
 
-        // 6. Mostrar resultado al usuario
+        // 6. Mostrar resultado al usuario (con SweetAlert2 y formato inteligente)
 let mensajeNumeros;
 if (numeros.length === 1) {
-    mensajeNumeros = `Número de entrada: ${numeros[0]}`;
+    mensajeNumeros = `Número de entrada: <strong>${numeros[0]}</strong>`;
 } else {
     // Detectar si son consecutivos
     const esConsecutivo = numeros.every((num, i) => {
@@ -602,17 +602,29 @@ if (numeros.length === 1) {
     
     if (esConsecutivo && numeros.length >= 5) {
         // Mostrar rango para 5+ números consecutivos
-        mensajeNumeros = `Rango asignado: ${numeros[0]}-${numeros[numeros.length - 1]} (${numeros.length} animales)`;
+        mensajeNumeros = `Rango asignado: <strong>${numeros[0]}-${numeros[numeros.length - 1]}</strong> (${numeros.length} animales)`;
     } else if (esConsecutivo && numeros.length <= 4) {
         // Mostrar lista corta para 2-4 números
-        mensajeNumeros = `Números de entrada: ${numeros.join(", ")}`;
+        mensajeNumeros = `Números de entrada: <strong>${numeros.join(", ")}</strong>`;
     } else {
         // Números no consecutivos (caso raro): mostrar inicio...fin
-        mensajeNumeros = `Números asignados: ${numeros[0]}, ${numeros[1]}, …, ${numeros[numeros.length - 1]} (${numeros.length} animales)`;
+        mensajeNumeros = `Números asignados: <strong>${numeros[0]}, ${numeros[1]}, …, ${numeros[numeros.length - 1]}</strong> (${numeros.length} animales)`;
     }
 }
 
-alert(`✅ ${cantidad} registro(s) guardado(s) correctamente\n\n${mensajeNumeros}`);
+Swal.fire({
+    icon: 'success',
+    title: `${cantidad} registro(s) guardado(s)`,
+    html: mensajeNumeros, // SweetAlert2 SÍ soporta HTML
+    confirmButtonText: 'Aceptar',
+    confirmButtonColor: '#28a745',
+    width: '600px',
+    padding: '20px',
+    customClass: {
+        title: 'swal2-title-large',
+        html: 'swal2-html-large'
+    }
+});
         sessionStorage.setItem('formEnviadoOK', '1');
         document.getElementById("formulario").reset();
         document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
@@ -1072,6 +1084,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

@@ -135,6 +135,20 @@ const guardarRegistroLocal = (datos) => {
     });
 };
 
+// Nueva función auxiliar para guardar con número (solo usada tras el envío)
+const guardarRegistroLocalConNumero = (datos) => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const datosParaGuardar = { ...datos };
+        datosParaGuardar.timestamp = new Date().toISOString();
+        datosParaGuardar.id = Date.now();
+        const request = store.add(datosParaGuardar);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+};
+
 // Obtener todos los registros
 const obtenerRegistros = () => {
     return new Promise((resolve, reject) => {
@@ -1083,6 +1097,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

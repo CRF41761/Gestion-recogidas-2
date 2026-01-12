@@ -233,3 +233,16 @@ input[list] {
 }
 #btnCerrar:hover { background: #fff; }
 #btnCerrar svg { width: 20px; height: 20px; color: #333; }
+
+/* Tamaño grande para el título del SweetAlert2 */
+.swal2-title-large {
+    font-size: 1.8rem !important;
+    font-weight: bold;
+}
+
+/* Tamaño grande para el contenido (números) */
+.swal2-html-large {
+    font-size: 1.5rem !important;
+    line-height: 1.5;
+    font-weight: normal;
+}

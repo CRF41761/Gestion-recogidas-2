@@ -743,6 +743,16 @@ Swal.fire({
 
     // Auto-guardado temporal (localStorage) mientras se rellena el formulario
     const form = document.getElementById("formulario");
+   // Prevenir envío al pulsar Enter en el campo Teléfono Remitente
+const telefonoInput = document.getElementById('telefono_remitente');
+if (telefonoInput) {
+    telefonoInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+            e.preventDefault(); // Evita que se envíe el formulario
+            this.blur(); // Opcional: quita el foco del campo
+        }
+    });
+}
     form.addEventListener('input', () => {
         const obj = {};
         Array.from(form.elements).forEach(el => {
@@ -1173,6 +1183,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

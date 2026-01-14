@@ -1192,8 +1192,9 @@ if (btnCerrar) {
 }
 
 // Fecha actual por defecto
-const hoy = new Date().toISOString().split('T')[0];
+const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

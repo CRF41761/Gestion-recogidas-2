@@ -727,7 +727,7 @@ Swal.fire({
 });
         sessionStorage.setItem('formEnviadoOK', '1');
         document.getElementById("formulario").reset();
-        document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+document.getElementById('fecha').value = getFechaLocalISO();
 
     } catch (err) {
         console.error("Error al enviar:", err);
@@ -1194,6 +1194,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

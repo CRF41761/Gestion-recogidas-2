@@ -92,6 +92,17 @@ function parseUTM(input) {
 
     return { easting, northing, zoneNumber, northern };
 }
+
+/* ============================================
+   FECHA LOCAL CORRECTA (sin problema UTC)
+   ============================================ */
+function getFechaLocalISO() {
+    const ahora = new Date();
+    const año = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    return `${año}-${mes}-${dia}`;
+}
 /* ============================================
    INDEXEDDB - GESTIÓN DE REGISTROS LOCALES
    ============================================ */
@@ -1183,6 +1194,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
+
 
 
 

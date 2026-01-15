@@ -1099,16 +1099,47 @@ if (telefonoInput) {
     sessionStorage.removeItem('formEnviadoOK');
 })();
 
-// Carga de municipios
+// Carga de municipios con normalización de acentos
 document.addEventListener("DOMContentLoaded", () => {
     fetch("municipios.json")
         .then(r => r.json())
         .then(d => {
+            // Función para quitar acentos (igual que en especies)
+            function quitarAcentos(str) {
+                return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            }
+            
+            window.municipiosData = d.municipios; // Guardar datos para búsqueda
             const list = document.getElementById("municipios-list");
-            d.municipios.forEach(m => {
-                const opt = document.createElement("option");
-                opt.value = m;
-                list.appendChild(opt);
+            
+            // Rellenar datalist con ambas versiones (con y sin acento)
+            d.municipios.forEach(municipio => {
+                const sinAcento = quitarAcentos(municipio);
+                
+                // Opción sin acento (para que aparezca al buscar)
+                const opt1 = document.createElement("option");
+                opt1.value = sinAcento;
+                list.appendChild(opt1);
+                
+                // Opción con acento (para insertar el valor correcto)
+                const opt2 = document.createElement("option");
+                opt2.value = municipio;
+                list.appendChild(opt2);
+            });
+            
+            // Autocorrección al escribir
+            const municipioInput = document.getElementById("municipio");
+            municipioInput.addEventListener("input", () => {
+                const valorEscrito = municipioInput.value.trim();
+                if (!valorEscrito) return;
+                
+                const encontrado = window.municipiosData.find(m => 
+                    quitarAcentos(m) === quitarAcentos(valorEscrito)
+                );
+                
+                if (encontrado) {
+                    municipioInput.value = encontrado; // Asigna versión con acento correcto
+                }
             });
         })
         .catch(console.error);
@@ -1195,6 +1226,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

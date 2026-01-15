@@ -80,92 +80,92 @@
 
         <!-- Campo: Posible Causa -->
         <fieldset>
-            <legend>Posible Causa</legend>
-            <div class="checkbox-grid">
-                <!-- Primera columna -->
-                <div>
-                    <div>
-                        <label for="ahogamiento">Ahogamiento</label>
-                        <input type="checkbox" id="ahogamiento" name="posible_causa" value="Ahogamiento">
-                    </div>
-                    <div>
-                        <label for="atrapado">Atrapado</label>
-                        <input type="checkbox" id="atrapado" name="posible_causa" value="Atrapado">
-                    </div>
-                    <div>
-                        <label for="atropello">Atropello</label>
-                        <input type="checkbox" id="atropello" name="posible_causa" value="Atropello">
-                    </div>
-                    <div>
-                        <label for="cria">Cría</label>
-                        <input type="checkbox" id="cria" name="posible_causa" value="Cría">
-                    </div>
-                    <div>
-                        <label for="decomiso">Decomiso</label>
-                        <input type="checkbox" id="decomiso" name="posible_causa" value="Decomiso">
-                    </div>
-                    <div>
-                        <label for="depredacion">Depredación</label>
-                        <input type="checkbox" id="depredacion" name="posible_causa" value="Depredación">
-                    </div>
-                    <div>
-                        <label for="desnutricion">Desnutrición</label>
-                        <input type="checkbox" id="desnutricion" name="posible_causa" value="Desnutrición">
-                    </div>
-                    <div>
-                        <label for="disparo">Disparo</label>
-                        <input type="checkbox" id="disparo" name="posible_causa" value="Disparo">
-                    </div>
-                    <div>
-                        <label for="electrocucion">Electrocución</label>
-                        <input type="checkbox" id="electrocucion" name="posible_causa" value="Electrocución">
-                    </div>
-                </div>
-
-                <!-- Segunda columna -->
-                <div>
-                    <div>
-                        <label for="cautividad">Cautividad</label>
-                        <input type="checkbox" id="cautividad" name="posible_causa" value="Cautividad">
-                    </div>
-                    <div>
-                        <label for="hallazgo">Hallazgo</label>
-                        <input type="checkbox" id="hallazgo" name="posible_causa" value="Hallazgo">
-                    </div>
-                    <div>
-                        <label for="indeterminada">Indeterminada</label>
-                        <input type="checkbox" id="indeterminada" name="posible_causa" value="Indeterminada">
-                    </div>
-                    <div>
-                        <label for="infecciosa">Infecciosa</label>
-                        <input type="checkbox" id="infecciosa" name="posible_causa" value="Infecciosa">
-                    </div>
-                    <div>
-                        <label for="intoxicacion">Intoxicación</label>
-                        <input type="checkbox" id="intoxicacion" name="posible_causa" value="Intoxicación">
-                    </div>
-                    <div>
-                        <label for="nacido_centro">Nacido en el Centro</label>
-                        <input type="checkbox" id="nacido_centro" name="posible_causa" value="Nacido en el Centro">
-                    </div>
-                    <div>
-                        <label for="trampeo">Trampeo</label>
-                        <input type="checkbox" id="trampeo" name="posible_causa" value="Trampeo">
-                    </div>
-                    <div>
-                        <label for="traumatismo">Traumatismo</label>
-                        <input type="checkbox" id="traumatismo" name="posible_causa" value="Traumatismo">
-                    </div>
-                    <div>
-                        <label for="otras">Otras</label>
-                        <input type="checkbox" id="otras" name="posible_causa" value="Otras">
-                    </div>
-                    <div>
-                        <input type="text" id="otras_texto" name="otras_texto" placeholder="Especificar...">
-                    </div>
-                </div>
+    <legend>Posible Causa</legend>
+    <div class="checkbox-grid">
+        <!-- Primera columna -->
+        <div>
+            <div>
+                <label for="ahogamiento">Ahogamiento</label>
+                <input type="radio" id="ahogamiento" name="posible_causa" value="Ahogamiento" required>
             </div>
-        </fieldset>
+            <div>
+                <label for="atrapado">Atrapado</label>
+                <input type="radio" id="atrapado" name="posible_causa" value="Atrapado">
+            </div>
+            <div>
+                <label for="atropello">Atropello</label>
+                <input type="radio" id="atropello" name="posible_causa" value="Atropello">
+            </div>
+            <div>
+                <label for="cria">Cría</label>
+                <input type="radio" id="cria" name="posible_causa" value="Cría">
+            </div>
+            <div>
+                <label for="decomiso">Decomiso</label>
+                <input type="radio" id="decomiso" name="posible_causa" value="Decomiso">
+            </div>
+            <div>
+                <label for="depredacion">Depredación</label>
+                <input type="radio" id="depredacion" name="posible_causa" value="Depredación">
+            </div>
+            <div>
+                <label for="desnutricion">Desnutrición</label>
+                <input type="radio" id="desnutricion" name="posible_causa" value="Desnutrición">
+            </div>
+            <div>
+                <label for="disparo">Disparo</label>
+                <input type="radio" id="disparo" name="posible_causa" value="Disparo">
+            </div>
+            <div>
+                <label for="electrocucion">Electrocución</label>
+                <input type="radio" id="electrocucion" name="posible_causa" value="Electrocución">
+            </div>
+        </div>
+
+        <!-- Segunda columna -->
+        <div>
+            <div>
+                <label for="cautividad">Cautividad</label>
+                <input type="radio" id="cautividad" name="posible_causa" value="Cautividad">
+            </div>
+            <div>
+                <label for="hallazgo">Hallazgo</label>
+                <input type="radio" id="hallazgo" name="posible_causa" value="Hallazgo">
+            </div>
+            <div>
+                <label for="indeterminada">Indeterminada</label>
+                <input type="radio" id="indeterminada" name="posible_causa" value="Indeterminada">
+            </div>
+            <div>
+                <label for="infecciosa">Infecciosa</label>
+                <input type="radio" id="infecciosa" name="posible_causa" value="Infecciosa">
+            </div>
+            <div>
+                <label for="intoxicacion">Intoxicación</label>
+                <input type="radio" id="intoxicacion" name="posible_causa" value="Intoxicación">
+            </div>
+            <div>
+                <label for="nacido_centro">Nacido en el Centro</label>
+                <input type="radio" id="nacido_centro" name="posible_causa" value="Nacido en el Centro">
+            </div>
+            <div>
+                <label for="trampeo">Trampeo</label>
+                <input type="radio" id="trampeo" name="posible_causa" value="Trampeo">
+            </div>
+            <div>
+                <label for="traumatismo">Traumatismo</label>
+                <input type="radio" id="traumatismo" name="posible_causa" value="Traumatismo">
+            </div>
+            <div>
+                <label for="otras">Otras</label>
+                <input type="radio" id="otras" name="posible_causa" value="Otras">
+            </div>
+            <div>
+                <input type="text" id="otras_texto" name="otras_texto" placeholder="Especificar..." style="width:100%;">
+            </div>
+        </div>
+    </div>
+</fieldset>
 
         <!-- Campo: Remitente -->
         <fieldset>
@@ -332,6 +332,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 

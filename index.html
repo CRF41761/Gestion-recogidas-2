@@ -169,60 +169,60 @@
 
         <!-- Campo: Remitente -->
         <fieldset>
-            <legend>Remitente</legend>
-            <div class="checkbox-grid">
-                <!-- Primera columna -->
-                <div>
-                    <div>
-                        <label for="medioambiental">A. Medioambiental</label>
-                        <input type="checkbox" id="medioambiental" name="remitente" value="A. Medioambiental">
-                    </div>
-                    <div>
-                        <label for="ayuntamiento">Ayuntamiento</label>
-                        <input type="checkbox" id="ayuntamiento" name="remitente" value="Ayuntamiento">
-                    </div>
-                    <div>
-                        <label for="crf_forn">CRF Forn del Vidre</label>
-                        <input type="checkbox" id="crf_forn" name="remitente" value="CRF Forn del Vidre">
-                    </div>
-                    <div>
-                        <label for="crf_santa_faz">CRF Santa Faz</label>
-                        <input type="checkbox" id="crf_santa_faz" name="remitente" value="CRF Santa Faz">
-                    </div>
-                    <div>
-                        <label for="cruz_roja">Cruz Roja</label>
-                        <input type="checkbox" id="cruz_roja" name="remitente" value="Cruz Roja">
-                    </div>
-                </div>
-
-                <!-- Segunda columna -->
-                <div>
-                    <div>
-                        <label for="guardia_civil">Guardia Civil</label>
-                        <input type="checkbox" id="guardia_civil" name="remitente" value="Guardia Civil">
-                    </div>
-                    <div>
-                        <label for="iberdrola">Iberdrola</label>
-                        <input type="checkbox" id="iberdrola" name="remitente" value="Iberdrola">
-                    </div>
-                    <div>
-                        <label for="personal_conselleria">Personal de Conselleria</label>
-                        <input type="checkbox" id="personal_conselleria" name="remitente" value="Personal de Conselleria">
-                    </div>
-                    <div>
-                        <label for="particular">Particular</label>
-                        <input type="checkbox" id="particular" name="remitente" value="Particular">
-                    </div>
-                    <div>
-                        <label for="otras_remitente">Otras</label>
-                        <input type="checkbox" id="otras_remitente" name="remitente" value="Otras">
-                    </div>
-                    <div>
-                        <input type="text" id="otras_remitente_texto" name="otras_remitente_texto" placeholder="Especificar...">
-                    </div>
-                </div>
+    <legend>Remitente</legend>
+    <div class="checkbox-grid">
+        <!-- Primera columna -->
+        <div>
+            <div>
+                <label for="medioambiental">A. Medioambiental</label>
+                <input type="radio" id="medioambiental" name="remitente" value="A. Medioambiental" required>
             </div>
-        </fieldset>
+            <div>
+                <label for="ayuntamiento">Ayuntamiento</label>
+                <input type="radio" id="ayuntamiento" name="remitente" value="Ayuntamiento">
+            </div>
+            <div>
+                <label for="crf_forn">CRF Forn del Vidre</label>
+                <input type="radio" id="crf_forn" name="remitente" value="CRF Forn del Vidre">
+            </div>
+            <div>
+                <label for="crf_santa_faz">CRF Santa Faz</label>
+                <input type="radio" id="crf_santa_faz" name="remitente" value="CRF Santa Faz">
+            </div>
+            <div>
+                <label for="cruz_roja">Cruz Roja</label>
+                <input type="radio" id="cruz_roja" name="remitente" value="Cruz Roja">
+            </div>
+        </div>
+
+        <!-- Segunda columna -->
+        <div>
+            <div>
+                <label for="guardia_civil">Guardia Civil</label>
+                <input type="radio" id="guardia_civil" name="remitente" value="Guardia Civil">
+            </div>
+            <div>
+                <label for="iberdrola">Iberdrola</label>
+                <input type="radio" id="iberdrola" name="remitente" value="Iberdrola">
+            </div>
+            <div>
+                <label for="personal_conselleria">Personal de Conselleria</label>
+                <input type="radio" id="personal_conselleria" name="remitente" value="Personal de Conselleria">
+            </div>
+            <div>
+                <label for="particular">Particular</label>
+                <input type="radio" id="particular" name="remitente" value="Particular">
+            </div>
+            <div>
+                <label for="otras_remitente">Otras</label>
+                <input type="radio" id="otras_remitente" name="remitente" value="Otras">
+            </div>
+            <div>
+                <input type="text" id="otras_remitente_texto" name="otras_remitente_texto" placeholder="Especificar..." style="width:100%;">
+            </div>
+        </div>
+    </div>
+</fieldset>
 
         <!-- Campo: Estado del Animal -->
         <fieldset>
@@ -332,6 +332,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 

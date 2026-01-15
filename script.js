@@ -615,8 +615,8 @@ document.addEventListener("DOMContentLoaded", function () {
             cantidad_animales: fd.get("cantidad_animales"),
             fecha: fd.get("fecha"),
             municipio: fd.get("municipio"),
-            posible_causa: fd.getAll("posible_causa"),
-            remitente: fd.getAll("remitente"),
+            posible_causa: fd.get("posible_causa") || "", // ← Valor único
+            remitente: fd.get("remitente") || "",         // ← Valor único
             estado_animal: fd.getAll("estado_animal"),
             coordenadas: fd.get("coordenadas"),
             coordenadas_mapa: fd.get("coordenadas_mapa"),
@@ -1194,6 +1194,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

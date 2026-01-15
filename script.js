@@ -570,6 +570,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     validarInputDatalist('especie_comun', 'especies-comun-list', 'Debes seleccionar una especie (nombre común) existente.');
     validarInputDatalist('especie_cientifico', 'especies-cientifico-list', 'Debes seleccionar una especie (nombre científico) existente.');
+   validarInputDatalist('municipio', 'municipios-list', 'Debes seleccionar un municipio existente.');
 
     /* ---------- ENVÍO DEL FORMULARIO (UNIFICADO Y CORREGIDO) ---------- */
     document.getElementById("formulario").addEventListener("submit", function (e) {
@@ -1194,6 +1195,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

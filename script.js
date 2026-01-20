@@ -733,19 +733,19 @@ const numeros = ultimasFilas
   }
 }
 
-    // Nueva función auxiliar para guardar con número (solo usada tras el envío)
-    const guardarRegistroLocalConNumero = (datos) => {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            const datosParaGuardar = { ...datos };
-            datosParaGuardar.timestamp = new Date().toISOString();
-            datosParaGuardar.id = Date.now();
-            const request = store.add(datosParaGuardar);
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
-    };
+    // Guarda un registro en IndexedDB con estado explícito ("pendiente" o "enviado")
+const guardarRegistroLocalConEstado = (datos, estado = "pendiente") => {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const datosParaGuardar = { ...datos, estado };
+    datosParaGuardar.timestamp = new Date().toISOString();
+    datosParaGuardar.id = Date.now();
+    const request = store.add(datosParaGuardar);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
 
     // Auto-guardado temporal (localStorage) mientras se rellena el formulario
     const form = document.getElementById("formulario");
@@ -1220,6 +1220,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

@@ -682,7 +682,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     await guardarRegistroLocalConNumero(registroCompleto);
     // Obtener números SOLO para mostrar en el alert (no para guardar)
-    const numeros = ultimasFilas.map(fila => fila[0]);
+    const numeros = ultimasFilas.map(fila => Number(fila[0])).filter(n => !isNaN(n));
     // 6. Mostrar resultado al usuario
     let mensajeNumeros;
     if (numeros.length === 1) {
@@ -1204,6 +1204,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

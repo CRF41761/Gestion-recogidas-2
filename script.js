@@ -664,17 +664,30 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     // 2. Esperar un poco para que el servidor termine
     await new Promise(resolve => setTimeout(resolve, 1000));
-    // 3. Obtener todos los datos para leer las últimas N filas
+    // 3. Obtener todos los datos y filtrar/ordenar por número de entrada
     const response = await fetch("https://script.google.com/macros/s/AKfycbwG3KlHi3nkfywkAUGMOrN7aC-xpGzq31ch5HLq026tP_ydGIFzJIUX0zaA7pD76Yt-/exec?funcion=getAllData", {
       method: "GET",
       mode: "cors"
     });
     if (!response.ok) throw new Error(`Error al obtener los datos: ${response.status}`);
-    const allData = await response.json();
-    // 4. Tomar las últimas "cantidad" filas
-    const ultimasFilas = allData.slice(-cantidad);
+const allData = await response.json();
+
+// Filtrar filas con número de entrada válido y convertir a número
+const filasConNumero = allData
+  .map(fila => {
+    const num = Number(fila[0]);
+    return { numero: num, datos: fila };
+  })
+  .filter(item => !isNaN(item.numero) && item.numero > 0);
+
+// Ordenar de mayor a menor (más reciente primero)
+filasConNumero.sort((a, b) => b.numero - a.numero);
+
+// Tomar las primeras "cantidad" filas (las más recientes)
+const ultimasFilas = filasConNumero.slice(0, cantidad).map(item => item.datos);
+if (ultimasFilas.length === 0) throw new Error("No se encontraron filas guardadas");
     if (ultimasFilas.length === 0) throw new Error("No se encontraron filas guardadas");
-    // 5. Guardar UN ÚNICO registro en IndexedDB con la cantidad real
+    // 4. Guardar UN ÚNICO registro en IndexedDB con la cantidad real
     const registroCompleto = {
       ...data,
       timestamp: new Date().toISOString(),
@@ -683,7 +696,7 @@ document.addEventListener("DOMContentLoaded", function () {
     await guardarRegistroLocalConNumero(registroCompleto);
     // Obtener números SOLO para mostrar en el alert (no para guardar)
     const numeros = ultimasFilas.map(fila => Number(fila[0])).filter(n => !isNaN(n));
-    // 6. Mostrar resultado al usuario
+    // 5. Mostrar resultado al usuario
     let mensajeNumeros;
     if (numeros.length === 1) {
       mensajeNumeros = `Número de entrada: <span class="numeros-grandes">${numeros[0]}</span>`;
@@ -1204,6 +1217,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

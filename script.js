@@ -694,8 +694,11 @@ if (ultimasFilas.length === 0) throw new Error("No se encontraron filas guardada
       id: Date.now()
     };
     await guardarRegistroLocalConNumero(registroCompleto);
-    // Obtener números SOLO para mostrar en el alert (no para guardar)
-    const numeros = ultimasFilas.map(fila => Number(fila[0])).filter(n => !isNaN(n));
+    // Obtener números y ordenarlos ASCENDENTEMENTE para lógica de rango
+const numeros = ultimasFilas
+  .map(fila => Number(fila[0]))
+  .filter(n => !isNaN(n))
+  .sort((a, b) => a - b); // ← ¡Orden ascendente!
     // 5. Mostrar resultado al usuario
     let mensajeNumeros;
     if (numeros.length === 1) {
@@ -1217,6 +1220,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

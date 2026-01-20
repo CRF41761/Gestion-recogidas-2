@@ -652,91 +652,69 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ✅ FUNCIÓN ACTUALIZADA: usa no-cors en POST y lee el número tras el envío
-    async function enviarDatos(data, btn) {
-    try {
-        const cantidad = Math.max(1, parseInt(data.cantidad_animales) || 1);
-
-        // 1. Enviar el formulario (sin leer respuesta, por no-cors)
-        await fetch("https://script.google.com/macros/s/AKfycbw0DF99TUmkD-ekh3KZLIj0PjUh6VjhLd5dftxZ7w3prfpBCqNF80tj0qLKW2VHaQN-/exec", {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
-
-        // 2. Esperar un poco para que el servidor termine
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // 3. Obtener todos los datos para leer las últimas N filas
-        const response = await fetch("https://script.google.com/macros/s/AKfycbw0DF99TUmkD-ekh3KZLIj0PjUh6VjhLd5dftxZ7w3prfpBCqNF80tj0qLKW2VHaQN-/exec?funcion=getAllData", {
-            method: "GET",
-            mode: "cors"
-        });
-
-        if (!response.ok) throw new Error(`Error al obtener los datos: ${response.status}`);
-        const allData = await response.json();
-
-        // 4. Tomar las últimas "cantidad" filas
-        const ultimasFilas = allData.slice(-cantidad);
-        if (ultimasFilas.length === 0) throw new Error("No se encontraron filas guardadas");
-
-        // 5. Guardar UN ÚNICO registro en IndexedDB con la cantidad real
-const registroCompleto = {
-    ...data,                            // Todos los datos del formulario
-    timestamp: new Date().toISOString(), // Para ordenarlos
-    id: Date.now()                       // Para identificarlos
-};
-
-await guardarRegistroLocalConNumero(registroCompleto);
-
-// Obtener números SOLO para mostrar en el alert (no para guardar)
-const numeros = ultimasFilas.map(fila => fila[0]);
-        // 6. Mostrar resultado al usuario (con SweetAlert2 y números GIGANTES)
-let mensajeNumeros;
-if (numeros.length === 1) {
-    mensajeNumeros = `Número de entrada: <span class="numeros-grandes">${numeros[0]}</span>`;
-} else {
-    const esConsecutivo = numeros.every((num, i) => {
-        if (i === 0) return true;
-        return num === numeros[i - 1] + 1;
+ async function enviarDatos(data, btn) {
+  try {
+    const cantidad = Math.max(1, parseInt(data.cantidad_animales) || 1);
+    // 1. Enviar el formulario (sin leer respuesta, por no-cors)
+    await fetch("https://script.google.com/macros/s/AKfycbw0DF99TUmkD-ekh3KZLIj0PjUh6VjhLd5dftxZ7w3prfpBCqNF80tj0qLKW2VHaQN-/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
     });
-    
-    if (esConsecutivo && numeros.length >= 5) {
-        // Mostrar rango para 5+ números consecutivos
-        mensajeNumeros = `Rango asignado: <span class="numeros-grandes">${numeros[0]}-${numeros[numeros.length - 1]}</span> (${numeros.length} animales)`;
-    } else if (esConsecutivo && numeros.length <= 4) {
-        // Mostrar lista corta para 2-4 números
-        mensajeNumeros = `Números de entrada: <span class="numeros-grandes">${numeros.join(", ")}</span>`;
+    // 2. Esperar un poco para que el servidor termine
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // 3. Obtener todos los datos para leer las últimas N filas
+    const response = await fetch("https://script.google.com/macros/s/AKfycbw0DF99TUmkD-ekh3KZLIj0PjUh6VjhLd5dftxZ7w3prfpBCqNF80tj0qLKW2VHaQN-/exec?funcion=getAllData", {
+      method: "GET",
+      mode: "cors"
+    });
+    if (!response.ok) throw new Error(`Error al obtener los datos: ${response.status}`);
+    const allData = await response.json();
+    // 4. Tomar las últimas "cantidad" filas
+    const ultimasFilas = allData.slice(-cantidad);
+    if (ultimasFilas.length === 0) throw new Error("No se encontraron filas guardadas");
+    // 5. Guardar UN ÚNICO registro en IndexedDB con la cantidad real
+    const registroCompleto = {
+      ...data,
+      timestamp: new Date().toISOString(),
+      id: Date.now()
+    };
+    await guardarRegistroLocalConNumero(registroCompleto);
+    // Obtener números SOLO para mostrar en el alert (no para guardar)
+    const numeros = ultimasFilas.map(fila => fila[0]);
+    // 6. Mostrar resultado al usuario
+    let mensajeNumeros;
+    if (numeros.length === 1) {
+      mensajeNumeros = `Número de entrada: <span class="numeros-grandes">${numeros[0]}</span>`;
     } else {
-        // Números no consecutivos (caso raro): mostrar inicio...fin
+      const esConsecutivo = numeros.every((num, i) => i === 0 || num === numeros[i - 1] + 1);
+      if (esConsecutivo && numeros.length >= 5) {
+        mensajeNumeros = `Rango asignado: <span class="numeros-grandes">${numeros[0]}-${numeros[numeros.length - 1]}</span> (${numeros.length} animales)`;
+      } else if (esConsecutivo && numeros.length <= 4) {
+        mensajeNumeros = `Números de entrada: <span class="numeros-grandes">${numeros.join(", ")}</span>`;
+      } else {
         mensajeNumeros = `Números asignados: <span class="numeros-grandes">${numeros[0]}, ${numeros[1]}, …, ${numeros[numeros.length - 1]}</span> (${numeros.length} animales)`;
+      }
     }
-}
-
-Swal.fire({
-    icon: 'success',
-    title: `${cantidad} registro(s) guardado(s)`,
-    html: mensajeNumeros,
-    confirmButtonText: 'Aceptar',
-    confirmButtonColor: '#28a745',
-    width: '600px',
-    padding: '20px',
-    customClass: {
-        title: 'swal2-title-large',
-        html: 'swal2-html-large'
-    }
-});
-        sessionStorage.setItem('formEnviadoOK', '1');
-        document.getElementById("formulario").reset();
-document.getElementById('fecha').value = getFechaLocalISO();
-
-    } catch (err) {
-        console.error("Error al enviar:", err);
-        alert("❌ Error al enviar. Verifique su conexión.");
-    } finally {
-        btn.disabled = false;
-        btn.textContent = "Enviar";
-    }
+    Swal.fire({
+      icon: 'success',
+      title: `${cantidad} registro(s) guardado(s)`,
+      html: mensajeNumeros,
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#28a745',
+      width: '600px'
+    });
+    sessionStorage.setItem('formEnviadoOK', '1');
+    document.getElementById("formulario").reset();
+    document.getElementById('fecha').value = getFechaLocalISO();
+  } catch (err) {
+    console.error("Error al enviar:", err);
+    alert("❌ Error al enviar. Verifique su conexión.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Enviar";
+  }
 }
 
     // Nueva función auxiliar para guardar con número (solo usada tras el envío)
@@ -1226,6 +1204,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

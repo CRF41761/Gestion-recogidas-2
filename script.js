@@ -272,7 +272,18 @@ const mostrarRegistros = async () => {
     `).join('');
     contenedor.innerHTML = html;
 };
-
+// Función para eliminar un registro y actualizar la vista
+window.eliminarYActualizar = async function(id) {
+  if (confirm('¿Seguro que quieres eliminar este registro?')) {
+    try {
+      await eliminarRegistro(id);
+      await mostrarRegistros(); // Actualiza la lista tras eliminar
+    } catch (err) {
+      console.error("Error al eliminar:", err);
+      alert("❌ Error al eliminar el registro.");
+    }
+  }
+};
 
 // Función para cargar un registro guardado en el formulario
 window.cargarRegistroEnFormulario = async function(id) {
@@ -1251,6 +1262,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

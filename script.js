@@ -651,55 +651,74 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ✅ FUNCIÓN ACTUALIZADA: usa no-cors en POST y lee el número tras el envío
- async function enviarDatos(data, btn) {
+// ✅ FUNCIÓN ACTUALIZADA: guarda ANTES del envío y maneja offline correctamente
+async function enviarDatos(data, btn) {
+  let registroPendienteId = null;
   try {
     const cantidad = Math.max(1, parseInt(data.cantidad_animales) || 1);
-    // 1. Enviar el formulario (sin leer respuesta, por no-cors)
+
+    // ✅ 1. GUARDAR REGISTRO COMO "PENDIENTE" ANTES DE INTENTAR ENVIAR
+    const registroPendiente = {
+      ...data,
+      estado: "pendiente",
+      id: Date.now()
+    };
+    registroPendienteId = registroPendiente.id;
+    await guardarRegistroLocalConEstado(registroPendiente, "pendiente");
+
+    // 2. Enviar el formulario (sin leer respuesta, por no-cors)
     await fetch("https://script.google.com/macros/s/AKfycbwG3KlHi3nkfywkAUGMOrN7aC-xpGzq31ch5HLq026tP_ydGIFzJIUX0zaA7pD76Yt-/exec", {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
-    // 2. Esperar un poco para que el servidor termine
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // 3. Obtener todos los datos y filtrar/ordenar por número de entrada
+
+    // 3. Esperar un poco para que el servidor termine
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // 4. Obtener todos los datos y filtrar/ordenar por número de entrada
     const response = await fetch("https://script.google.com/macros/s/AKfycbwG3KlHi3nkfywkAUGMOrN7aC-xpGzq31ch5HLq026tP_ydGIFzJIUX0zaA7pD76Yt-/exec?funcion=getAllData", {
       method: "GET",
       mode: "cors"
     });
     if (!response.ok) throw new Error(`Error al obtener los datos: ${response.status}`);
-const allData = await response.json();
+    const allData = await response.json();
 
-// Filtrar filas con número de entrada válido y convertir a número
-const filasConNumero = allData
-  .map(fila => {
-    const num = Number(fila[0]);
-    return { numero: num, datos: fila };
-  })
-  .filter(item => !isNaN(item.numero) && item.numero > 0);
+    // Filtrar solo filas con número válido y convertir a número
+    const filasConNumero = allData
+      .map(fila => {
+        const num = Number(fila[0]);
+        return { numero: num, datos: fila };
+      })
+      .filter(item => !isNaN(item.numero) && item.numero > 0);
 
-// Ordenar de mayor a menor (más reciente primero)
-filasConNumero.sort((a, b) => b.numero - a.numero);
+    // Ordenar de mayor a menor (más reciente primero)
+    filasConNumero.sort((a, b) => b.numero - a.numero);
 
-// Tomar las primeras "cantidad" filas (las más recientes)
-const ultimasFilas = filasConNumero.slice(0, cantidad).map(item => item.datos);
-if (ultimasFilas.length === 0) throw new Error("No se encontraron filas guardadas");
-    if (ultimasFilas.length === 0) throw new Error("No se encontraron filas guardadas");
-    // 4. Guardar UN ÚNICO registro en IndexedDB con la cantidad real
-    const registroCompleto = {
-      ...data,
-      timestamp: new Date().toISOString(),
-      id: Date.now()
+    // Tomar las primeras "cantidad" entradas
+    const entradasRecientes = filasConNumero.slice(0, cantidad);
+    if (entradasRecientes.length === 0) throw new Error("No se encontraron filas guardadas");
+
+    // Extraer números y ordenar ASCENDENTEMENTE para lógica de rango
+    const numeros = entradasRecientes
+      .map(item => item.numero)
+      .sort((a, b) => a - b); // ← ¡ESTO ES CLAVE!
+
+    // 5. ACTUALIZAR EL REGISTRO A "ENVIADO" (con los números asignados)
+    const tx = db.transaction([STORE_NAME], 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const getRequest = store.get(registroPendienteId);
+    getRequest.onsuccess = () => {
+      const reg = getRequest.result;
+      if (reg) {
+        reg.estado = "enviado";
+        reg.numerosAsignados = numeros;
+        store.put(reg);
+      }
     };
-    await guardarRegistroLocalConNumero(registroCompleto);
-    // Obtener números y ordenarlos ASCENDENTEMENTE para lógica de rango
-const numeros = ultimasFilas
-  .map(fila => Number(fila[0]))
-  .filter(n => !isNaN(n))
-  .sort((a, b) => a - b); // ← ¡Orden ascendente!
-    // 5. Mostrar resultado al usuario
+
+    // 6. Mostrar resultado al usuario
     let mensajeNumeros;
     if (numeros.length === 1) {
       mensajeNumeros = `Número de entrada: <span class="numeros-grandes">${numeros[0]}</span>`;
@@ -713,6 +732,7 @@ const numeros = ultimasFilas
         mensajeNumeros = `Números asignados: <span class="numeros-grandes">${numeros[0]}, ${numeros[1]}, …, ${numeros[numeros.length - 1]}</span> (${numeros.length} animales)`;
       }
     }
+
     Swal.fire({
       icon: 'success',
       title: `${cantidad} registro(s) guardado(s)`,
@@ -721,12 +741,15 @@ const numeros = ultimasFilas
       confirmButtonColor: '#28a745',
       width: '600px'
     });
+
     sessionStorage.setItem('formEnviadoOK', '1');
     document.getElementById("formulario").reset();
     document.getElementById('fecha').value = getFechaLocalISO();
+
   } catch (err) {
     console.error("Error al enviar:", err);
-    alert("❌ Error al enviar. Verifique su conexión.");
+    // ❌ Si falla, el registro YA está guardado como "pendiente"
+    alert("❌ Error al enviar. El registro se guardó localmente y se puede reenviar después.");
   } finally {
     btn.disabled = false;
     btn.textContent = "Enviar";
@@ -1220,4 +1243,5 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 

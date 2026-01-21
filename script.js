@@ -694,7 +694,7 @@ async function enviarDatos(data, btn) {
     });
 
     // 3. Esperar un poco para que el servidor termine
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // 4. Obtener todos los datos y filtrar/ordenar por número de entrada
     const response = await fetch("https://script.google.com/macros/s/AKfycbwG3KlHi3nkfywkAUGMOrN7aC-xpGzq31ch5HLq026tP_ydGIFzJIUX0zaA7pD76Yt-/exec?funcion=getAllData", {
@@ -1262,6 +1262,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

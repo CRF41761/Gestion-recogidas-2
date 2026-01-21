@@ -182,6 +182,27 @@ const eliminarRegistro = (id) => {
     });
 };
 
+// Actualizar un registro existente en IndexedDB
+const actualizarRegistro = (id, nuevosDatos) => {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const getRequest = store.get(id);
+    getRequest.onsuccess = () => {
+      const registro = getRequest.result;
+      if (!registro) {
+        reject(new Error("Registro no encontrado"));
+        return;
+      }
+      // Fusionar los nuevos datos
+      const registroActualizado = { ...registro, ...nuevosDatos };
+      const putRequest = store.put(registroActualizado);
+      putRequest.onsuccess = () => resolve(putRequest.result);
+      putRequest.onerror = () => reject(putRequest.error);
+    };
+    getRequest.onerror = () => reject(getRequest.error);
+  });
+};
 // Exportar registros a JSON
 const exportarRegistrosJSON = async () => {
     const registros = await obtenerRegistros();
@@ -1262,6 +1283,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

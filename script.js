@@ -244,14 +244,8 @@ const mostrarRegistros = async () => {
         <div style="border:1px solid #ddd; padding:12px; margin-bottom:12px; border-radius:6px; background:#f9f9f9;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="flex:1;">
-                   <strong style="color:#333; font-size:1.1em;">
-  ${reg.especie_comun || 'Sin especie'}
-  ${reg.estado === 'pendiente' 
-    ? '<span style="background:#ffeb3b; color:#000; padding:2px 6px; border-radius:4px; font-size:0.8em; margin-left:6px;">PENDIENTE</span>' 
-    : reg.estado === 'enviado' 
-      ? '<span style="background:#4CAF50; color:white; padding:2px 6px; border-radius:4px; font-size:0.8em; margin-left:6px;">ENVIADO</span>' 
-      : ''
-  }
+                  <strong style="color:#333; font-size:1.1em;">
+${reg.especie_comun || 'Sin especie'}
 </strong><br>
                     <small style="color:#666;">📅 ${formatearFechaHora(reg.timestamp)}</small>
                 </div>
@@ -1262,6 +1256,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

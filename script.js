@@ -746,17 +746,10 @@ async function enviarDatos(data, btn) {
       .sort((a, b) => a - b); // ← ¡ESTO ES CLAVE!
 
     // 5. ACTUALIZAR EL REGISTRO A "ENVIADO" (con los números asignados)
-    const tx = db.transaction([STORE_NAME], 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    const getRequest = store.get(registroPendienteId);
-    getRequest.onsuccess = () => {
-      const reg = getRequest.result;
-      if (reg) {
-        reg.estado = "enviado";
-        reg.numerosAsignados = numeros;
-        store.put(reg);
-      }
-    };
+await actualizarRegistro(registroPendienteId, {
+  estado: "enviado",
+  numerosAsignados: numeros
+});
 
     // 6. Mostrar resultado al usuario
     let mensajeNumeros;
@@ -1283,6 +1276,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

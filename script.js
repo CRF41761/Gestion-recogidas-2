@@ -1193,57 +1193,44 @@ document.addEventListener("DOMContentLoaded", () => {
             const comList = document.getElementById("especies-comun-list");
             const cienList = document.getElementById("especies-cientifico-list");
 
-            // ✅ CORRECTO: solo nombres COMUNES van en el datalist de nombre común
-d.forEach(e => {
-    const comSin = quitarAcentos(e.nombreComun);
-    // Opción sin acento (para búsqueda flexible)
-    const opt1 = document.createElement("option");
-    opt1.value = comSin;
-    comList.appendChild(opt1);
-    // Opción con acento (para valor final correcto)
-    const opt2 = document.createElement("option");
-    opt2.value = e.nombreComun;
-    comList.appendChild(opt2);
-});
+            // Rellenar datalists: versión SIN acento para buscar y CON acento para insertar
+            d.forEach(e => {
+                const comSin  = quitarAcentos(e.nombreComun);
+                const cienSin = quitarAcentos(e.nombreCientifico);
 
-// ✅ Y solo nombres CIENTÍFICOS van en el datalist de nombre científico
-d.forEach(e => {
-    const cienSin = quitarAcentos(e.nombreCientifico);
-    const opt1 = document.createElement("option");
-    opt1.value = cienSin;
-    cienList.appendChild(opt1);
-    const opt2 = document.createElement("option");
-    opt2.value = e.nombreCientifico;
-    cienList.appendChild(opt2);
-});
+                const opt1 = document.createElement("option");
+                opt1.value = comSin;          // sin acento → aparece al buscar
+                comList.appendChild(opt1);
+
+                const opt1b = document.createElement("option");
+                opt1b.value = e.nombreComun;  // con acento → se inserta al seleccionar
+                comList.appendChild(opt1b);
+
+                const opt2 = document.createElement("option");
+                opt2.value = cienSin;
+                cienList.appendChild(opt2);
+
+                const opt2b = document.createElement("option");
+                opt2b.value = e.nombreCientifico;
+                cienList.appendChild(opt2b);
+            });
+
             // Autocompletado cruzado (común → científico)
-           comInput.addEventListener("input", () => {
-    const valor = comInput.value.trim();
-    if (!valor) return;
-    const valorNorm = quitarAcentos(valor).toLowerCase();
-    const coincidencias = especiesData
-        .filter(x => quitarAcentos(x.nombreComun).toLowerCase().startsWith(valorNorm))
-        .sort((a, b) => a.nombreComun.length - b.nombreComun.length);
-    if (coincidencias.length > 0) {
-        const found = coincidencias[0];
-        comInput.value = found.nombreComun;
-        cienInput.value = found.nombreCientifico;
-    }
-});
+            comInput.addEventListener("input", () => {
+                const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
+                if (found) {
+                    comInput.value  = found.nombreComun;   // muestra versión con tilde
+                    cienInput.value = found.nombreCientifico;
+                }
+            });
 
             cienInput.addEventListener("input", () => {
-    const valor = cienInput.value.trim();
-    if (!valor) return;
-    const valorNorm = quitarAcentos(valor).toLowerCase();
-    const coincidencias = especiesData
-        .filter(x => quitarAcentos(x.nombreCientifico).toLowerCase().startsWith(valorNorm))
-        .sort((a, b) => a.nombreCientifico.length - b.nombreCientifico.length);
-    if (coincidencias.length > 0) {
-        const found = coincidencias[0];
-        cienInput.value = found.nombreCientifico;
-        comInput.value = found.nombreComun;
-    }
-});
+                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
+                if (found) {
+                    cienInput.value = found.nombreCientifico;
+                    comInput.value  = found.nombreComun;
+                }
+            });
         })
         .catch(console.error);
 });
@@ -1269,9 +1256,6 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
-
-
-
 
 
 

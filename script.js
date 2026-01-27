@@ -1232,12 +1232,18 @@ d.forEach(e => {
 });
 
             cienInput.addEventListener("input", () => {
-                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
-                if (found) {
-                    cienInput.value = found.nombreCientifico;
-                    comInput.value  = found.nombreComun;
-                }
-            });
+    const valor = cienInput.value.trim();
+    if (!valor) return;
+    const valorNorm = quitarAcentos(valor).toLowerCase();
+    const coincidencias = especiesData
+        .filter(x => quitarAcentos(x.nombreCientifico).toLowerCase().startsWith(valorNorm))
+        .sort((a, b) => a.nombreCientifico.length - b.nombreCientifico.length);
+    if (coincidencias.length > 0) {
+        const found = coincidencias[0];
+        cienInput.value = found.nombreCientifico;
+        comInput.value = found.nombreComun;
+    }
+});
         })
         .catch(console.error);
 });
@@ -1263,6 +1269,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

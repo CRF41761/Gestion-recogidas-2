@@ -408,10 +408,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
     });
-    const googleSat = L.tileLayer("https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
-        attribution: "© Google Maps",
-        subdomains: ["mt0", "mt1", "mt2", "mt3"]
-    });
+    const ignOrto = L.tileLayer(
+    'https://services.ign.es/wmts/mapa-raster?layer=ORTOFOTO&style=default&tilematrixset=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/jpeg&TileMatrix={z}&TileCol={x}&TileRow={y}',
+    {
+        attribution: '© <a href="https://www.ign.es/" target="_blank">Instituto Geográfico Nacional</a>',
+        maxZoom: 19
+    }
+);
     L.control.layers({ "Mapa estándar": osmMap, "Ortofotografía (satélite)": googleSat }).addTo(map);
     osmMap.addTo(map);
 
@@ -1256,6 +1259,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

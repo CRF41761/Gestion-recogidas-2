@@ -1217,20 +1217,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Autocompletado cruzado (común → científico)
             comInput.addEventListener("input", () => {
-                const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
-                if (found) {
-                    comInput.value  = found.nombreComun;   // muestra versión con tilde
-                    cienInput.value = found.nombreCientifico;
-                }
-            });
+    const valor = comInput.value.trim();
+    if (!valor) return;
 
-            cienInput.addEventListener("input", () => {
-                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
-                if (found) {
-                    cienInput.value = found.nombreCientifico;
-                    comInput.value  = found.nombreComun;
-                }
-            });
+    const valorNormalizado = quitarAcentos(valor).toLowerCase();
+    const found = especiesData.find(x => 
+        quitarAcentos(x.nombreComun).toLowerCase().startsWith(valorNormalizado)
+    );
+
+    if (found) {
+        comInput.value = found.nombreComun;      // con acentos correctos
+        cienInput.value = found.nombreCientifico;
+    }
+});
+
+           cienInput.addEventListener("input", () => {
+    const valor = cienInput.value.trim();
+    if (!valor) return;
+
+    const valorNormalizado = quitarAcentos(valor).toLowerCase();
+    const found = especiesData.find(x => 
+        quitarAcentos(x.nombreCientifico).toLowerCase().startsWith(valorNormalizado)
+    );
+
+    if (found) {
+        cienInput.value = found.nombreCientifico;
+        comInput.value = found.nombreComun;
+    }
+});
         })
         .catch(console.error);
 });
@@ -1256,6 +1270,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

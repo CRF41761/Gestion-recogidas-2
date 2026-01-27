@@ -408,7 +408,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
     });
-    636 88 10 00
+    const googleSat = L.tileLayer("https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
+        attribution: "© Google Maps",
+        subdomains: ["mt0", "mt1", "mt2", "mt3"]
+    });
     L.control.layers({ "Mapa estándar": osmMap, "Ortofotografía (satélite)": googleSat }).addTo(map);
     osmMap.addTo(map);
 
@@ -1253,7 +1256,6 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
-
 
 
 

@@ -415,7 +415,7 @@ document.addEventListener("DOMContentLoaded", function () {
         maxZoom: 19
     }
 );
-    L.control.layers({ "Mapa estándar": osmMap, "Ortofotografía (satélite)": googleSat }).addTo(map);
+    L.control.layers({ "Mapa estándar": osmMap, "Ortofotografía (IGN)": ignOrto }).addTo(map);
     osmMap.addTo(map);
 
     let marker, watchId = null, seguimientoActivo = true, forzarZoomInicial = false, ultimaPosicion = null;
@@ -1259,6 +1259,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

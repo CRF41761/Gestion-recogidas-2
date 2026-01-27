@@ -1193,28 +1193,29 @@ document.addEventListener("DOMContentLoaded", () => {
             const comList = document.getElementById("especies-comun-list");
             const cienList = document.getElementById("especies-cientifico-list");
 
-            // Rellenar datalists: versión SIN acento para buscar y CON acento para insertar
-            d.forEach(e => {
-                const comSin  = quitarAcentos(e.nombreComun);
-                const cienSin = quitarAcentos(e.nombreCientifico);
+            // ✅ CORRECTO: solo nombres COMUNES van en el datalist de nombre común
+d.forEach(e => {
+    const comSin = quitarAcentos(e.nombreComun);
+    // Opción sin acento (para búsqueda flexible)
+    const opt1 = document.createElement("option");
+    opt1.value = comSin;
+    comList.appendChild(opt1);
+    // Opción con acento (para valor final correcto)
+    const opt2 = document.createElement("option");
+    opt2.value = e.nombreComun;
+    comList.appendChild(opt2);
+});
 
-                const opt1 = document.createElement("option");
-                opt1.value = comSin;          // sin acento → aparece al buscar
-                comList.appendChild(opt1);
-
-                const opt1b = document.createElement("option");
-                opt1b.value = e.nombreComun;  // con acento → se inserta al seleccionar
-                comList.appendChild(opt1b);
-
-                const opt2 = document.createElement("option");
-                opt2.value = cienSin;
-                cienList.appendChild(opt2);
-
-                const opt2b = document.createElement("option");
-                opt2b.value = e.nombreCientifico;
-                cienList.appendChild(opt2b);
-            });
-
+// ✅ Y solo nombres CIENTÍFICOS van en el datalist de nombre científico
+d.forEach(e => {
+    const cienSin = quitarAcentos(e.nombreCientifico);
+    const opt1 = document.createElement("option");
+    opt1.value = cienSin;
+    cienList.appendChild(opt1);
+    const opt2 = document.createElement("option");
+    opt2.value = e.nombreCientifico;
+    cienList.appendChild(opt2);
+});
             // Autocompletado cruzado (común → científico)
             comInput.addEventListener("input", () => {
                 const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
@@ -1256,6 +1257,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

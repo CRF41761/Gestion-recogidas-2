@@ -638,15 +638,15 @@ document.addEventListener("DOMContentLoaded", function () {
             cra_km: fd.get("cra_km"),
             observaciones: (() => {
 let txt = fd.get("observaciones")?.trim() || "";
-// ✅ Añadir texto de "Especificar causa" (campo "otras_texto")
+// ✅ Añadir texto de "Especificar causa"
 const especificarCausa = document.getElementById('otras_texto')?.value?.trim();
 if (especificarCausa) {
-txt += (txt ? " | " : "") + `Causa: ${especificarCausa}`;
+txt += (txt ? " | " : "") + especificarCausa;
 }
-// ✅ Añadir texto de "Especificar remitente" (campo "otras_remitente_texto")
+// ✅ Añadir texto de "Especificar remitente"
 const especificarRemitente = document.getElementById('otras_remitente_texto')?.value?.trim();
 if (especificarRemitente) {
-txt += (txt ? " | " : "") + `Remitente: ${especificarRemitente}`;
+txt += (txt ? " | " : "") + especificarRemitente;
 }
 // ✅ Añadir anilla si aplica (ya existía)
 const anillaInput = document.getElementById('anilla');
@@ -1267,6 +1267,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

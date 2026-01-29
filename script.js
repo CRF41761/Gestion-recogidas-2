@@ -637,15 +637,26 @@ document.addEventListener("DOMContentLoaded", function () {
             apoyo: fd.get("apoyo"),
             cra_km: fd.get("cra_km"),
             observaciones: (() => {
-                let txt = fd.get("observaciones")?.trim() || "";
-                const anillaInput = document.getElementById('anilla');
-                const recuperacionChecked = document.getElementById('recuperacion')?.checked;
-                if (recuperacionChecked && anillaInput) {
-                    const anilla = anillaInput.value.trim();
-                    if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
-                }
-                return txt;
-            })(),
+let txt = fd.get("observaciones")?.trim() || "";
+// ✅ Añadir texto de "Especificar causa" (campo "otras_texto")
+const especificarCausa = document.getElementById('otras_texto')?.value?.trim();
+if (especificarCausa) {
+txt += (txt ? " | " : "") + `Causa: ${especificarCausa}`;
+}
+// ✅ Añadir texto de "Especificar remitente" (campo "otras_remitente_texto")
+const especificarRemitente = document.getElementById('otras_remitente_texto')?.value?.trim();
+if (especificarRemitente) {
+txt += (txt ? " | " : "") + `Remitente: ${especificarRemitente}`;
+}
+// ✅ Añadir anilla si aplica (ya existía)
+const anillaInput = document.getElementById('anilla');
+const recuperacionChecked = document.getElementById('recuperacion')?.checked;
+if (recuperacionChecked && anillaInput) {
+const anilla = anillaInput.value.trim();
+if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
+}
+return txt;
+})(),
             cumplimentado_por: fd.get("cumplimentado_por"),
             telefono_remitente: fd.get("telefono_remitente"),
             foto: ""
@@ -1256,6 +1267,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

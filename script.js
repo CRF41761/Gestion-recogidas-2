@@ -405,14 +405,41 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     var map = L.map("map").setView([39.4699, -0.3763], 10);
+        // Capa OpenStreetMap (estándar)
     const osmMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors"
     });
-    const googleSat = L.tileLayer("https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
-        attribution: "© Google Maps",
-        subdomains: ["mt0", "mt1", "mt2", "mt3"]
-    });
-    L.control.layers({ "Mapa estándar": osmMap, "Ortofotografía (satélite)": googleSat }).addTo(map);
+    
+    // ORTOFOTO OFICIAL IGN ESPAÑA (PNOA) + TOPÓNIMOS
+    const pnoaBase = L.tileLayer(
+        'https://www.ign.es/wmts/pnoa-ma?layer=OI.OrthoimageCoverage&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/jpeg&TileMatrix={z}&TileCol={x}&TileRow={y}', 
+        {
+            attribution: 'Ortofoto © <a href="https://www.ign.es">IGN</a> (PNOA)',
+            maxZoom: 20,
+            maxNativeZoom: 19
+        }
+    );
+
+    // Topónimos y límites administrativos oficiales (transparente)
+    const toponimosIGN = L.tileLayer(
+        'https://www.ign.es/wmts/ign-base?layer=IGNBaseOrto&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix={z}&TileCol={x}&TileRow={y}', 
+        {
+            attribution: 'Topónimos © IGN',
+            maxZoom: 20,
+            transparent: true
+        }
+    );
+
+    // Grupo combinado: ortofoto + topónimos siempre van juntos
+    const ortofotoOficial = L.layerGroup([pnoaBase, toponimosIGN]);
+
+    // Control de capas actualizado
+    L.control.layers({ 
+        "Mapa estándar": osmMap, 
+        "Ortofoto España + nombres": ortofotoOficial 
+    }).addTo(map);
+    
+    // Capa por defecto al cargar
     osmMap.addTo(map);
 
     let marker, watchId = null, seguimientoActivo = true, forzarZoomInicial = false, ultimaPosicion = null;
@@ -1267,6 +1294,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

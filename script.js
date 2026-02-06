@@ -718,7 +718,7 @@ async function enviarDatos(data, btn) {
     await guardarRegistroLocalConEstado(registroPendiente, "pendiente");
 
     // 2. Enviar el formulario (sin leer respuesta, por no-cors)
-    await fetch("https://script.google.com/macros/s/AKfycbwG3KlHi3nkfywkAUGMOrN7aC-xpGzq31ch5HLq026tP_ydGIFzJIUX0zaA7pD76Yt-/exec", {
+    await fetch("https://script.google.com/macros/s/AKfycbwio0e5iVYWQDkYRYoBg8Ao-5rSgOI3L47vVBZcs98ZhsNFexAQ6C35y6o9jRat0jfg/exec", {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
@@ -729,7 +729,7 @@ async function enviarDatos(data, btn) {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // 4. Obtener todos los datos y filtrar/ordenar por número de entrada
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwG3KlHi3nkfywkAUGMOrN7aC-xpGzq31ch5HLq026tP_ydGIFzJIUX0zaA7pD76Yt-/exec?funcion=getAllData", {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbwio0e5iVYWQDkYRYoBg8Ao-5rSgOI3L47vVBZcs98ZhsNFexAQ6C35y6o9jRat0jfg/exec?funcion=getAllData", {
       method: "GET",
       mode: "cors"
     });
@@ -1294,6 +1294,7 @@ if (btnCerrar) {
 // Fecha actual por defecto
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
+
 
 
 

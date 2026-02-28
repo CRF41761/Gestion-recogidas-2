@@ -1295,6 +1295,43 @@ if (btnCerrar) {
 const hoy = getFechaLocalISO();
 document.getElementById('fecha').value = hoy;
 
+// ============================================
+// ✅ ACTUALIZAR FECHA AUTOMÁTICAMENTE AL VOLVER A LA APP (tablets compartidas)
+// ============================================
+function actualizarFechaSiEsAnterior() {
+  const fechaInput = document.getElementById('fecha');
+  if (!fechaInput) return;
+  
+  const fechaActual = getFechaLocalISO();
+  const fechaGuardada = fechaInput.value;
+  
+  // Si la fecha guardada es diferente a la fecha actual → actualizar
+  if (fechaGuardada && fechaGuardada !== fechaActual) {
+    fechaInput.value = fechaActual;
+    console.log(`📅 Fecha actualizada automáticamente: ${fechaActual}`);
+    
+    // Feedback visual sutil
+    fechaInput.style.borderColor = '#28a745';
+    fechaInput.style.boxShadow = '0 0 0 2px rgba(40, 167, 69, 0.3)';
+    setTimeout(() => {
+      fechaInput.style.borderColor = '';
+      fechaInput.style.boxShadow = '';
+    }, 1500);
+  }
+}
+
+// 1. Al cargar la página (ya se hace arriba, pero por si acaso)
+actualizarFechaSiEsAnterior();
+
+// 2. ✅ CUANDO EL USUARIO VUELVE A LA PESTAÑA (evento clave para tablets compartidas)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    actualizarFechaSiEsAnterior();
+  }
+});
+
+// 3. ✅ CUANDO LA VENTANA RECIBE FOCO
+window.addEventListener('focus', actualizarFechaSiEsAnterior);
 
 
 

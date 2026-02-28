@@ -1111,28 +1111,41 @@ if (telefonoInput) {
         showMainMenu();
     });
 
-    // ====== 6. Animación con sonido ======
-    function showBird() {
-        if (localStorage.getItem('birdDismissed') === 'true') return;
-        playChime();
-        bird.style.bottom = '-100px';
-        bird.style.right = '-50px';
-        bird.style.opacity = '0';
-        bird.style.display = 'block';
-        setTimeout(() => {
-            bird.style.bottom = '20px';
-            bird.style.right = '20px';
-            bird.style.opacity = '1';
-            bird.querySelector('svg').style.transition = 'transform 0.2s';
-            bird.addEventListener('mouseenter', () => {
-                bird.querySelector('svg').style.transform = 'rotate(-8deg)';
-            });
-            bird.addEventListener('mouseleave', () => {
-                bird.querySelector('svg').style.transform = 'rotate(0deg)';
-            });
-        }, 50);
-    }
+    // ====== 6. Animación con sonido (SOLO UNA VEZ) ======
+let sonidoReproducido = false;
 
+function showBird() {
+  if (localStorage.getItem('birdDismissed') === 'true') return;
+  
+  // ✅ Reproducir sonido SOLO LA PRIMERA VEZ
+  if (!sonidoReproducido) {
+    playChime();
+    sonidoReproducido = true;
+  }
+  
+  bird.style.bottom = '-100px';
+  bird.style.right = '-50px';
+  bird.style.opacity = '0';
+  bird.style.display = 'block';
+  
+  setTimeout(() => {
+    bird.style.bottom = '20px';
+    bird.style.right = '20px';
+    bird.style.opacity = '1';
+    
+    // Efecto de aleteo sutil
+    const svg = bird.querySelector('svg');
+    svg.style.transition = 'transform 0.2s';
+    
+    bird.addEventListener('mouseenter', () => {
+      svg.style.transform = 'rotate(-8deg)';
+    });
+    
+    bird.addEventListener('mouseleave', () => {
+      svg.style.transform = 'rotate(0deg)';
+    });
+  }, 50);
+}
     // ====== 7. Inactividad ======
     let inactivityTimer;
     const ACTIVATION_DELAY = 10000;
@@ -1332,6 +1345,7 @@ document.addEventListener('visibilitychange', () => {
 
 // 3. ✅ CUANDO LA VENTANA RECIBE FOCO
 window.addEventListener('focus', actualizarFechaSiEsAnterior);
+
 
 
 

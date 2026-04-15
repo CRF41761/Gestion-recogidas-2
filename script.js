@@ -233,12 +233,18 @@ const mostrarRegistros = async () => {
     const registros = await obtenerRegistros();
     const contenedor = document.getElementById('contenidoRegistros');
     const importarEnModal = document.getElementById('importarEnModal');
-    if (registros.length === 0) {
-        contenedor.innerHTML = '<p style="color:#666;">No hay registros guardados localmente.</p>';
-        importarEnModal.style.display = 'block';
-        return;
-    }
-    importarEnModal.style.display = 'none';
+const btnExportar = document.getElementById('btnExportarRegistros');
+
+// Mostrar siempre el botón de exportar si existen registros
+if (registros.length === 0) {
+  contenedor.innerHTML = '<p style="color:#666;">No hay registros guardados localmente.</p>';
+  if (btnExportar) btnExportar.style.display = 'none';
+} else {
+  if (btnExportar) btnExportar.style.display = 'inline-block';
+}
+
+// El botón de importar sigue mostrándose siempre (opcional)
+if (importarEnModal) importarEnModal.style.display = 'inline-block';
     registros.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     const html = registros.map(reg => `
         <div style="border:1px solid #ddd; padding:12px; margin-bottom:12px; border-radius:6px; background:#f9f9f9;">

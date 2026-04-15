@@ -510,7 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
     raw = raw.trim();
     if (!raw) return;
 
-    // 1. Intentar UTM
+    // 1. Intentar UTM primero
     const utm = parseUTM(raw);
     if (utm) {
         try {
@@ -526,7 +526,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // 2. Intentar coordenadas decimales
+    // 2. Intentar coordenadas decimales (lat, lng)
     const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
     if (partes.length === 2 && !isNaN(parseFloat(partes[0])) && !isNaN(parseFloat(partes[1]))) {
         const lat = parseFloat(partes[0]);
@@ -541,21 +541,21 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // 3. Buscar en Nominatim CON parámetros para España y Comunidad Valenciana
-    const urlNominatim = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&viewbox=-1.0,38.0,0.5,40.5&q=${encodeURIComponent(raw)}`;
+    // 3. Buscar como dirección, pero AÑADIENDO EL MUNICIPIO si no está incluido
+    let query = raw;
+    const municipio = document.getElementById('municipio')?.value.trim();
+
+    if (municipio && !raw.toLowerCase().includes(municipio.toLowerCase())) {
+        query = `${raw}, ${municipio}`;
+    }
+
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
     
-    fetch(urlNominatim)
+    fetch(url)
         .then(r => r.json())
         .then(data => {
             if (!data || data.length === 0) {
-                // Mostrar sugerencia útil al usuario
-                alert(
-                    "📍 No se encontró la dirección.\n\n" +
-                    "💡 Consejos:\n" +
-                    "• Usa el formato: \"Calle Mayor, 12, Valencia\"\n" +
-                    "• O incluye el código postal: \"Calle Colón, 46004\"\n" +
-                    "• Verifica mayúsculas y acentos (ej. Colón, no Colon)."
-                );
+                alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
                 return;
             }
             const lat = parseFloat(data[0].lat);
@@ -570,10 +570,9 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(err => {
             console.error("Error al buscar dirección:", err);
-            alert("Error de red al buscar la dirección.");
+            alert("Error al buscar la dirección.");
         });
 }
-
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");
     if (btnLocalizar) {

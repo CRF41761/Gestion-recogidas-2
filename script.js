@@ -541,17 +541,22 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // 3. Buscar en Nominatim con enfoque en España
-const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&viewbox=-1.5,38,0.5,40&q=${encodeURIComponent(raw)}`;
-fetch(url)
-  .then(r => r.json())
+    // 3. Buscar en el nomenclátor oficial del IGN (funciona en GitHub Pages)
+const urlIGN = `https://www.ign.es/api/altimetria/nomenclator?texto=${encodeURIComponent(raw)}`;
+fetch(urlIGN)
+  .then(r => {
+    if (!r.ok) throw new Error('Error en la respuesta del IGN');
+    return r.json();
+  })
   .then(data => {
-    if (!data || data.length === 0) {
-      alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
+    if (!data || !data.resultados || data.resultados.length === 0) {
+      alert("No se ha encontrado la dirección.");
       return;
     }
-    const lat = parseFloat(data[0].lat);
-    const lng = parseFloat(data[0].lon);
+    const res = data.resultados[0];
+    const lat = parseFloat(res.latitud);
+    const lng = parseFloat(res.longitud);
+
     detenerSeguimiento();
     if (marker) marker.setLatLng([lat, lng]);
     else marker = L.marker([lat, lng]).addTo(map);
@@ -561,8 +566,8 @@ fetch(url)
     document.getElementById("coordenadas_mapa").value = coordStr;
   })
   .catch(err => {
-    console.error("Error al buscar dirección:", err);
-    alert("Error al buscar la dirección.");
+    console.error("Error al buscar en el IGN:", err);
+    alert("❌ No se pudo encontrar la dirección. Prueba con otro formato o revisa la ortografía.");
   });
 }
 

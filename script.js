@@ -541,28 +541,48 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // 3. Si no, tratar como dirección
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
-    fetch(url)
-        .then(r => r.json())
-        .then(data => {
-            if (!data || data.length === 0) {
-                alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
-                return;
-            }
-            const lat = parseFloat(data[0].lat);
-            const lng = parseFloat(data[0].lon);
-            detenerSeguimiento();
-            if (marker) marker.setLatLng([lat, lng]);
-            else marker = L.marker([lat, lng]).addTo(map);
-            map.setView([lat, lng], 16);
-            document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error al buscar la dirección.");
-        });
+    // 3. Buscar en el nomenclátor del IGN (España)
+const urlIGN = `https://www.ign.es/api/altimetria/nomenclator?texto=${encodeURIComponent(raw)}`;
+fetch(urlIGN)
+  .then(r => r.json())
+  .then(data => {
+    if (!data || !data.resultados || data.resultados.length === 0) {
+      // Si el IGN no encuentra nada, intentar con Nominatim como respaldo
+      const urlFallback = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&q=${encodeURIComponent(raw)}`;
+      return fetch(urlFallback).then(r2 => r2.json()).then(data2 => ({ resultados: data2 }));
+    }
+    return { resultados: data.resultados };
+  })
+  .then(wrapper => {
+    const data = wrapper.resultados;
+    if (!data || data.length === 0) {
+      alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
+      return;
+    }
+    const primerResultado = data[0];
+    let lat, lng;
+
+    // El IGN devuelve campos distintos que Nominatim
+    if (primerResultado.latitud !== undefined) {
+      lat = parseFloat(primerResultado.latitud);
+      lng = parseFloat(primerResultado.longitud);
+    } else {
+      lat = parseFloat(primerResultado.lat);
+      lng = parseFloat(primerResultado.lon);
+    }
+
+    detenerSeguimiento();
+    if (marker) marker.setLatLng([lat, lng]);
+    else marker = L.marker([lat, lng]).addTo(map);
+    map.setView([lat, lng], 16);
+    const coordStr = lat.toFixed(5) + ", " + lng.toFixed(5);
+    document.getElementById("coordenadas").value = coordStr;
+    document.getElementById("coordenadas_mapa").value = coordStr;
+  })
+  .catch(err => {
+    console.error("Error al buscar dirección:", err);
+    alert("Error al buscar la dirección.");
+  });
 }
 
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));

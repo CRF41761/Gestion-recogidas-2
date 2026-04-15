@@ -1010,8 +1010,8 @@ if (telefonoInput) {
   especiesNoAparece: `
     <h3>⚠️ Mi especie no aparece en la lista</h3>
     <ul style="padding-left:20px;">
-      <li>Revisa mayúsculas y acentos (ej. "águila" ≠ "aguila")</li>
-      <li>Si sigue sin aparecer, contacta con el administrador para añadirla al fichero <code>especies.json</code></li>
+      <li>Revisa ortografía</li>
+      <li>Si sigue sin aparecer, contacta con Alberto ;) para añadirla al fichero <code>especies.json</code></li>
     </ul>
   `,
   numeroEntrada: `

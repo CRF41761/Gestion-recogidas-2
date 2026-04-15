@@ -510,7 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
     raw = raw.trim();
     if (!raw) return;
 
-    // 1. Intentar UTM primero
+    // 1. Intentar UTM
     const utm = parseUTM(raw);
     if (utm) {
         try {
@@ -526,7 +526,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // 2. Intentar coordenadas decimales (lat, lng)
+    // 2. Intentar coordenadas decimales
     const partes = raw.includes(",") ? raw.split(",").map(n => n.trim()) : raw.split(" ").map(n => n.trim());
     if (partes.length === 2 && !isNaN(parseFloat(partes[0])) && !isNaN(parseFloat(partes[1]))) {
         const lat = parseFloat(partes[0]);
@@ -541,34 +541,37 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // 3. Buscar en el nomenclátor oficial del IGN (funciona en GitHub Pages)
-const urlIGN = `https://www.ign.es/api/altimetria/nomenclator?texto=${encodeURIComponent(raw)}`;
-fetch(urlIGN)
-  .then(r => {
-    if (!r.ok) throw new Error('Error en la respuesta del IGN');
-    return r.json();
-  })
-  .then(data => {
-    if (!data || !data.resultados || data.resultados.length === 0) {
-      alert("No se ha encontrado la dirección.");
-      return;
-    }
-    const res = data.resultados[0];
-    const lat = parseFloat(res.latitud);
-    const lng = parseFloat(res.longitud);
-
-    detenerSeguimiento();
-    if (marker) marker.setLatLng([lat, lng]);
-    else marker = L.marker([lat, lng]).addTo(map);
-    map.setView([lat, lng], 16);
-    const coordStr = lat.toFixed(5) + ", " + lng.toFixed(5);
-    document.getElementById("coordenadas").value = coordStr;
-    document.getElementById("coordenadas_mapa").value = coordStr;
-  })
-  .catch(err => {
-    console.error("Error al buscar en el IGN:", err);
-    alert("❌ No se pudo encontrar la dirección. Prueba con otro formato o revisa la ortografía.");
-  });
+    // 3. Buscar en Nominatim CON parámetros para España y Comunidad Valenciana
+    const urlNominatim = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&viewbox=-1.0,38.0,0.5,40.5&q=${encodeURIComponent(raw)}`;
+    
+    fetch(urlNominatim)
+        .then(r => r.json())
+        .then(data => {
+            if (!data || data.length === 0) {
+                // Mostrar sugerencia útil al usuario
+                alert(
+                    "📍 No se encontró la dirección.\n\n" +
+                    "💡 Consejos:\n" +
+                    "• Usa el formato: \"Calle Mayor, 12, Valencia\"\n" +
+                    "• O incluye el código postal: \"Calle Colón, 46004\"\n" +
+                    "• Verifica mayúsculas y acentos (ej. Colón, no Colon)."
+                );
+                return;
+            }
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+            detenerSeguimiento();
+            if (marker) marker.setLatLng([lat, lng]);
+            else marker = L.marker([lat, lng]).addTo(map);
+            map.setView([lat, lng], 16);
+            const coordStr = lat.toFixed(5) + ", " + lng.toFixed(5);
+            document.getElementById("coordenadas").value = coordStr;
+            document.getElementById("coordenadas_mapa").value = coordStr;
+        })
+        .catch(err => {
+            console.error("Error al buscar dirección:", err);
+            alert("Error de red al buscar la dirección.");
+        });
 }
 
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));

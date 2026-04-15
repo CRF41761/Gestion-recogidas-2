@@ -542,7 +542,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // 3. Si no, tratar como dirección
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&q=${encodeURIComponent(raw)}`;
     fetch(url)
         .then(r => r.json())
         .then(data => {

@@ -541,16 +541,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // 3. Buscar como dirección, pero AÑADIENDO EL MUNICIPIO si no está incluido
-    let query = raw;
-    const municipio = document.getElementById('municipio')?.value.trim();
-
-    if (municipio && !raw.toLowerCase().includes(municipio.toLowerCase())) {
-        query = `${raw}, ${municipio}`;
-    }
-
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
-    
+    // 3. Si no, tratar como dirección
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(raw)}`;
     fetch(url)
         .then(r => r.json())
         .then(data => {
@@ -564,15 +556,15 @@ document.addEventListener("DOMContentLoaded", function () {
             if (marker) marker.setLatLng([lat, lng]);
             else marker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 16);
-            const coordStr = lat.toFixed(5) + ", " + lng.toFixed(5);
-            document.getElementById("coordenadas").value = coordStr;
-            document.getElementById("coordenadas_mapa").value = coordStr;
+            document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
         })
         .catch(err => {
-            console.error("Error al buscar dirección:", err);
+            console.error(err);
             alert("Error al buscar la dirección.");
         });
 }
+
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");
     if (btnLocalizar) {

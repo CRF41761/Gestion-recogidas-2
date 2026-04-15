@@ -232,13 +232,17 @@ const formatearFechaHora = (fechaISO) => {
 const mostrarRegistros = async () => {
     const registros = await obtenerRegistros();
     const contenedor = document.getElementById('contenidoRegistros');
-    const importarEnModal = document.getElementById('importarEnModal');
+   const importarEnModal = document.getElementById('importarEnModal');
+const btnExportar = document.getElementById('btnExportarRegistros');
+
 if (registros.length === 0) {
   contenedor.innerHTML = '<p style="color:#666;">No hay registros guardados localmente.</p>';
-  importarEnModal.style.display = 'block';
-  return;
+  if (importarEnModal) importarEnModal.style.display = 'block';
+  if (btnExportar) btnExportar.style.display = 'none';
+} else {
+  if (importarEnModal) importarEnModal.style.display = 'none';
+  if (btnExportar) btnExportar.style.display = 'inline-block';
 }
-importarEnModal.style.display = 'none';
 }
 
 // El botón de importar sigue mostrándose siempre (opcional)

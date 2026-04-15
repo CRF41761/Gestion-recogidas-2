@@ -966,78 +966,92 @@ if (telefonoInput) {
 
     // ====== 4. Contenido de ayuda (sin cambios) ======
     const helpSections = {
-        coordsFormat: `
-            <h3>📍 Formatos admitidos en "Coordenadas dadas o dirección"</h3>
-            <p><strong>1. Dirección:</strong> Ej. <code>Ayuntamiento de Valencia</code></p>
-            <p><strong>2. Grados decimales:</strong> Ej. <code>39.47, -0.38</code> (usa punto como separador decimal)</p>
-            <p><strong>3. Coordenadas UTM (WGS84):</strong></p>
-            <ul style="margin-top:8px; padding-left:20px;">
-                <li><code>731053 4413603</code> → asume zona 30N (Comunidad Valenciana)</li>
-                <li><code>731053 4413603 30N</code> → zona explícita</li>
-                <li>No uses comas decimales ni letras "E/N" sueltas</li>
-            </ul>
-            <p style="margin-top:12px;"><em>Tras escribir, pulsa ENTER o el botón "Localizar".</em></p>
-        `,
-        coordsNoMarker: `
-            <h3>🔍 No aparece el marcador en el mapa</h3>
-            <ul style="padding-left:20px;">
-                <li>Asegúrate de pulsar ENTER o "Localizar"</li>
-                <li>Verifica que las coordenadas estén en formato válido</li>
-                <li>Si usas UTM, deben ser números enteros (ej. 731053 4413603)</li>
-                <li>Prueba con una dirección conocida para descartar fallos de red</li>
-            </ul>
-        `,
-        especiesComo: `
-            <h3>🦉 Cómo elegir especie común/científica</h3>
-            <p>Escribe parte del nombre común (ej. "búho") y selecciona de la lista desplegable.</p>
-            <p>El campo científico se rellena automáticamente.</p>
-            <p><strong>Importante:</strong> Solo puedes elegir especies de la lista oficial. No se admiten nombres libres.</p>
-        `,
-        especiesNoAparece: `
-            <h3>⚠️ Mi especie no aparece en la lista</h3>
-            <ul style="padding-left:20px;">
-                <li>Revisa mayúsculas y acentos (ej. "águila" ≠ "aguila")</li>
-                <li>Si sigue sin aparecer, contacta con el administrador para añadirla al fichero <code>especies.json</code></li>
-            </ul>
-        `,
-        numeroEntrada: `
-            <h3>🔢 ¿Dónde está mi número de entrada?</h3>
-            <p>Se genera <strong>automáticamente tras enviar</strong> el formulario.</p>
-            <p>Aparece en la alerta de confirmación y se guarda en "Registros locales".</p>
-        `,
-        falloEnvio: `
-            <h3>📡 ¿Qué pasa si falla el envío?</h3>
-            <p>Si no hay conexión a internet:</p>
-            <ul style="padding-left:20px;">
-                <li>El registro se guarda <strong>localmente en tu dispositivo</strong></li>
-                <li>Puedes verlo y reenviarlo desde el botón <strong>"Ver registros guardados"</strong></li>
-                <li>¡Nunca se pierde un registro!</li>
-            </ul>
-        `,
-        registrosLocales: `
-            <h3>💾 Cómo ver o enviar registros guardados</h3>
-            <p>Pulsa el botón <strong>"Ver registros guardados"</strong> (abajo del formulario).</p>
-            <p>Allí puedes:</p>
-            <ul style="padding-left:20px;">
-                <li>Ver detalles completos</li>
-                <li>Eliminar registros</li>
-                <li>Reenviar a Google Sheets</li>
-                <li>Exportar/importar como copia de seguridad (JSON)</li>
-            </ul>
-        `,
-        recuperacionAnilla: `
-            <h3>🪶 ¿Cuándo marcar "Recuperación con anilla"?</h3>
-            <p>Márcalo <strong>solo si el animal llevaba anilla identificativa</strong>.</p>
-            <p>Luego introduce el código de la anilla en el campo que aparece.</p>
-            <p>Esta información se añadirá automáticamente a "Observaciones".</p>
-        `,
-        camposAdicionales: `
-            <h3>📋 ¿Qué poner en "Posible causa" o "Remitente"?</h3>
-            <p><strong>Posible causa:</strong> Elige una o varias opciones (ej. atropello, electrocución, colisión).</p>
-            <p><strong>Remitente:</strong> Quién encontró/comunicó el animal (ciudadano, agente forestal, veterinario, etc.).</p>
-            <p><strong>Municipio:</strong> Empieza a escribir para autocompletar (debe coincidir con la lista oficial).</p>
-        `
-    };
+  direccionPrecisa: `
+    <h3>📍 Cómo buscar direcciones correctamente</h3>
+    <p>Para que el mapa ubique bien la dirección, <strong>escribe siempre el nombre de la ciudad o pueblo completo</strong>.</p>
+    <ul style="padding-left:20px; margin-top:8px;">
+      <li>✅ <strong>Bien:</strong> <code>Calle Colón, Valencia ciudad</code></li>
+      <li>✅ <strong>Bien:</strong> <code>Plaza Mayor, Xàtiva</code></li>
+      <li>✅ <strong>Bien:</strong> <code>Avenida Elche, Alicante</code></li>
+      <li>❌ <strong>Evita:</strong> <code>Calle Colón, Valencia</code> → puede ir a Alicante</li>
+      <li>❌ <strong>Evita:</strong> <code>Calle Colón</code> → puede ir a otro municipio</li>
+    </ul>
+    <p style="margin-top:12px; font-weight:bold; color:#27ae60;">
+      💡 Consejo: usa "Valencia ciudad", "Alicante ciudad" o el nombre exacto del pueblo.
+    </p>
+  `,
+  coordsFormat: `
+    <h3>📍 Formatos admitidos en "Coordenadas dadas o dirección"</h3>
+    <p><strong>1. Dirección:</strong> Ej. <code>Ayuntamiento de Valencia ciudad</code></p>
+    <p><strong>2. Grados decimales:</strong> Ej. <code>39.47, -0.38</code> (usa punto como separador decimal)</p>
+    <p><strong>3. Coordenadas UTM (WGS84):</strong></p>
+    <ul style="margin-top:8px; padding-left:20px;">
+      <li><code>731053 4413603</code> → asume zona 30N (Comunidad Valenciana)</li>
+      <li><code>731053 4413603 30N</code> → zona explícita</li>
+      <li>No uses comas decimales ni letras "E/N" sueltas</li>
+    </ul>
+    <p style="margin-top:12px;"><em>Tras escribir, pulsa ENTER o el botón "Localizar".</em></p>
+  `,
+  coordsNoMarker: `
+    <h3>🔍 No aparece el marcador en el mapa</h3>
+    <ul style="padding-left:20px;">
+      <li>Asegúrate de pulsar ENTER o "Localizar"</li>
+      <li>Verifica que las coordenadas estén en formato válido</li>
+      <li>Si usas UTM, deben ser números enteros (ej. 731053 4413603)</li>
+      <li>Prueba con una dirección conocida para descartar fallos de red</li>
+    </ul>
+  `,
+  especiesComo: `
+    <h3>🦉 Cómo elegir especie común/científica</h3>
+    <p>Escribe parte del nombre común (ej. "búho") y selecciona de la lista desplegable.</p>
+    <p>El campo científico se rellena automáticamente.</p>
+    <p><strong>Importante:</strong> Solo puedes elegir especies de la lista oficial. No se admiten nombres libres.</p>
+  `,
+  especiesNoAparece: `
+    <h3>⚠️ Mi especie no aparece en la lista</h3>
+    <ul style="padding-left:20px;">
+      <li>Revisa mayúsculas y acentos (ej. "águila" ≠ "aguila")</li>
+      <li>Si sigue sin aparecer, contacta con el administrador para añadirla al fichero <code>especies.json</code></li>
+    </ul>
+  `,
+  numeroEntrada: `
+    <h3>🔢 ¿Dónde está mi número de entrada?</h3>
+    <p>Se genera <strong>automáticamente tras enviar</strong> el formulario.</p>
+    <p>Aparece en la alerta de confirmación y se guarda en "Registros locales".</p>
+  `,
+  falloEnvio: `
+    <h3>📡 ¿Qué pasa si falla el envío?</h3>
+    <p>Si no hay conexión a internet:</p>
+    <ul style="padding-left:20px;">
+      <li>El registro se guarda <strong>localmente en tu dispositivo</strong></li>
+      <li>Puedes verlo y reenviarlo desde el botón <strong>"Ver registros guardados"</strong></li>
+      <li>¡Nunca se pierde un registro!</li>
+    </ul>
+  `,
+  registrosLocales: `
+    <h3>💾 Cómo ver o enviar registros guardados</h3>
+    <p>Pulsa el botón <strong>"Ver registros guardados"</strong> (abajo del formulario).</p>
+    <p>Allí puedes:</p>
+    <ul style="padding-left:20px;">
+      <li>Ver detalles completos</li>
+      <li>Eliminar registros</li>
+      <li>Reenviar a Google Sheets</li>
+      <li>Exportar/importar como copia de seguridad (JSON)</li>
+    </ul>
+  `,
+  recuperacionAnilla: `
+    <h3>🪶 ¿Cuándo marcar "Recuperación con anilla"?</h3>
+    <p>Márcalo <strong>solo si el animal llevaba anilla identificativa</strong>.</p>
+    <p>Luego introduce el código de la anilla en el campo que aparece.</p>
+    <p>Esta información se añadirá automáticamente a "Observaciones".</p>
+  `,
+  camposAdicionales: `
+    <h3>📋 ¿Qué poner en "Posible causa" o "Remitente"?</h3>
+    <p><strong>Posible causa:</strong> Elige una o varias opciones (ej. atropello, electrocución, colisión).</p>
+    <p><strong>Remitente:</strong> Quién encontró/comunicó el animal (ciudadano, agente forestal, veterinario, etc.).</p>
+    <p><strong>Municipio:</strong> Empieza a escribir para autocompletar (debe coincidir con la lista oficial).</p>
+  `
+};
 
     // ====== 5. Funciones de interacción (usando birdModalContainer) ======
     function showHelp(contentKey) {
@@ -1061,47 +1075,50 @@ if (telefonoInput) {
     });
 
     function showMainMenu() {
-        const menu = `
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <div onclick="showHelp('coordsFormat')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
-                    <strong>Coordenadas</strong><br><small>Formatos admitidos</small>
-                </div>
-                <div onclick="showHelp('coordsNoMarker')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
-                    <strong>Coordenadas</strong><br><small>No aparece marcador</small>
-                </div>
-                <div onclick="showHelp('especiesComo')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
-                    <strong>Especies</strong><br><small>Cómo elegir</small>
-                </div>
-                <div onclick="showHelp('especiesNoAparece')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
-                    <strong>Especies</strong><br><small>No aparece mi especie</small>
-                </div>
-                <div onclick="showHelp('numeroEntrada')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
-                    <strong>Número entrada</strong><br><small>¿Dónde está?</small>
-                </div>
-                <div onclick="showHelp('falloEnvio')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
-                    <strong>Fallo de envío</strong><br><small>¿Qué hago?</small>
-                </div>
-                <div onclick="showHelp('registrosLocales')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
-                    <strong>Registros locales</strong><br><small>Ver/reenviar</small>
-                </div>
-                <div onclick="showHelp('recuperacionAnilla')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
-                    <strong>Recuperación</strong><br><small>Anilla</small>
-                </div>
-                <div onclick="showHelp('camposAdicionales')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd; grid-column: span 2;">
-                    <strong>Otros campos</strong><br><small>Posible causa, remitente, etc.</small>
-                </div>
-            </div>
-            <button onclick="closeModal()" style="width:100%; margin-top:16px; padding:8px; background:#7f8c8d; color:white; border:none; border-radius:6px; font-weight:bold;">
-                Cerrar
-            </button>
-        `;
-        document.getElementById('birdModalContent').innerHTML = menu;
-        birdModalContainer.style.display = 'block';
-        setTimeout(() => {
-            birdModalContainer.children[0].style.opacity = '1';
-            birdModalContainer.children[0].style.pointerEvents = 'auto';
-        }, 10);
-    }
+  const menu = `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div onclick="showHelp('direccionPrecisa')" style="cursor:pointer; padding:10px; background:#e8f5e9; border-radius:8px; border:1px solid #27ae60;">
+        <strong>📍 Direcciones precisas</strong><br><small>Evita errores de ubicación</small>
+      </div>
+      <div onclick="showHelp('coordsFormat')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+        <strong>Coordenadas</strong><br><small>Formatos admitidos</small>
+      </div>
+      <div onclick="showHelp('coordsNoMarker')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+        <strong>Coordenadas</strong><br><small>No aparece marcador</small>
+      </div>
+      <div onclick="showHelp('especiesComo')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+        <strong>Especies</strong><br><small>Cómo elegir</small>
+      </div>
+      <div onclick="showHelp('especiesNoAparece')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+        <strong>Especies</strong><br><small>No aparece mi especie</small>
+      </div>
+      <div onclick="showHelp('numeroEntrada')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+        <strong>Número entrada</strong><br><small>¿Dónde está?</small>
+      </div>
+      <div onclick="showHelp('falloEnvio')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+        <strong>Fallo de envío</strong><br><small>¿Qué hago?</small>
+      </div>
+      <div onclick="showHelp('registrosLocales')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+        <strong>Registros locales</strong><br><small>Ver/reenviar</small>
+      </div>
+      <div onclick="showHelp('recuperacionAnilla')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+        <strong>Recuperación</strong><br><small>Anilla</small>
+      </div>
+      <div onclick="showHelp('camposAdicionales')" style="cursor:pointer; padding:10px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd; grid-column: span 2;">
+        <strong>Otros campos</strong><br><small>Posible causa, remitente, etc.</small>
+      </div>
+    </div>
+    <button onclick="closeModal()" style="width:100%; margin-top:16px; padding:8px; background:#7f8c8d; color:white; border:none; border-radius:6px; font-weight:bold;">
+      Cerrar
+    </button>
+  `;
+  document.getElementById('birdModalContent').innerHTML = menu;
+  birdModalContainer.style.display = 'block';
+  setTimeout(() => {
+    birdModalContainer.children[0].style.opacity = '1';
+    birdModalContainer.children[0].style.pointerEvents = 'auto';
+  }, 10);
+}
 
     window.showHelp = showHelp;
     window.closeModal = closeModal;

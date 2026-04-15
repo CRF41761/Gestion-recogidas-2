@@ -233,14 +233,12 @@ const mostrarRegistros = async () => {
     const registros = await obtenerRegistros();
     const contenedor = document.getElementById('contenidoRegistros');
     const importarEnModal = document.getElementById('importarEnModal');
-const btnExportar = document.getElementById('btnExportarRegistros');
-
-// Mostrar siempre el botón de exportar si existen registros
 if (registros.length === 0) {
   contenedor.innerHTML = '<p style="color:#666;">No hay registros guardados localmente.</p>';
-  if (btnExportar) btnExportar.style.display = 'none';
-} else {
-  if (btnExportar) btnExportar.style.display = 'inline-block';
+  importarEnModal.style.display = 'block';
+  return;
+}
+importarEnModal.style.display = 'none';
 }
 
 // El botón de importar sigue mostrándose siempre (opcional)

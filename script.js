@@ -103,6 +103,33 @@ function getFechaLocalISO() {
     const dia = String(ahora.getDate()).padStart(2, '0');
     return `${año}-${mes}-${dia}`;
 }
+// Función para obtener el municipio a partir de coordenadas
+async function obtenerMunicipio(lat, lng) {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1&countrycodes=ES`;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (data && data.address) {
+      // Prioridad: municipio > ciudad > pueblo > county
+      const address = data.address;
+      const municipio = 
+        address.town || 
+        address.city || 
+        address.village || 
+        address.county || 
+        address.state_district || 
+        "Desconocido";
+      
+      const provincia = address.state || "";
+      return { municipio, provincia };
+    }
+    return { municipio: "No encontrado", provincia: "" };
+  } catch (error) {
+    console.error("Error al obtener municipio:", error);
+    return { municipio: "Error", provincia: "" };
+  }
+}
 /* ============================================
    INDEXEDDB - GESTIÓN DE REGISTROS LOCALES
    ============================================ */

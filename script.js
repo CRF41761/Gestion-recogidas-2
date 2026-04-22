@@ -563,11 +563,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         marker.openPopup();
         
-        // ✅ Actualizar SIEMPRE el campo de municipio (no solo si está vacío)
-        const municipioInput = document.getElementById('municipio');
-        if (municipioInput && municipio !== "Desconocido" && municipio !== "No encontrado") {
-            municipioInput.value = municipio;
-        }
+      // ✅ Buscar coincidencia en la lista oficial de municipios
+const municipioInput = document.getElementById('municipio');
+if (municipioInput && municipio !== "Desconocido" && municipio !== "No encontrado") {
+    // Normalizar el municipio obtenido (quitar acentos y convertir a minúsculas)
+    const municipioNormalizado = municipio.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    
+    // Buscar en la lista oficial de municipios
+    const municipioOficial = window.municipiosData?.find(m => 
+        m.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === municipioNormalizado
+    );
+    
+    // Usar el nombre oficial si se encuentra, sino usar el obtenido
+    municipioInput.value = municipioOficial || municipio;
+    
+    // Disparar evento 'input' para activar el autocompletado visual
+    municipioInput.dispatchEvent(new Event('input'));
+}
     });
 }
 map.on("click", onMapClick);

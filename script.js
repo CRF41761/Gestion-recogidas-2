@@ -530,15 +530,19 @@ document.addEventListener("DOMContentLoaded", function () {
         watchId = null; seguimientoActivo = false;
     }
 
-    function onMapClick(e) {
+   function onMapClick(e) {
     detenerSeguimiento();
     const latlng = e.latlng;
     
     // Actualizar campo de coordenadas
     document.getElementById("coordenadas_mapa").value = latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5);
     
-    // Mostrar marcador
-    marker ? marker.setLatLng(latlng) : marker = L.marker(latlng).addTo(map);
+    // Mostrar/actualizar marcador
+    if (marker) {
+        marker.setLatLng(latlng);
+    } else {
+        marker = L.marker(latlng).addTo(map);
+    }
     
     // ✅ Obtener y mostrar municipio
     obtenerMunicipio(latlng.lat, latlng.lng).then(({ municipio, provincia }) => {
@@ -551,12 +555,17 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
         
-        // Actualizar popup del marcador
-        marker.setPopupContent(popupContent).openPopup();
+        // ✅ Crear/actualizar popup correctamente
+        if (marker.getPopup()) {
+            marker.setPopupContent(popupContent);
+        } else {
+            marker.bindPopup(popupContent);
+        }
+        marker.openPopup();
         
-        // Opcional: rellenar automáticamente el campo de municipio si está vacío
+        // ✅ Actualizar SIEMPRE el campo de municipio (no solo si está vacío)
         const municipioInput = document.getElementById('municipio');
-        if (municipioInput && municipioInput.value === '' && municipio !== "Desconocido" && municipio !== "No encontrado") {
+        if (municipioInput && municipio !== "Desconocido" && municipio !== "No encontrado") {
             municipioInput.value = municipio;
         }
     });

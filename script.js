@@ -504,12 +504,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function onMapClick(e) {
-        detenerSeguimiento();
-        const latlng = e.latlng;
-        marker ? marker.setLatLng(latlng) : marker = L.marker(latlng).addTo(map);
-        document.getElementById("coordenadas_mapa").value = latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5);
-    }
-    map.on("click", onMapClick);
+    detenerSeguimiento();
+    const latlng = e.latlng;
+    
+    // Actualizar campo de coordenadas
+    document.getElementById("coordenadas_mapa").value = latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5);
+    
+    // Mostrar marcador
+    marker ? marker.setLatLng(latlng) : marker = L.marker(latlng).addTo(map);
+    
+    // ✅ Obtener y mostrar municipio
+    obtenerMunicipio(latlng.lat, latlng.lng).then(({ municipio, provincia }) => {
+        const popupContent = `
+            <div style="font-family:sans-serif; font-size:14px;">
+                <strong>📍 Coordenadas:</strong> ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}<br>
+                <strong>🏙️ Municipio:</strong> ${municipio}<br>
+                ${provincia ? `<strong>🗺️ Provincia:</strong> ${provincia}<br>` : ''}
+                <small style="color:#666;">Datos de OpenStreetMap</small>
+            </div>
+        `;
+        
+        // Actualizar popup del marcador
+        marker.setPopupContent(popupContent).openPopup();
+        
+        // Opcional: rellenar automáticamente el campo de municipio si está vacío
+        const municipioInput = document.getElementById('municipio');
+        if (municipioInput && municipioInput.value === '' && municipio !== "Desconocido" && municipio !== "No encontrado") {
+            municipioInput.value = municipio;
+        }
+    });
+}
+map.on("click", onMapClick);
 
     /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
     function buscarOCoordenadas(raw) {

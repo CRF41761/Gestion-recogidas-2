@@ -739,46 +739,62 @@ map.on("click", onMapClick);
         btn.textContent = "Enviando...";
 
         const fd = new FormData(this);
-        const data = {
-            numero_entrada: document.getElementById("numero_entrada").value, // Aunque esté vacío, lo incluimos (no se usa)
-            especie_comun: fd.get("especie_comun"),
-            especie_cientifico: fd.get("especie_cientifico"),
-            cantidad_animales: fd.get("cantidad_animales"),
-            fecha: fd.get("fecha"),
-            municipio: fd.get("municipio"),
-            posible_causa: fd.get("posible_causa") || "", // ← Valor único
-            remitente: fd.get("remitente") || "",         // ← Valor único
-            estado_animal: fd.getAll("estado_animal"),
-            coordenadas: fd.get("coordenadas"),
-            coordenadas_mapa: fd.get("coordenadas_mapa"),
-            apoyo: fd.get("apoyo"),
-            cra_km: fd.get("cra_km"),
-            observaciones: (() => {
-let txt = fd.get("observaciones")?.trim() || "";
-// ✅ Añadir texto de "Especificar causa"
-const especificarCausa = document.getElementById('otras_texto')?.value?.trim();
-if (especificarCausa) {
-txt += (txt ? " | " : "") + especificarCausa;
-}
-// ✅ Añadir texto de "Especificar remitente"
-const especificarRemitente = document.getElementById('otras_remitente_texto')?.value?.trim();
-if (especificarRemitente) {
-txt += (txt ? " | " : "") + especificarRemitente;
-}
-// ✅ Añadir anilla si aplica (ya existía)
-const anillaInput = document.getElementById('anilla');
-const recuperacionChecked = document.getElementById('recuperacion')?.checked;
-if (recuperacionChecked && anillaInput) {
-const anilla = anillaInput.value.trim();
-if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
-}
-return txt;
-})(),
-            cumplimentado_por: fd.get("cumplimentado_por"),
-            telefono_remitente: fd.get("telefono_remitente"),
-            foto: ""
-        };
+        // Recoger valores de "Posible causa"
+const posibleCausaValues = [];
 
+// Añadir checkboxes normales de posible causa (excepto "Otras")
+document.querySelectorAll('input[name="posible_causa"]:checked').forEach(cb => {
+    if (cb.value !== "Otras") {
+        posibleCausaValues.push(cb.value);
+    }
+});
+
+// Añadir valor del desplegable si está seleccionado
+const otrasCausaSelect = document.getElementById('otrasCausaSelect');
+const chkOtrasCausa = document.getElementById('otras');
+if (chkOtrasCausa?.checked && otrasCausaSelect?.value) {
+    posibleCausaValues.push(otrasCausaSelect.value);
+}
+
+const data = {
+    numero_entrada: document.getElementById("numero_entrada").value,
+    especie_comun: fd.get("especie_comun"),
+    especie_cientifico: fd.get("especie_cientifico"),
+    cantidad_animales: fd.get("cantidad_animales"),
+    fecha: fd.get("fecha"),
+    municipio: fd.get("municipio"),
+    posible_causa: posibleCausaValues, // ← Array con todos los valores
+    remitente: fd.get("remitente") || "",
+    estado_animal: fd.getAll("estado_animal"),
+    coordenadas: fd.get("coordenadas"),
+    coordenadas_mapa: fd.get("coordenadas_mapa"),
+    apoyo: fd.get("apoyo"),
+    cra_km: fd.get("cra_km"),
+    observaciones: (() => {
+        let txt = fd.get("observaciones")?.trim() || "";
+        // ✅ Añadir texto de "Especificar causa"
+        const especificarCausa = document.getElementById('otras_texto')?.value?.trim();
+        if (especificarCausa) {
+            txt += (txt ? " | " : "") + especificarCausa;
+        }
+        // ✅ Añadir texto de "Especificar remitente"
+        const especificarRemitente = document.getElementById('otras_remitente_texto')?.value?.trim();
+        if (especificarRemitente) {
+            txt += (txt ? " | " : "") + especificarRemitente;
+        }
+        // ✅ Añadir anilla si aplica (ya existía)
+        const anillaInput = document.getElementById('anilla');
+        const recuperacionChecked = document.getElementById('recuperacion')?.checked;
+        if (recuperacionChecked && anillaInput) {
+            const anilla = anillaInput.value.trim();
+            if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
+        }
+        return txt;
+    })(),
+    cumplimentado_por: fd.get("cumplimentado_por"),
+    telefono_remitente: fd.get("telefono_remitente"),
+    foto: ""
+};
         const file = fd.get("foto");
         if (file && file.size) {
             const reader = new FileReader();

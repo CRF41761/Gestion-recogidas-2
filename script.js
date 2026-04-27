@@ -507,7 +507,18 @@ document.addEventListener("DOMContentLoaded", function () {
         chkRec.addEventListener('change', toggleAnillaField);
         toggleAnillaField();
     }
+// Mostrar/ocultar desplegable de "Otras" en Posible causa
+const chkOtrasCausa = document.getElementById('otras');
+const wrapperOtrasCausa = document.getElementById('otrasCausaWrapper');
 
+if (chkOtrasCausa && wrapperOtrasCausa) {
+    chkOtrasCausa.addEventListener('change', function() {
+        wrapperOtrasCausa.style.display = this.checked ? 'block' : 'none';
+        if (!this.checked) {
+            document.getElementById('otrasCausaSelect').value = '';
+        }
+    });
+}
     function iniciarSeguimiento() {
         if (!navigator.geolocation) return;
         watchId = navigator.geolocation.watchPosition(

@@ -512,10 +512,31 @@ const chkOtrasCausa = document.getElementById('otras');
 const wrapperOtrasCausa = document.getElementById('otrasCausaWrapper');
 
 if (chkOtrasCausa && wrapperOtrasCausa) {
+    // Función para ocultar el desplegable y limpiar selección
+    function ocultarDesplegableOtras() {
+        wrapperOtrasCausa.style.display = 'none';
+        document.getElementById('otrasCausaSelect').value = '';
+        chkOtrasCausa.checked = false;
+    }
+
+    // Evento para mostrar/ocultar al hacer clic en "Otras"
     chkOtrasCausa.addEventListener('change', function() {
-        wrapperOtrasCausa.style.display = this.checked ? 'block' : 'none';
-        if (!this.checked) {
-            document.getElementById('otrasCausaSelect').value = '';
+        if (this.checked) {
+            wrapperOtrasCausa.style.display = 'block';
+        } else {
+            ocultarDesplegableOtras();
+        }
+    });
+
+    // Evento para ocultar el desplegable cuando se marca cualquier otra causa
+    const todasCausasCheckboxes = document.querySelectorAll('input[name="posible_causa"]');
+    todasCausasCheckboxes.forEach(checkbox => {
+        if (checkbox.id !== 'otras') { // Excluir el checkbox "Otras" mismo
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    ocultarDesplegableOtras();
+                }
+            });
         }
     });
 }

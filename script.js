@@ -769,21 +769,14 @@ if (chkOtras?.checked && (!selectOtras?.value || selectOtras.value === "")) {
         btn.textContent = "Enviando...";
 
         const fd = new FormData(this);
-        // Recoger valores de "Posible causa"
-let posibleCausaValue = "";
+       // Recoger valor de "Posible causa" (radio button)
+const posibleCausaRadio = document.querySelector('input[name="posible_causa"]:checked');
+let posibleCausaValue = posibleCausaRadio?.value || "";
 
-// Verificar si hay checkboxes seleccionados
-const causasSeleccionadas = Array.from(document.querySelectorAll('input[name="posible_causa"]:checked'))
-    .map(cb => cb.value)
-    .filter(val => val !== "Otras");
-
-if (causasSeleccionadas.length > 0) {
-    // Si hay causas normales seleccionadas, usar la primera
-    posibleCausaValue = causasSeleccionadas[0];
-} else {
-    // Si solo está "Otras" seleccionada, usar el valor del desplegable
+// Si está seleccionado "Otras", usar el valor del desplegable
+if (posibleCausaValue === "Otras") {
     const otrasCausaSelect = document.getElementById('otrasCausaSelect');
-    if (document.getElementById('otras').checked && otrasCausaSelect?.value) {
+    if (otrasCausaSelect?.value) {
         posibleCausaValue = otrasCausaSelect.value;
     }
 }

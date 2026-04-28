@@ -751,7 +751,16 @@ map.on("click", onMapClick);
             e.preventDefault();
             return;
         }
+// Validar "Otras" solo si está marcada
+const chkOtras = document.getElementById('otras');
+const selectOtras = document.getElementById('otrasCausaSelect');
 
+if (chkOtras?.checked && (!selectOtras?.value || selectOtras.value === "")) {
+    alert('Debes seleccionar una causa específica en "Otras"');
+    selectOtras?.focus();
+    e.preventDefault();
+    return;
+}
         // 3. TERCERO: Si todo es válido, proceder con el envío AJAX
         e.preventDefault(); // Prevenir envío normal solo ahora
         localStorage.removeItem('recogidasForm');

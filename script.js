@@ -761,20 +761,22 @@ map.on("click", onMapClick);
 
         const fd = new FormData(this);
         // Recoger valores de "Posible causa"
-const posibleCausaValues = [];
+let posibleCausaValue = "";
 
-// Añadir checkboxes normales de posible causa (excepto "Otras")
-document.querySelectorAll('input[name="posible_causa"]:checked').forEach(cb => {
-    if (cb.value !== "Otras") {
-        posibleCausaValues.push(cb.value);
+// Verificar si hay checkboxes seleccionados
+const causasSeleccionadas = Array.from(document.querySelectorAll('input[name="posible_causa"]:checked'))
+    .map(cb => cb.value)
+    .filter(val => val !== "Otras");
+
+if (causasSeleccionadas.length > 0) {
+    // Si hay causas normales seleccionadas, usar la primera
+    posibleCausaValue = causasSeleccionadas[0];
+} else {
+    // Si solo está "Otras" seleccionada, usar el valor del desplegable
+    const otrasCausaSelect = document.getElementById('otrasCausaSelect');
+    if (document.getElementById('otras').checked && otrasCausaSelect?.value) {
+        posibleCausaValue = otrasCausaSelect.value;
     }
-});
-
-// Añadir valor del desplegable si está seleccionado
-const otrasCausaSelect = document.getElementById('otrasCausaSelect');
-const chkOtrasCausa = document.getElementById('otras');
-if (chkOtrasCausa?.checked && otrasCausaSelect?.value) {
-    posibleCausaValues.push(otrasCausaSelect.value);
 }
 
 const data = {
@@ -784,7 +786,7 @@ const data = {
     cantidad_animales: fd.get("cantidad_animales"),
     fecha: fd.get("fecha"),
     municipio: fd.get("municipio"),
-    posible_causa: posibleCausaValues, // ← Array con todos los valores
+    posible_causa: posibleCausaValue, // ← Valor único (string)
     remitente: fd.get("remitente") || "",
     estado_animal: fd.getAll("estado_animal"),
     coordenadas: fd.get("coordenadas"),
@@ -793,17 +795,17 @@ const data = {
     cra_km: fd.get("cra_km"),
     observaciones: (() => {
         let txt = fd.get("observaciones")?.trim() || "";
-        // ✅ Añadir texto de "Especificar causa"
+        // Añadir texto de "Especificar causa"
         const especificarCausa = document.getElementById('otras_texto')?.value?.trim();
         if (especificarCausa) {
             txt += (txt ? " | " : "") + especificarCausa;
         }
-        // ✅ Añadir texto de "Especificar remitente"
+        // Añadir texto de "Especificar remitente"
         const especificarRemitente = document.getElementById('otras_remitente_texto')?.value?.trim();
         if (especificarRemitente) {
             txt += (txt ? " | " : "") + especificarRemitente;
         }
-        // ✅ Añadir anilla si aplica (ya existía)
+        // Añadir anilla si aplica
         const anillaInput = document.getElementById('anilla');
         const recuperacionChecked = document.getElementById('recuperacion')?.checked;
         if (recuperacionChecked && anillaInput) {

@@ -780,7 +780,8 @@ if (posibleCausaValue === "Otras") {
         posibleCausaValue = otrasCausaSelect.value;
     }
 }
-
+// ✅ CONVERTIR A MAYÚSCULAS PARA GOOGLE SHEETS
+const posibleCausaMayusculas = posibleCausaValue.toUpperCase();
 const data = {
     numero_entrada: document.getElementById("numero_entrada").value,
     especie_comun: fd.get("especie_comun"),
@@ -788,7 +789,7 @@ const data = {
     cantidad_animales: fd.get("cantidad_animales"),
     fecha: fd.get("fecha"),
     municipio: fd.get("municipio"),
-    posible_causa: posibleCausaValue, // ← Valor único (string)
+    posible_causa: posibleCausaMayusculas,
     remitente: fd.get("remitente") || "",
     estado_animal: fd.getAll("estado_animal"),
     coordenadas: fd.get("coordenadas"),

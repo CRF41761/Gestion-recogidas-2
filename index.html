@@ -113,8 +113,8 @@
                 <input type="radio" id="desnutricion" name="posible_causa" value="Desnutrición">
             </div>
             <div>
-                <label for="disparo">Disparo</label>
-                <input type="radio" id="disparo" name="posible_causa" value="Disparo">
+                <label for="disparo">Disparo indeterminado</label>
+                <input type="radio" id="disparo" name="posible_causa" value="Disparo indeterminado">
             </div>
             <div>
                 <label for="electrocucion">Electrocución</label>
@@ -125,12 +125,12 @@
         <!-- Segunda columna -->
         <div>
             <div>
-                <label for="cautividad">Cautividad</label>
-                <input type="radio" id="cautividad" name="posible_causa" value="Cautividad">
+                <label for="cautividad">Cautividad / Entrega voluntaria</label>
+                <input type="radio" id="cautividad" name="posible_causa" value="Cautividad / Entrega voluntaria">
             </div>
             <div>
-                <label for="hallazgo">Hallazgo</label>
-                <input type="radio" id="hallazgo" name="posible_causa" value="Hallazgo">
+                <label for="hallazgo">Hallazgo accidental</label>
+                <input type="radio" id="hallazgo" name="posible_causa" value="Hallazgo accidental">
             </div>
             <div>
                 <label for="indeterminada">Indeterminada</label>
@@ -141,45 +141,74 @@
                 <input type="radio" id="infecciosa" name="posible_causa" value="Infecciosa">
             </div>
             <div>
-                <label for="intoxicacion">Intoxicación</label>
-                <input type="radio" id="intoxicacion" name="posible_causa" value="Intoxicación">
+                <label for="intoxicacion">Intoxicación indeterminada</label>
+                <input type="radio" id="intoxicacion" name="posible_causa" value="Intoxicación indeterminada">
             </div>
             <div>
                 <label for="nacido_centro">Nacido en el Centro</label>
                 <input type="radio" id="nacido_centro" name="posible_causa" value="Nacido en el Centro">
             </div>
             <div>
-                <label for="trampeo">Trampeo</label>
-                <input type="radio" id="trampeo" name="posible_causa" value="Trampeo">
+                <label for="trampeo">Trampeo indeterminado</label>
+                <input type="radio" id="trampeo" name="posible_causa" value="Trampeo indeterminado">
             </div>
             <div>
-                <label for="traumatismo">Traumatismo</label>
-                <input type="radio" id="traumatismo" name="posible_causa" value="Traumatismo">
+                <label for="traumatismo">Traumatismo indeterminado</label>
+                <input type="radio" id="traumatismo" name="posible_causa" value="Traumatismo indeterminado">
             </div>
             <div>
-                <label for="otras">Otras</label>
-                <input type="radio" id="otras" name="posible_causa" value="Otras">
+                <label for="otras">Otras causas</label>
+                <input type="radio" id="otras" name="posible_causa" value="Otras causas">
             </div>
-            <div id="otrasCausaWrapper" style="display:none; margin-top:8px; margin-left:20px;">
-                <label for="otrasCausaSelect">Especificar causa:</label>
-                <select id="otrasCausaSelect" name="otras_causa_select">
-                    <option value="" disabled selected>Selecciona una causa específica...</option>
-                    <option value="Cautividad, entrega voluntaria">Cautividad, entrega voluntaria</option>
-                    <option value="Cría, Desnutrición">Cría, Desnutrición</option>
-                    <option value="Disparo indeterminado">Disparo indeterminado</option>
-                    <option value="Electrocución probable">Electrocución probable</option>
-                    <option value="Hallazgo accidental">Hallazgo accidental</option>
-                    <option value="Inclemencias meteorológicas">Inclemencias meteorológicas</option>
-                    <option value="Pesca anzuelo deportivo">Pesca anzuelo deportivo</option>
-                    <option value="Trampeo autorizado">Trampeo autorizado</option>
-                    <option value="Trampeo cepo">Trampeo cepo</option>
-                    <option value="Trampeo liga/Visc/Pegamento">Trampeo liga/Visc/Pegamento</option>
-                    <option value="Traumatismo cristalera edificaciones">Traumatismo cristalera edificaciones</option>
-                    <option value="Traumatismo cristalera padel">Traumatismo cristalera padel</option>
-                    <option value="Traumatismo indeterminado">Traumatismo indeterminado</option>
-                    <option value="Otras">Otras</option>
-                </select>
-            </div>
+           <div id="otrasCausaWrapper" style="display:none; margin-top:8px; margin-left:20px;">
+    <label for="otrasCausaSelect">Especificar causa:</label>
+    <select id="otrasCausaSelect" name="otras_causa_select">
+        <option value="" disabled selected>Selecciona una causa específica...</option>
+        <option value="ahogamiento balsa / atrapado balsa">ahogamiento balsa / atrapado balsa</option>
+        <option value="ahogamiento canal o acequia/ atrapado canal o acequia">ahogamiento canal o acequia/ atrapado canal o acequia</option>
+        <option value="ahogamiento probable">ahogamiento probable</option>
+        <option value="atrapado edificaciones">atrapado edificaciones</option>
+        <option value="cautividad escapado">cautividad escapado</option>
+        <option value="disparo acero">disparo acero</option>
+        <option value="disparo plomo">disparo plomo</option>
+        <option value="electrocución probable">electrocución probable</option>
+        <option value="envenenamiento">envenenamiento</option>
+        <option value="expolio">expolio</option>
+        <option value="inclemencias meteorológicas">inclemencias meteorológicas</option>
+        <option value="intoxicación botulismo">intoxicación botulismo</option>
+        <option value="intoxicación indeterminada">intoxicación indeterminada</option>
+        <option value="intoxicación pesticidas">intoxicación pesticidas</option>
+        <option value="intoxicación petroleo">intoxicación petroleo</option>
+        <option value="intoxicación plumbismo">intoxicación plumbismo</option>
+        <option value="pesca anzuelo deportivo">pesca anzuelo deportivo</option>
+        <option value="pesca anzuelo indeterminado">pesca anzuelo indeterminado</option>
+        <option value="pesca anzuelo palangre">pesca anzuelo palangre</option>
+        <option value="pesca indeterminado">pesca indeterminado</option>
+        <option value="pesca no marina">pesca no marina</option>
+        <option value="pesca red arrastre">pesca red arrastre</option>
+        <option value="pesca red indeterminado">pesca red indeterminado</option>
+        <option value="pesca red trasmallo">pesca red trasmallo</option>
+        <option value="piscifactoría marina">piscifactoría marina</option>
+        <option value="trampeo accidental">trampeo accidental</option>
+        <option value="trampeo autorizado">trampeo autorizado</option>
+        <option value="trampeo caja trampa">trampeo caja trampa</option>
+        <option value="trampeo cepo">trampeo cepo</option>
+        <option value="trampeo lazo">trampeo lazo</option>
+        <option value="trampeo liga/visc/pegamento">trampeo liga/visc/pegamento</option>
+        <option value="trampeo otros">trampeo otros</option>
+        <option value="trampeo parany">trampeo parany</option>
+        <option value="traslado">traslado</option>
+        <option value="traumatismo aerogenerador">traumatismo aerogenerador</option>
+        <option value="traumatismo aerogenerador probable">traumatismo aerogenerador probable</option>
+        <option value="traumatismo cable eléctrico">traumatismo cable eléctrico</option>
+        <option value="traumatismo cable eléctrico probable">traumatismo cable eléctrico probable</option>
+        <option value="traumatismo cristalera">traumatismo cristalera</option>
+        <option value="traumatismo cristalera autovía">traumatismo cristalera autovía</option>
+        <option value="traumatismo cristalera edificaciones">traumatismo cristalera edificaciones</option>
+        <option value="traumatismo cristalera padel">traumatismo cristalera padel</option>
+        <option value="traumatismo vallado">traumatismo vallado</option>
+    </select>
+</div>
             <div>
                 <input type="text" id="otras_texto" name="otras_texto" placeholder="Especificar..." style="width:100%;">
             </div>

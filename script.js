@@ -576,18 +576,19 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
         marker = L.marker(latlng).addTo(map);
     }
     
-    // ✅ Obtener y mostrar municipio
-    obtenerMunicipio(latlng.lat, latlng.lng).then(({ municipio, provincia }) => {
+    // Función reutilizable para mostrar popup y actualizar municipio
+function mostrarPopupYActualizarMunicipio(lat, lng) {
+    obtenerMunicipio(lat, lng).then(({ municipio, provincia }) => {
         const popupContent = `
             <div style="font-family:sans-serif; font-size:14px;">
-                <strong>📍 Coordenadas:</strong> ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}<br>
+                <strong>📍 Coordenadas:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}<br>
                 <strong>🏙️ Municipio:</strong> ${municipio}<br>
                 ${provincia ? `<strong>🗺️ Provincia:</strong> ${provincia}<br>` : ''}
                 <small style="color:#666;">Datos de OpenStreetMap</small>
             </div>
         `;
         
-        // ✅ Crear/actualizar popup correctamente
+        // Actualizar/crear popup
         if (marker.getPopup()) {
             marker.setPopupContent(popupContent);
         } else {
@@ -595,26 +596,23 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
         }
         marker.openPopup();
         
-      // ✅ Buscar coincidencia en la lista oficial de municipios (con mapeo castellano→valenciano)
-const municipioInput = document.getElementById('municipio');
-if (municipioInput && municipio !== "Desconocido" && municipio !== "No encontrado") {
-    // Buscar directamente en el mapeo
-    const municipioMapeado = window.mapeoMunicipios?.[municipio] || null;
-    
-    if (municipioMapeado) {
-        // Encontrado en el mapeo
-        municipioInput.value = municipioMapeado;
-    } else {
-        // Intentar coincidencia normalizada con tu lista oficial
-        const municipioNormalizado = municipio.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        const municipioOficial = window.municipiosData?.find(m => 
-            m.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === municipioNormalizado
-        );
-        municipioInput.value = municipioOficial || municipio;
-    }
-    
-    municipioInput.dispatchEvent(new Event('input'));
-}
+        // Actualizar campo Municipio con mapeo castellano→valenciano
+        const municipioInput = document.getElementById('municipio');
+        if (municipioInput && municipio !== "Desconocido" && municipio !== "No encontrado") {
+            const municipioMapeado = window.mapeoMunicipios?.[municipio] || null;
+            
+            if (municipioMapeado) {
+                municipioInput.value = municipioMapeado;
+            } else {
+                const municipioNormalizado = municipio.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                const municipioOficial = window.municipiosData?.find(m => 
+                    m.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === municipioNormalizado
+                );
+                municipioInput.value = municipioOficial || municipio;
+            }
+            
+            municipioInput.dispatchEvent(new Event('input'));
+        }
     });
 }
 map.on("click", onMapClick);

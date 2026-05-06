@@ -686,13 +686,16 @@ map.on("click", onMapClick);
             if (marker) marker.setLatLng([lat, lng]);
             else marker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 16);
-            document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error al buscar la dirección.");
-        });
+            // ✅ AÑADIR ESTA LÍNEA AQUÍ
+        mostrarPopupYActualizarMunicipio(lat, lng);
+        
+        document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error al buscar la dirección.");
+    });
 }
 
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));

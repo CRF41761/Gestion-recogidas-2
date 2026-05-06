@@ -562,21 +562,7 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
         watchId = null; seguimientoActivo = false;
     }
 
-   function onMapClick(e) {
-    detenerSeguimiento();
-    const latlng = e.latlng;
-    
-    // Actualizar campo de coordenadas
-    document.getElementById("coordenadas_mapa").value = latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5);
-    
-    // Mostrar/actualizar marcador
-    if (marker) {
-        marker.setLatLng(latlng);
-    } else {
-        marker = L.marker(latlng).addTo(map);
-    }
-    
-    // Función reutilizable para mostrar popup y actualizar municipio
+   // Función reutilizable para mostrar popup y actualizar municipio
 function mostrarPopupYActualizarMunicipio(lat, lng) {
     obtenerMunicipio(lat, lng).then(({ municipio, provincia }) => {
         const popupContent = `
@@ -615,7 +601,8 @@ function mostrarPopupYActualizarMunicipio(lat, lng) {
         }
     });
 }
-// onMapClick actualizado
+
+// onMapClick corregido
 function onMapClick(e) {
     detenerSeguimiento();
     const latlng = e.latlng;
@@ -630,11 +617,10 @@ function onMapClick(e) {
         marker = L.marker(latlng).addTo(map);
     }
     
-    // ✅ Llamar a la función reutilizable
+    // Llamar a la función reutilizable
     mostrarPopupYActualizarMunicipio(latlng.lat, latlng.lng);
 }
 map.on("click", onMapClick);
-
     /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
     function buscarOCoordenadas(raw) {
     raw = raw.trim();

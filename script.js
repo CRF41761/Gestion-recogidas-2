@@ -686,7 +686,7 @@ map.on("click", onMapClick);
             if (marker) marker.setLatLng([lat, lng]);
             else marker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 16);
-            // ✅ AÑADIR ESTA LÍNEA AQUÍ
+            // ✅ Llamar a la función reutilizable
         mostrarPopupYActualizarMunicipio(lat, lng);
         
         document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);

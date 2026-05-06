@@ -1374,7 +1374,15 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(console.error);
 });
-
+// ✅ Carga del mapeo castellano-valenciano (AÑADIR ESTO)
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("mapeo_municipios.json")
+        .then(r => r.json())
+        .then(d => {
+            window.mapeoMunicipios = d;
+        })
+        .catch(console.error);
+});
 // ---------- Carga de especies + autocompletado INTELIGENTE ----------
 document.addEventListener("DOMContentLoaded", () => {
     const comInput  = document.getElementById("especie_comun");

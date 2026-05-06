@@ -615,6 +615,24 @@ function mostrarPopupYActualizarMunicipio(lat, lng) {
         }
     });
 }
+// onMapClick actualizado
+function onMapClick(e) {
+    detenerSeguimiento();
+    const latlng = e.latlng;
+    
+    // Actualizar campo de coordenadas
+    document.getElementById("coordenadas_mapa").value = latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5);
+    
+    // Mostrar/actualizar marcador
+    if (marker) {
+        marker.setLatLng(latlng);
+    } else {
+        marker = L.marker(latlng).addTo(map);
+    }
+    
+    // ✅ Llamar a la función reutilizable
+    mostrarPopupYActualizarMunicipio(latlng.lat, latlng.lng);
+}
 map.on("click", onMapClick);
 
     /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */

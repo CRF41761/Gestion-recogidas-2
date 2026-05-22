@@ -790,6 +790,40 @@ if (posibleCausaValue === "Otras") {
 }
 // ✅ CONVERTIR A MAYÚSCULAS PARA GOOGLE SHEETS
 const posibleCausaMayusculas = posibleCausaValue.toUpperCase();
+// Detectar tipo de salida desde Observaciones
+const observacionesTexto = (() => {
+    let txt = fd.get("observaciones")?.trim() || "";
+    // Añadir texto de "Especificar causa"
+    const especificarCausa = document.getElementById('otras_texto')?.value?.trim();
+    if (especificarCausa) {
+        txt += (txt ? " | " : "") + especificarCausa;
+    }
+    // Añadir texto de "Especificar remitente"
+    const especificarRemitente = document.getElementById('otras_remitente_texto')?.value?.trim();
+    if (especificarRemitente) {
+        txt += (txt ? " | " : "") + especificarRemitente;
+    }
+    // Añadir anilla si aplica
+    const anillaInput = document.getElementById('anilla');
+    const recuperacionChecked = document.getElementById('recuperacion')?.checked;
+    if (recuperacionChecked && anillaInput) {
+        const anilla = anillaInput.value.trim();
+        if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
+    }
+    return txt;
+})();
+
+// Detectar Tipo de Salida
+let tipoSalida = "";
+const euPattern = /\([Ee][Uu]\)/;
+const muPattern = /\([Mm][Uu]\)/;
+
+if (euPattern.test(observacionesTexto)) {
+    tipoSalida = "SACRIFICIO";
+} else if (muPattern.test(observacionesTexto)) {
+    tipoSalida = "MUERTE";
+}
+
 const data = {
     numero_entrada: document.getElementById("numero_entrada").value,
     especie_comun: fd.get("especie_comun"),
@@ -804,30 +838,11 @@ const data = {
     coordenadas_mapa: fd.get("coordenadas_mapa"),
     apoyo: fd.get("apoyo"),
     cra_km: fd.get("cra_km"),
-    observaciones: (() => {
-        let txt = fd.get("observaciones")?.trim() || "";
-        // Añadir texto de "Especificar causa"
-        const especificarCausa = document.getElementById('otras_texto')?.value?.trim();
-        if (especificarCausa) {
-            txt += (txt ? " | " : "") + especificarCausa;
-        }
-        // Añadir texto de "Especificar remitente"
-        const especificarRemitente = document.getElementById('otras_remitente_texto')?.value?.trim();
-        if (especificarRemitente) {
-            txt += (txt ? " | " : "") + especificarRemitente;
-        }
-        // Añadir anilla si aplica
-        const anillaInput = document.getElementById('anilla');
-        const recuperacionChecked = document.getElementById('recuperacion')?.checked;
-        if (recuperacionChecked && anillaInput) {
-            const anilla = anillaInput.value.trim();
-            if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
-        }
-        return txt;
-    })(),
+    observaciones: observacionesTexto,
     cumplimentado_por: fd.get("cumplimentado_por"),
     telefono_remitente: fd.get("telefono_remitente"),
-    foto: ""
+    foto: "",
+    tipo_salida: tipoSalida  // ← NUEVO CAMPO
 };
         const file = fd.get("foto");
         if (file && file.size) {

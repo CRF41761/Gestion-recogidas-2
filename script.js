@@ -873,7 +873,7 @@ async function enviarDatos(data, btn) {
     await guardarRegistroLocalConEstado(registroPendiente, "pendiente");
 
     // 2. Enviar el formulario (sin leer respuesta, por no-cors)
-    await fetch("https://script.google.com/macros/s/AKfycbwtC82haU7l0Ta0n5L-WhakFvYQWDUETb0_JOmo7g7E_lifJ4ccXNGTjm8OFyJnAnkL/exec", {
+    await fetch("https://script.google.com/macros/s/AKfycbzopEZAShGWezsWvXvTsIEx6oJS_uDwXnNHTF7pOVXTTMT_k28qpAqkbtleaHmJijlj/exec", {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
@@ -884,7 +884,7 @@ async function enviarDatos(data, btn) {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // 4. Obtener todos los datos y filtrar/ordenar por número de entrada
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwtC82haU7l0Ta0n5L-WhakFvYQWDUETb0_JOmo7g7E_lifJ4ccXNGTjm8OFyJnAnkL/exec?funcion=getAllData", {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbzopEZAShGWezsWvXvTsIEx6oJS_uDwXnNHTF7pOVXTTMT_k28qpAqkbtleaHmJijlj/exec?funcion=getAllData", {
       method: "GET",
       mode: "cors"
     });

@@ -803,13 +803,11 @@ const observacionesTexto = (() => {
     if (especificarRemitente) {
         txt += (txt ? " | " : "") + especificarRemitente;
     }
-    // Añadir anilla si aplica
-    const anillaInput = document.getElementById('anilla');
-    const recuperacionChecked = document.getElementById('recuperacion')?.checked;
-    if (recuperacionChecked && anillaInput) {
-        const anilla = anillaInput.value.trim();
-        if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
-    }
+    // Añadir protección si aplica
+const proteccionValue = document.getElementById('proteccion')?.value || "";
+if (proteccionValue) {
+    txt += (txt ? " | " : "") + `Protección: ${proteccionValue}`;
+}
     return txt;
 })();
 

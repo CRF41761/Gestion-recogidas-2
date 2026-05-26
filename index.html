@@ -296,20 +296,13 @@
                 <input type="checkbox" id="recoge_centro" name="estado_animal" value="Recoge Centro">
             </div>
             <div>
-                <div>
-    <label for="recuperacion">Recuperación</label>
-    <input type="checkbox" id="recuperacion" name="estado_animal" value="Recuperación">
-    
-    <!-- Campo para código de anilla (manual) -->
-    <span id="anillaWrapper" style="display:none; margin-left:8px;">
-        <input type="text" id="anilla" name="anilla" placeholder="Código anilla" maxlength="30" style="width:140px; font-size:0.95em;">
-    </span>
-    
-    <!-- Campo para protección (automático) -->
-    <span id="proteccionWrapper" style="display:none; margin-left:8px;">
-        <input type="text" id="proteccion" name="proteccion" placeholder="Protección" maxlength="30" style="width:140px; font-size:0.95em;" readonly>
-    </span>
-</div>
+                <label for="recuperacion">Recuperación</label>
+                <input type="checkbox" id="recuperacion" name="estado_animal" value="Recuperación">
+                <!-- Campo dinámico para código de anilla -->
+                <span id="anillaWrapper" style="display:none; margin-left:8px;">
+                    <input type="text" id="anilla" name="anilla" placeholder="Código anilla" maxlength="30" style="width:140px; font-size:0.95em;">
+                </span>
+            </div>
         </div>
     </div>
 </fieldset>
@@ -393,7 +386,6 @@
     <script src="script.js"></script>
 </body>
 </html>
-
 
 
 

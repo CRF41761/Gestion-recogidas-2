@@ -1406,6 +1406,21 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(console.error);
 });
+// Carga de protección de especies
+let proteccionEspecies = null;
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("proteccion_especies.json")
+        .then(r => r.json())
+        .then(data => {
+            const normalize = str => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            proteccionEspecies = {
+                en_peligro: data.en_peligro.map(normalize),
+                vulnerables: data.vulnerables.map(normalize),
+                protegidas: data.protegidas.map(normalize)
+            };
+        })
+        .catch(console.error);
+});
 // ---------- Carga de especies + autocompletado INTELIGENTE ----------
 document.addEventListener("DOMContentLoaded", () => {
     const comInput  = document.getElementById("especie_comun");

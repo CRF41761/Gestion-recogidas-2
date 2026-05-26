@@ -1461,22 +1461,50 @@ document.addEventListener("DOMContentLoaded", () => {
                 cienList.appendChild(opt2b);
             });
 
-            // Autocompletado cruzado (común → científico)
-            comInput.addEventListener("input", () => {
-                const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
-                if (found) {
-                    comInput.value  = found.nombreComun;   // muestra versión con tilde
-                    cienInput.value = found.nombreCientifico;
-                }
-            });
+           // Función para actualizar el campo de protección
+function actualizarCampoProteccion(nombreCientifico) {
+    const proteccionInput = document.getElementById('proteccion');
+    if (!proteccionInput || !proteccionEspecies) {
+        return;
+    }
+    
+    const nombreNormalizado = nombreCientifico.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    
+    let nivelProteccion = "";
+    if (proteccionEspecies.en_peligro.includes(nombreNormalizado)) {
+        nivelProteccion = "En peligro";
+    } else if (proteccionEspecies.vulnerables.includes(nombreNormalizado)) {
+        nivelProteccion = "Vulnerable";
+    } else if (proteccionEspecies.protegidas.includes(nombreNormalizado)) {
+        nivelProteccion = "Protegida";
+    }
+    
+    proteccionInput.value = nivelProteccion;
+    
+    const wrapper = document.getElementById('proteccionWrapper');
+    if (wrapper) {
+        wrapper.style.display = nivelProteccion ? 'inline-block' : 'none';
+    }
+}
 
-            cienInput.addEventListener("input", () => {
-                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
-                if (found) {
-                    cienInput.value = found.nombreCientifico;
-                    comInput.value  = found.nombreComun;
-                }
-            });
+// Autocompletado cruzado (común → científico) + protección
+comInput.addEventListener("input", () => {
+    const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
+    if (found) {
+        comInput.value = found.nombreComun;
+        cienInput.value = found.nombreCientifico;
+        actualizarCampoProteccion(found.nombreCientifico);
+    }
+});
+
+cienInput.addEventListener("input", () => {
+    const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
+    if (found) {
+        cienInput.value = found.nombreCientifico;
+        comInput.value = found.nombreComun;
+        actualizarCampoProteccion(found.nombreCientifico);
+    }
+});
         })
         .catch(console.error);
 });

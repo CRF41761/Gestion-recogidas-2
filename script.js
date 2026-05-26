@@ -808,6 +808,32 @@ const proteccionValue = document.getElementById('proteccion')?.value || "";
 if (proteccionValue) {
     txt += (txt ? " | " : "") + `Protección: ${proteccionValue}`;
 }
+   observaciones: (() => {
+    let txt = fd.get("observaciones")?.trim() || "";
+    // Añadir texto de "Especificar causa"
+    const especificarCausa = document.getElementById('otras_texto')?.value?.trim();
+    if (especificarCausa) {
+        txt += (txt ? " | " : "") + especificarCausa;
+    }
+    // Añadir texto de "Especificar remitente"
+    const especificarRemitente = document.getElementById('otras_remitente_texto')?.value?.trim();
+    if (especificarRemitente) {
+        txt += (txt ? " | " : "") + especificarRemitente;
+    }
+    // Añadir protección si aplica
+    const proteccionValue = document.getElementById('proteccion')?.value || "";
+    if (proteccionValue) {
+        txt += (txt ? " | " : "") + `Protección: ${proteccionValue}`;
+    }
+    // Añadir anilla si aplica
+    const anillaInput = document.getElementById('anilla');
+    const recuperacionChecked = document.getElementById('recuperacion')?.checked;
+    if (recuperacionChecked && anillaInput) {
+        const anilla = anillaInput.value.trim();
+        if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
+    }
+    return txt;
+})(),
     return txt;
 })();
 

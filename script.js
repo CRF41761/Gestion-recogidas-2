@@ -803,28 +803,6 @@ const observacionesTexto = (() => {
     if (especificarRemitente) {
         txt += (txt ? " | " : "") + especificarRemitente;
     }
-    // Añadir protección si aplica
-const proteccionValue = document.getElementById('proteccion')?.value || "";
-if (proteccionValue) {
-    txt += (txt ? " | " : "") + `Protección: ${proteccionValue}`;
-}
-   observaciones: (() => {
-    let txt = fd.get("observaciones")?.trim() || "";
-    // Añadir texto de "Especificar causa"
-    const especificarCausa = document.getElementById('otras_texto')?.value?.trim();
-    if (especificarCausa) {
-        txt += (txt ? " | " : "") + especificarCausa;
-    }
-    // Añadir texto de "Especificar remitente"
-    const especificarRemitente = document.getElementById('otras_remitente_texto')?.value?.trim();
-    if (especificarRemitente) {
-        txt += (txt ? " | " : "") + especificarRemitente;
-    }
-    // Añadir protección si aplica
-    const proteccionValue = document.getElementById('proteccion')?.value || "";
-    if (proteccionValue) {
-        txt += (txt ? " | " : "") + `Protección: ${proteccionValue}`;
-    }
     // Añadir anilla si aplica
     const anillaInput = document.getElementById('anilla');
     const recuperacionChecked = document.getElementById('recuperacion')?.checked;
@@ -832,8 +810,6 @@ if (proteccionValue) {
         const anilla = anillaInput.value.trim();
         if (anilla) txt += (txt ? " | " : "") + `Anilla: ${anilla}`;
     }
-    return txt;
-})(),
     return txt;
 })();
 
@@ -1430,21 +1406,6 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(console.error);
 });
-// Carga de protección de especies
-let proteccionEspecies = null;
-document.addEventListener("DOMContentLoaded", () => {
-    fetch("proteccion_especies.json")
-        .then(r => r.json())
-        .then(data => {
-            const normalize = str => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            proteccionEspecies = {
-                en_peligro: data.en_peligro.map(normalize),
-                vulnerables: data.vulnerables.map(normalize),
-                protegidas: data.protegidas.map(normalize)
-            };
-        })
-        .catch(console.error);
-});
 // ---------- Carga de especies + autocompletado INTELIGENTE ----------
 document.addEventListener("DOMContentLoaded", () => {
     const comInput  = document.getElementById("especie_comun");
@@ -1485,50 +1446,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 cienList.appendChild(opt2b);
             });
 
-           // Función para actualizar el campo de protección
-function actualizarCampoProteccion(nombreCientifico) {
-    const proteccionInput = document.getElementById('proteccion');
-    if (!proteccionInput || !proteccionEspecies) {
-        return;
-    }
-    
-    const nombreNormalizado = nombreCientifico.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    
-    let nivelProteccion = "";
-    if (proteccionEspecies.en_peligro.includes(nombreNormalizado)) {
-        nivelProteccion = "En peligro";
-    } else if (proteccionEspecies.vulnerables.includes(nombreNormalizado)) {
-        nivelProteccion = "Vulnerable";
-    } else if (proteccionEspecies.protegidas.includes(nombreNormalizado)) {
-        nivelProteccion = "Protegida";
-    }
-    
-    proteccionInput.value = nivelProteccion;
-    
-    const wrapper = document.getElementById('proteccionWrapper');
-    if (wrapper) {
-        wrapper.style.display = nivelProteccion ? 'inline-block' : 'none';
-    }
-}
+            // Autocompletado cruzado (común → científico)
+            comInput.addEventListener("input", () => {
+                const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
+                if (found) {
+                    comInput.value  = found.nombreComun;   // muestra versión con tilde
+                    cienInput.value = found.nombreCientifico;
+                }
+            });
 
-// Autocompletado cruzado (común → científico) + protección
-comInput.addEventListener("input", () => {
-    const found = especiesData.find(x => quitarAcentos(x.nombreComun) === quitarAcentos(comInput.value.trim()));
-    if (found) {
-        comInput.value = found.nombreComun;
-        cienInput.value = found.nombreCientifico;
-        actualizarCampoProteccion(found.nombreCientifico);
-    }
-});
-
-cienInput.addEventListener("input", () => {
-    const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
-    if (found) {
-        cienInput.value = found.nombreCientifico;
-        comInput.value = found.nombreComun;
-        actualizarCampoProteccion(found.nombreCientifico);
-    }
-});
+            cienInput.addEventListener("input", () => {
+                const found = especiesData.find(x => quitarAcentos(x.nombreCientifico) === quitarAcentos(cienInput.value.trim()));
+                if (found) {
+                    cienInput.value = found.nombreCientifico;
+                    comInput.value  = found.nombreComun;
+                }
+            });
         })
         .catch(console.error);
 });
@@ -1592,7 +1525,6 @@ document.addEventListener('visibilitychange', () => {
 
 // 3. ✅ CUANDO LA VENTANA RECIBE FOCO
 window.addEventListener('focus', actualizarFechaSiEsAnterior);
-
 
 
 

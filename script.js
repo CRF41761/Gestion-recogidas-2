@@ -77,22 +77,30 @@ function parseUTM(input) {
     const easting = nums[0];
     const northing = nums[1];
 
+    // Validación básica de rangos UTM
     if (easting < 100000 || easting > 999999 || northing < 4000000 || northing > 5000000) {
         return null;
     }
 
-    let zoneNumber = 30;
+    // ✅ HUSO POR DEFECTO: 31N (Comunidad Valenciana)
+    let zoneNumber = 31;
     let northern = true;
 
+    // ✅ SI EL USUARIO ESPECIFICA HUSO EXPLÍCITAMENTE, USAR ESE
     if (zonePart) {
         zoneNumber = parseInt(zonePart.slice(0, -1), 10);
         northern = zonePart.endsWith('N');
-        if (zoneNumber < 1 || zoneNumber > 60) return null;
+        
+        // Validación del huso
+        if (zoneNumber < 1 || zoneNumber > 60) {
+            console.warn(`Huso UTM inválido: ${zoneNumber}. Usando huso por defecto (31).`);
+            zoneNumber = 31;
+            northern = true;
+        }
     }
 
     return { easting, northing, zoneNumber, northern };
 }
-
 /* ============================================
    FECHA LOCAL CORRECTA (sin problema UTC)
    ============================================ */

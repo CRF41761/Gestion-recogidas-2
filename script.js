@@ -568,30 +568,16 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
         if (marker) marker.setLatLng([lat, lng]);
         else marker = L.marker([lat, lng]).addTo(map);
 
-        // Forzar siempre "Estás aquí" para no arrastrar el municipio de un punto anterior
-        marker.bindPopup("Estás aquí").openPopup();
-
         document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+
+        // Actualiza popup Y campo Municipio con el dato real de la posición actual
+        mostrarPopupYActualizarMunicipio(lat, lng);
     }
 
     function detenerSeguimiento() {
         if (watchId !== null) navigator.geolocation.clearWatch(watchId);
         watchId = null; seguimientoActivo = false;
     }
-
-    locateButton.addEventListener("click", e => {
-    e.preventDefault();
-    seguimientoActivo = true;
-    forzarZoomInicial = true;
-    if (ultimaPosicion) {
-        const [lat, lng] = ultimaPosicion;
-        if (marker) marker.setLatLng([lat, lng]);
-        else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-        map.setView([lat, lng], 13);
-        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-    }
-    iniciarSeguimiento();
-});
 
    // Función reutilizable para mostrar popup y actualizar municipio
 function mostrarPopupYActualizarMunicipio(lat, lng) {
@@ -730,13 +716,12 @@ map.on("click", onMapClick);
         e.preventDefault();
         seguimientoActivo = true;
         forzarZoomInicial = true;
-        if (ultimaPosicion) {
-            const [lat, lng] = ultimaPosicion;
-            if (marker) marker.setLatLng([lat, lng]);
-            else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-            map.setView([lat, lng], 13);
-            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        }
+
+        // Feedback inmediato mientras se obtiene la posición real
+        if (marker) marker.bindPopup("Localizando...").openPopup();
+        const municipioInputLocate = document.getElementById('municipio');
+        if (municipioInputLocate) municipioInputLocate.value = '';
+
         iniciarSeguimiento();
     });
     const mapElement = document.getElementById("map");
@@ -1557,11 +1542,3 @@ document.addEventListener('visibilitychange', () => {
 
 // 3. ✅ CUANDO LA VENTANA RECIBE FOCO
 window.addEventListener('focus', actualizarFechaSiEsAnterior);
-
-
-
-
-
-
-
-

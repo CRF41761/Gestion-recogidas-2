@@ -580,15 +580,18 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
     }
 
     locateButton.addEventListener("click", e => {
-        e.preventDefault();
-        seguimientoActivo = true;
-        forzarZoomInicial = true;
-
-        // Feedback inmediato mientras se obtiene la posición real
-        if (marker) marker.bindPopup("Localizando...").openPopup();
-
-        iniciarSeguimiento();
-    });
+    e.preventDefault();
+    seguimientoActivo = true;
+    forzarZoomInicial = true;
+    if (ultimaPosicion) {
+        const [lat, lng] = ultimaPosicion;
+        if (marker) marker.setLatLng([lat, lng]);
+        else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+        map.setView([lat, lng], 13);
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+    }
+    iniciarSeguimiento();
+});
 
    // Función reutilizable para mostrar popup y actualizar municipio
 function mostrarPopupYActualizarMunicipio(lat, lng) {

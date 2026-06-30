@@ -542,36 +542,19 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
 }
     function iniciarSeguimiento() {
         if (!navigator.geolocation) return;
-
-        // 1. Fix rápido (usa caché de hasta 5s si está disponible) → respuesta casi instantánea
-        navigator.geolocation.getCurrentPosition(
-            pos => actualizarPosicionGPS(pos),
-            err => console.error("Error GPS rápido:", err),
-            { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 }
-        );
-
-        // 2. Seguimiento continuo de precisión
         watchId = navigator.geolocation.watchPosition(
-            pos => actualizarPosicionGPS(pos),
+            pos => {
+                if (!seguimientoActivo) return;
+                const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                ultimaPosicion = [lat, lng];
+                map.setView([lat, lng], forzarZoomInicial ? 13 : map.getZoom());
+                forzarZoomInicial = false;
+                marker ? marker.setLatLng([lat, lng])
+                       : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+            },
             err => console.error("Error GPS:", err),
             { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
         );
-    }
-
-    function actualizarPosicionGPS(pos) {
-        if (!seguimientoActivo) return;
-        const lat = pos.coords.latitude, lng = pos.coords.longitude;
-        ultimaPosicion = [lat, lng];
-        map.setView([lat, lng], forzarZoomInicial ? 13 : map.getZoom());
-        forzarZoomInicial = false;
-
-        if (marker) marker.setLatLng([lat, lng]);
-        else marker = L.marker([lat, lng]).addTo(map);
-
-        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-
-        // Actualiza popup Y campo Municipio con el dato real de la posición actual
-        mostrarPopupYActualizarMunicipio(lat, lng);
     }
 
     function detenerSeguimiento() {
@@ -638,7 +621,7 @@ function onMapClick(e) {
     mostrarPopupYActualizarMunicipio(latlng.lat, latlng.lng);
 }
 map.on("click", onMapClick);
-   /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
+    /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
     function buscarOCoordenadas(raw) {
     raw = raw.trim();
     if (!raw) return;
@@ -653,7 +636,6 @@ map.on("click", onMapClick);
             else marker = L.marker([lat, lon]).addTo(map);
             map.setView([lat, lon], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lon.toFixed(5);
-            mostrarPopupYActualizarMunicipio(lat, lon);
             return;
         } catch (err) {
             console.error("Error convirtiendo UTM:", err);
@@ -671,7 +653,6 @@ map.on("click", onMapClick);
             else marker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-            mostrarPopupYActualizarMunicipio(lat, lng);
             return;
         }
     }
@@ -702,6 +683,7 @@ map.on("click", onMapClick);
         alert("Error al buscar la dirección.");
     });
 }
+
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");
     if (btnLocalizar) {
@@ -716,12 +698,13 @@ map.on("click", onMapClick);
         e.preventDefault();
         seguimientoActivo = true;
         forzarZoomInicial = true;
-
-        // Feedback inmediato mientras se obtiene la posición real
-        if (marker) marker.bindPopup("Localizando...").openPopup();
-        const municipioInputLocate = document.getElementById('municipio');
-        if (municipioInputLocate) municipioInputLocate.value = '';
-
+        if (ultimaPosicion) {
+            const [lat, lng] = ultimaPosicion;
+            if (marker) marker.setLatLng([lat, lng]);
+            else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+            map.setView([lat, lng], 13);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+        }
         iniciarSeguimiento();
     });
     const mapElement = document.getElementById("map");
@@ -1542,3 +1525,11 @@ document.addEventListener('visibilitychange', () => {
 
 // 3. ✅ CUANDO LA VENTANA RECIBE FOCO
 window.addEventListener('focus', actualizarFechaSiEsAnterior);
+
+
+
+
+
+
+
+

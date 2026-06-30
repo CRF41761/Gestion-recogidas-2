@@ -621,7 +621,7 @@ function onMapClick(e) {
     mostrarPopupYActualizarMunicipio(latlng.lat, latlng.lng);
 }
 map.on("click", onMapClick);
-    /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
+   /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
     function buscarOCoordenadas(raw) {
     raw = raw.trim();
     if (!raw) return;
@@ -636,6 +636,7 @@ map.on("click", onMapClick);
             else marker = L.marker([lat, lon]).addTo(map);
             map.setView([lat, lon], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lon.toFixed(5);
+            mostrarPopupYActualizarMunicipio(lat, lon);
             return;
         } catch (err) {
             console.error("Error convirtiendo UTM:", err);
@@ -653,6 +654,7 @@ map.on("click", onMapClick);
             else marker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            mostrarPopupYActualizarMunicipio(lat, lng);
             return;
         }
     }
@@ -683,7 +685,6 @@ map.on("click", onMapClick);
         alert("Error al buscar la dirección.");
     });
 }
-
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");
     if (btnLocalizar) {

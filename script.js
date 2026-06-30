@@ -542,25 +542,53 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
 }
     function iniciarSeguimiento() {
         if (!navigator.geolocation) return;
+
+        // 1. Fix rápido (usa caché de hasta 5s si está disponible) → respuesta casi instantánea
+        navigator.geolocation.getCurrentPosition(
+            pos => actualizarPosicionGPS(pos),
+            err => console.error("Error GPS rápido:", err),
+            { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 }
+        );
+
+        // 2. Seguimiento continuo de precisión
         watchId = navigator.geolocation.watchPosition(
-            pos => {
-                if (!seguimientoActivo) return;
-                const lat = pos.coords.latitude, lng = pos.coords.longitude;
-                ultimaPosicion = [lat, lng];
-                map.setView([lat, lng], forzarZoomInicial ? 13 : map.getZoom());
-                forzarZoomInicial = false;
-                marker ? marker.setLatLng([lat, lng])
-                       : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-            },
+            pos => actualizarPosicionGPS(pos),
             err => console.error("Error GPS:", err),
             { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
         );
+    }
+
+    function actualizarPosicionGPS(pos) {
+        if (!seguimientoActivo) return;
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        ultimaPosicion = [lat, lng];
+        map.setView([lat, lng], forzarZoomInicial ? 13 : map.getZoom());
+        forzarZoomInicial = false;
+
+        if (marker) marker.setLatLng([lat, lng]);
+        else marker = L.marker([lat, lng]).addTo(map);
+
+        // Forzar siempre "Estás aquí" para no arrastrar el municipio de un punto anterior
+        marker.bindPopup("Estás aquí").openPopup();
+
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
     }
 
     function detenerSeguimiento() {
         if (watchId !== null) navigator.geolocation.clearWatch(watchId);
         watchId = null; seguimientoActivo = false;
     }
+
+    locateButton.addEventListener("click", e => {
+        e.preventDefault();
+        seguimientoActivo = true;
+        forzarZoomInicial = true;
+
+        // Feedback inmediato mientras se obtiene la posición real
+        if (marker) marker.bindPopup("Localizando...").openPopup();
+
+        iniciarSeguimiento();
+    });
 
    // Función reutilizable para mostrar popup y actualizar municipio
 function mostrarPopupYActualizarMunicipio(lat, lng) {

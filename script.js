@@ -436,6 +436,25 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+   /* ---------- AVISO PARA MURCIÉLAGOS ---------- */
+const especieComunInput = document.getElementById('especie_comun');
+if (especieComunInput) {
+    especieComunInput.addEventListener('change', function () {
+        const especie = this.value.toLowerCase();
+        // Verificar si es un murciélago (pero no "murciélago indeterminado")
+        if (especie.includes('murci') && 
+            !especie.includes('indeterminado') && 
+            !especie.includes('indet')) {
+            const mensaje = "⚠️ Si no estás seguro al 100% de la especie de murciélago, selecciona 'Murciélago indeterminado'.\n\n¿Estás completamente seguro de la identificación?";
+            const ok = confirm(mensaje);
+            if (!ok) {
+                // Opcional: limpiar el campo o sugerir la opción correcta
+                this.value = "";
+                this.focus();
+            }
+        }
+    });
+}
 
     var map = L.map("map").setView([39.4699, -0.3763], 10);
         // Capa OpenStreetMap (estándar)

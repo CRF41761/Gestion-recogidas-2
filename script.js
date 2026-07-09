@@ -436,22 +436,23 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-   /* ---------- AVISO PARA MURCIÉLAGOS ---------- */
+  /* ---------- AVISO PARA MURCIÉLAGOS ---------- */
 const especieComunInput = document.getElementById('especie_comun');
 if (especieComunInput) {
     especieComunInput.addEventListener('change', function () {
         const especie = this.value.toLowerCase();
-        // Verificar si es un murciélago (pero no "murciélago indeterminado")
+        // Verificar si es un murciélago (pero no "murciélago no identificado")
         if (especie.includes('murci') && 
-            !especie.includes('indeterminado') && 
+            !especie.includes('no identificado') && 
             !especie.includes('indet')) {
-            const mensaje = "⚠️ Si no estás seguro al 100% de la especie de murciélago, selecciona 'Murciélago indeterminado'.\n\n¿Estás completamente seguro de la identificación?";
-            const ok = confirm(mensaje);
-            if (!ok) {
-                // Opcional: limpiar el campo o sugerir la opción correcta
-                this.value = "";
-                this.focus();
+            
+            // Usar confirm() personalizado con botones "No" y "Sí"
+            if (!confirm("⚠️ ¿Estás completamente seguro al 100% de la identificación?\n\nSi no estás seguro, selecciona 'Murciélago no identificado'.")) {
+                // Usuario ha pulsado "Cancelar" → interpretamos como "No"
+                this.value = "Murciélago no identificado";
+                this.dispatchEvent(new Event('input')); // Disparar autocompletado del campo científico
             }
+            // Si pulsa "Aceptar" (Sí), mantiene la especie original
         }
     });
 }

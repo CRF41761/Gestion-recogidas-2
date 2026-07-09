@@ -446,13 +446,14 @@ if (especieComunInput) {
             !especie.includes('no identificado') && 
             !especie.includes('indet')) {
             
-            // Usar confirm() personalizado con botones "No" y "Sí"
-            if (!confirm("⚠️ ¿Estás completamente seguro al 100% de la identificación?\n\nSi no estás seguro, selecciona 'Murciélago no identificado'.")) {
-                // Usuario ha pulsado "Cancelar" → interpretamos como "No"
+            const mensaje = "Si no estás seguro de la especie de murciélago, selecciona 'Murciélago no identificado'. ¿Estás completamente seguro de la identificación?";
+            
+            if (!confirm(mensaje)) {
+                // Usuario ha pulsado "Cancelar" → interpretamos como "No estoy seguro"
                 this.value = "Murciélago no identificado";
                 this.dispatchEvent(new Event('input')); // Disparar autocompletado del campo científico
             }
-            // Si pulsa "Aceptar" (Sí), mantiene la especie original
+            // Si pulsa "Aceptar", se mantiene la especie original
         }
     });
 }

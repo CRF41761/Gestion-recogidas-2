@@ -785,7 +785,7 @@ function detectarMunicipio(texto){
 async function buscarDireccionInteligente(texto) {
 
     const datos = detectarMunicipio(texto);
-
+console.log("Buscar:", texto, "→", datos);
     const calle = datos.calle;
     const municipio = datos.municipio;
 

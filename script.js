@@ -657,12 +657,14 @@ function normalizarTexto(txt) {
 
 }
 
+
 // ==========================================================
 // MEJORAR DIRECCIÓN ESCRITA
 // ==========================================================
 function mejorarBusqueda(calle){
 
     calle = calle.trim().replace(/\s+/g, " ");
+
 
     const reglas = [
 
@@ -684,41 +686,49 @@ function mejorarBusqueda(calle){
 
     ];
 
+
     for(const r of reglas){
 
         calle = calle.replace(r[0],r[1]);
 
     }
 
-    // Casos muy habituales
+
+    // Alias habituales del CRF
 
     const especiales = {
 
-    "colon":"Calle Colón",
+        "colon":"Calle Colón",
 
-    "puerto":"Avenida del Puerto",
+        "puerto":"Avenida del Puerto",
 
-    "saler":"Carretera del Saler",
+        "saler":"Carretera del Saler",
 
-    "ayuntamiento":"Plaza del Ayuntamiento"
+        "ayuntamiento":"Plaza del Ayuntamiento"
 
-};
+    };
 
-   const clave = normalizarTexto(calle);
 
-const claveSimple = clave
-    .replace(/^calle\s+/, "")
-    .replace(/^avenida\s+/, "")
-    .replace(/^plaza\s+/, "")
-    .replace(/^paseo\s+/, "")
-    .replace(/^carretera\s+/, "");
+    const clave = normalizarTexto(calle);
 
-if (especiales[claveSimple])
-    return especiales[claveSimple];
 
-return calle;
+    const claveSimple = clave
+        .replace(/^calle\s+/,"")
+        .replace(/^avenida\s+/,"")
+        .replace(/^plaza\s+/,"")
+        .replace(/^paseo\s+/,"")
+        .replace(/^carretera\s+/,"");
+
+
+    if(especiales[claveSimple])
+        return especiales[claveSimple];
+
+
+    return calle;
 
 }
+
+
 
 // ==========================================================
 // DETECTAR MUNICIPIO
@@ -726,18 +736,28 @@ return calle;
 function detectarMunicipio(texto){
 
     let municipio = "Valencia";
+
     let calle = texto.trim();
 
+
     if(!window.municipiosData)
-        return {calle,municipio};
+        return {
+            calle,
+            municipio
+        };
+
 
     const textoNorm = normalizarTexto(texto);
 
+
     let mejor = "";
+
 
     window.municipiosData.forEach(m=>{
 
+
         const nombres=[];
+
 
         if(m.nombre) nombres.push(m.nombre);
 
@@ -749,15 +769,20 @@ function detectarMunicipio(texto){
 
         if(m.castellano) nombres.push(m.castellano);
 
+
+
         nombres.forEach(n=>{
 
-            const nn=normalizarTexto(n);
+
+            const nn = normalizarTexto(n);
+
 
             if(textoNorm.endsWith(nn)){
 
-                if(nn.length>mejor.length){
 
-                    mejor=n;
+                if(nn.length > mejor.length){
+
+                    mejor = n;
 
                 }
 
@@ -765,20 +790,30 @@ function detectarMunicipio(texto){
 
         });
 
+
     });
+
+
 
     if(mejor){
 
-        municipio=mejor;
 
-        calle=calle.substring(
+        municipio = mejor;
+
+
+        calle = calle.substring(
             0,
-            calle.length-mejor.length
+            calle.length - mejor.length
         ).trim();
+
 
     }
 
-    calle=mejorarBusqueda(calle);
+
+
+    calle = mejorarBusqueda(calle);
+
+
 
     return {
 
@@ -787,34 +822,99 @@ function detectarMunicipio(texto){
 
     };
 
+
 }
-   // ==========================================================
+
+
+
+
+// ==========================================================
+// CREAR CONSULTAS DE BÚSQUEDA
+// ==========================================================
+function crearConsultas(calle, municipio){
+
+
+    const consultas=[];
+
+
+    const calleSimple = calle
+        .replace(/^Calle\s+/i,"")
+        .replace(/^Avenida\s+/i,"")
+        .replace(/^Plaza\s+/i,"")
+        .replace(/^Paseo\s+/i,"")
+        .replace(/^Carretera\s+/i,"");
+
+
+
+    consultas.push(
+        `${calle}, ${municipio}, España`
+    );
+
+
+    consultas.push(
+        `${calleSimple}, ${municipio}, España`
+    );
+
+
+
+    // Traducción valenciana
+
+    consultas.push(
+
+        calle
+        .replace(/^Calle/i,"Carrer")
+        .replace(/^Avenida/i,"Avinguda")
+        .replace(/^Plaza/i,"Plaça")
+        +
+        `, ${municipio}, España`
+
+    );
+
+
+    return consultas;
+
+}
+
+
+
+
+// ==========================================================
 // BUSCAR CON PHOTON
 // ==========================================================
 async function buscarPhoton(consultas){
 
-    let resultados = [];
+
+    let resultados=[];
+
 
     const respuestas = await Promise.all(
 
-        consultas.map(async consulta => {
 
-            try {
+        consultas.map(async consulta=>{
+
+
+            try{
+
 
                 const url =
                 "https://photon.komoot.io/api/?" +
                 new URLSearchParams({
 
                     q: consulta,
-                    lang: "es",
-                    limit: 5
+
+                    lang:"es",
+
+                    limit:5
 
                 });
 
 
+
                 const r = await fetch(url);
 
+
                 const data = await r.json();
+
 
 
                 return data.features || [];
@@ -823,50 +923,164 @@ async function buscarPhoton(consultas){
             }
             catch(e){
 
-                console.error("Error Photon:", e);
+
+                console.error(
+                    "Error Photon:",
+                    e
+                );
+
 
                 return [];
 
+
             }
+
 
         })
 
+
     );
+
 
 
     resultados = respuestas.flat();
 
 
-    return resultados.map(f => {
+
+    return resultados.map(f=>{
+
 
         return {
 
-            lat: f.geometry.coordinates[1],
-            lon: f.geometry.coordinates[0],
+
+            lat:
+            f.geometry.coordinates[1],
+
+
+            lon:
+            f.geometry.coordinates[0],
+
+
 
             display_name:
-                [
-                    f.properties.name,
-                    f.properties.city,
-                    f.properties.state
-                ]
-                .filter(Boolean)
-                .join(", "),
+
+            [
+
+                f.properties.name,
+
+                f.properties.street,
+
+                f.properties.city,
+
+                f.properties.state
+
+            ]
+
+            .filter(Boolean)
+
+            .join(", "),
+
+
 
             type:
-                f.properties.osm_value || "",
+            f.properties.osm_value || "",
+
 
             class:
-                f.properties.osm_key || "",
+            f.properties.osm_key || "",
+
+
 
             importance:
-                0.5,
+            0.5,
 
-            source:"photon"
+
+
+            source:
+            "photon"
+
 
         };
 
+
     });
+
+
+}
+
+
+
+
+
+// ==========================================================
+// BUSCAR CON NOMINATIM
+// ==========================================================
+async function buscarNominatim(consultas){
+
+
+    const respuestas = await Promise.all(
+
+
+        consultas.map(async consulta=>{
+
+
+            try{
+
+
+                const url =
+
+                "https://nominatim.openstreetmap.org/search?" +
+
+                new URLSearchParams({
+
+                    q:consulta,
+
+                    format:"json",
+
+                    addressdetails:1,
+
+                    countrycodes:"es",
+
+                    limit:5
+
+                });
+
+
+
+                const r = await fetch(url,{
+
+                    headers:{
+
+                        "Accept-Language":"es"
+
+                    }
+
+                });
+
+
+
+                return await r.json();
+
+
+            }
+            catch{
+
+
+                return [];
+
+
+            }
+
+
+        })
+
+
+    );
+
+
+
+    return respuestas.flat();
+
 
 }
    // ==========================================================

@@ -662,7 +662,7 @@ function normalizarTexto(txt) {
 // ==========================================================
 function mejorarBusqueda(calle){
 
-    calle = calle.trim();
+    calle = calle.trim().replace(/\s+/g, " ");
 
     const reglas = [
 

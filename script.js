@@ -957,7 +957,9 @@ if (municipioNorm === "valencia") {
     // Preferir direcciones con número
     if (r.address && r.address.house_number)
         puntos += 15;
-
+// Bonificar coincidencia exacta del nombre de la calle
+if (texto.includes(calleNorm))
+    puntos += 100;
     r.__score = puntos;
 
 });

@@ -989,8 +989,19 @@ resultados = resultados.filter(r => {
 
 });
 
-if (!resultados.length)
-    return null;
+//---------------------------------------------------
+// SI PHOTON NO ENCUENTRA NADA, USAR NOMINATIM
+//---------------------------------------------------
+
+if (!resultados.length){
+
+    console.log("Photon sin resultados. Probando Nominatim");
+
+
+    // AQUÍ DEJAMOS TU CÓDIGO ACTUAL DE NOMINATIM
+
+
+}
 
     //---------------------------------------------------
     // 4. PUNTUAR RESULTADOS

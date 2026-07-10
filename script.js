@@ -642,7 +642,7 @@ function onMapClick(e) {
     mostrarPopupYActualizarMunicipio(latlng.lat, latlng.lng);
 }
 map.on("click", onMapClick);
-   // ==========================================================
+   Ok , dime como lo hago. Asi es como tengo esa parte del codigo ahora:    // ==========================================================
 // NORMALIZAR TEXTO
 // ==========================================================
 function normalizarTexto(txt) {
@@ -657,14 +657,12 @@ function normalizarTexto(txt) {
 
 }
 
-
 // ==========================================================
 // MEJORAR DIRECCIÓN ESCRITA
 // ==========================================================
 function mejorarBusqueda(calle){
 
     calle = calle.trim().replace(/\s+/g, " ");
-
 
     const reglas = [
 
@@ -686,49 +684,41 @@ function mejorarBusqueda(calle){
 
     ];
 
-
     for(const r of reglas){
 
         calle = calle.replace(r[0],r[1]);
 
     }
 
-
-    // Alias habituales del CRF
+    // Casos muy habituales
 
     const especiales = {
 
-        "colon":"Calle Colón",
+    "colon":"Calle Colón",
 
-        "puerto":"Avenida del Puerto",
+    "puerto":"Avenida del Puerto",
 
-        "saler":"Carretera del Saler",
+    "saler":"Carretera del Saler",
 
-        "ayuntamiento":"Plaza del Ayuntamiento"
+    "ayuntamiento":"Plaza del Ayuntamiento"
 
-    };
+};
 
+   const clave = normalizarTexto(calle);
 
-    const clave = normalizarTexto(calle);
+const claveSimple = clave
+    .replace(/^calle\s+/, "")
+    .replace(/^avenida\s+/, "")
+    .replace(/^plaza\s+/, "")
+    .replace(/^paseo\s+/, "")
+    .replace(/^carretera\s+/, "");
 
+if (especiales[claveSimple])
+    return especiales[claveSimple];
 
-    const claveSimple = clave
-        .replace(/^calle\s+/,"")
-        .replace(/^avenida\s+/,"")
-        .replace(/^plaza\s+/,"")
-        .replace(/^paseo\s+/,"")
-        .replace(/^carretera\s+/,"");
-
-
-    if(especiales[claveSimple])
-        return especiales[claveSimple];
-
-
-    return calle;
+return calle;
 
 }
-
-
 
 // ==========================================================
 // DETECTAR MUNICIPIO
@@ -736,28 +726,18 @@ function mejorarBusqueda(calle){
 function detectarMunicipio(texto){
 
     let municipio = "Valencia";
-
     let calle = texto.trim();
 
-
     if(!window.municipiosData)
-        return {
-            calle,
-            municipio
-        };
-
+        return {calle,municipio};
 
     const textoNorm = normalizarTexto(texto);
 
-
     let mejor = "";
-
 
     window.municipiosData.forEach(m=>{
 
-
         const nombres=[];
-
 
         if(m.nombre) nombres.push(m.nombre);
 
@@ -769,20 +749,15 @@ function detectarMunicipio(texto){
 
         if(m.castellano) nombres.push(m.castellano);
 
-
-
         nombres.forEach(n=>{
 
-
-            const nn = normalizarTexto(n);
-
+            const nn=normalizarTexto(n);
 
             if(textoNorm.endsWith(nn)){
 
+                if(nn.length>mejor.length){
 
-                if(nn.length > mejor.length){
-
-                    mejor = n;
+                    mejor=n;
 
                 }
 
@@ -790,30 +765,20 @@ function detectarMunicipio(texto){
 
         });
 
-
     });
-
-
 
     if(mejor){
 
+        municipio=mejor;
 
-        municipio = mejor;
-
-
-        calle = calle.substring(
+        calle=calle.substring(
             0,
-            calle.length - mejor.length
+            calle.length-mejor.length
         ).trim();
-
 
     }
 
-
-
-    calle = mejorarBusqueda(calle);
-
-
+    calle=mejorarBusqueda(calle);
 
     return {
 
@@ -822,268 +787,198 @@ function detectarMunicipio(texto){
 
     };
 
+}
+   // ==========================================================
+// BUSCADOR INTELIGENTE
+// ==========================================================
+async function buscarDireccionInteligente(texto) {
+
+    const datos = detectarMunicipio(texto);
+console.log("Buscar:", texto, "→", datos);
+    const calle = datos.calle;
+    const municipio = datos.municipio;
+
+    let resultados = [];
+
+//---------------------------------------------------
+// BÚSQUEDA MÚLTIPLE INTELIGENTE
+//---------------------------------------------------
+
+const consultas = [];
+
+if (municipio.toLowerCase() === "valencia") {
+
+    consultas.push(`${calle}, Valencia, España`);
+
+    // Sin tipo de vía
+    const calleSimple = calle
+        .replace(/^Calle\s+/i, "")
+        .replace(/^Avenida\s+/i, "")
+        .replace(/^Plaza\s+/i, "")
+        .replace(/^Paseo\s+/i, "")
+        .replace(/^Carretera\s+/i, "");
+
+    consultas.push(`${calleSimple}, Valencia, España`);
+
+    // Versión valenciana
+    consultas.push(
+        calle
+            .replace(/^Calle/i, "Carrer")
+            .replace(/^Avenida/i, "Avinguda")
+            .replace(/^Plaza/i, "Plaça")
+            + ", Valencia, España"
+    );
 
 }
+else {
 
-
-
-
-// ==========================================================
-// CREAR CONSULTAS DE BÚSQUEDA
-// ==========================================================
-function crearConsultas(calle, municipio){
-
-
-    const consultas=[];
-
+    consultas.push(`${calle}, ${municipio}, España`);
 
     const calleSimple = calle
-        .replace(/^Calle\s+/i,"")
-        .replace(/^Avenida\s+/i,"")
-        .replace(/^Plaza\s+/i,"")
-        .replace(/^Paseo\s+/i,"")
-        .replace(/^Carretera\s+/i,"");
+        .replace(/^Calle\s+/i, "")
+        .replace(/^Avenida\s+/i, "")
+        .replace(/^Plaza\s+/i, "")
+        .replace(/^Paseo\s+/i, "")
+        .replace(/^Carretera\s+/i, "");
 
-
-
-    consultas.push(
-        `${calle}, ${municipio}, España`
-    );
-
-
-    consultas.push(
-        `${calleSimple}, ${municipio}, España`
-    );
-
-
-
-    // Traducción valenciana
-
-    consultas.push(
-
-        calle
-        .replace(/^Calle/i,"Carrer")
-        .replace(/^Avenida/i,"Avinguda")
-        .replace(/^Plaza/i,"Plaça")
-        +
-        `, ${municipio}, España`
-
-    );
-
-
-    return consultas;
+    consultas.push(`${calleSimple}, ${municipio}, España`);
 
 }
 
+const respuestas = await Promise.all(
 
+    consultas.map(async consulta => {
 
+        try {
 
-// ==========================================================
-// BUSCAR CON PHOTON
-// ==========================================================
-async function buscarPhoton(consultas){
-
-
-    let resultados=[];
-
-
-    const respuestas = await Promise.all(
-
-
-        consultas.map(async consulta=>{
-
-
-            try{
-
-
-                const url =
-                "https://photon.komoot.io/api/?" +
-                new URLSearchParams({
-
-                    q: consulta,
-
-                    lang:"es",
-
-                    limit:5
-
-                });
-
-
-
-                const r = await fetch(url);
-
-
-                const data = await r.json();
-
-
-
-                return data.features || [];
-
-
-            }
-            catch(e){
-
-
-                console.error(
-                    "Error Photon:",
-                    e
-                );
-
-
-                return [];
-
-
-            }
-
-
-        })
-
-
-    );
-
-
-
-    resultados = respuestas.flat();
-
-
-
-    return resultados.map(f=>{
-
-
-        return {
-
-
-            lat:
-            f.geometry.coordinates[1],
-
-
-            lon:
-            f.geometry.coordinates[0],
-
-
-
-            display_name:
-
-            [
-
-                f.properties.name,
-
-                f.properties.street,
-
-                f.properties.city,
-
-                f.properties.state
-
-            ]
-
-            .filter(Boolean)
-
-            .join(", "),
-
-
-
-            type:
-            f.properties.osm_value || "",
-
-
-            class:
-            f.properties.osm_key || "",
-
-
-
-            importance:
-            0.5,
-
-
-
-            source:
-            "photon"
-
-
-        };
-
-
-    });
-
-
-}
-
-
-
-
-
-// ==========================================================
-// BUSCAR CON NOMINATIM
-// ==========================================================
-async function buscarNominatim(consultas){
-
-
-    const respuestas = await Promise.all(
-
-
-        consultas.map(async consulta=>{
-
-
-            try{
-
-
-                const url =
-
+            const url =
                 "https://nominatim.openstreetmap.org/search?" +
-
                 new URLSearchParams({
-
-                    q:consulta,
-
-                    format:"json",
-
-                    addressdetails:1,
-
-                    countrycodes:"es",
-
-                    limit:5
-
+                    q: consulta,
+                    format: "json",
+                    addressdetails: 1,
+                    countrycodes: "es",
+                    limit: 5
                 });
 
+            const r = await fetch(url, {
+                headers: {
+                    "Accept-Language": "es"
+                }
+            });
 
+            return await r.json();
 
-                const r = await fetch(url,{
+        } catch {
 
-                    headers:{
+            return [];
 
-                        "Accept-Language":"es"
+        }
 
-                    }
+    })
 
-                });
+);
 
+// Unir resultados
+resultados = respuestas.flat();
 
+// Eliminar duplicados
+const vistos = new Set();
 
-                return await r.json();
+resultados = resultados.filter(r => {
 
+    if (vistos.has(r.place_id))
+        return false;
 
-            }
-            catch{
+    vistos.add(r.place_id);
 
+    return true;
 
-                return [];
+});
 
+if (!resultados.length)
+    return null;
 
-            }
+    //---------------------------------------------------
+    // 4. PUNTUAR RESULTADOS
+    //---------------------------------------------------
 
+    const calleNorm = normalizarTexto(calle);
+    const municipioNorm = normalizarTexto(municipio);
 
-        })
+ resultados.forEach(r => {
 
+    let puntos = 0;
 
-    );
+    const texto = normalizarTexto(r.display_name);
+// Si el municipio es Valencia, penalizar resultados que no sean Valencia
+if (municipioNorm === "valencia") {
 
+    if (
+        !texto.includes("valencia") &&
+        !texto.includes("valència")
+    ) {
 
+        r.__score = -9999;
+        return;
 
-    return respuestas.flat();
-
+    }
 
 }
-  async function buscarDireccionInteligente(texto) {
+    // Coincidencia con la calle
+    if (texto.includes(calleNorm))
+        puntos += 60;
+
+    // Coincidencia con el municipio
+    if (texto.includes(municipioNorm))
+        puntos += 120;
+
+    // Priorizar Valencia cuando es el municipio por defecto
+    if (municipioNorm === "valencia" && texto.includes("valencia"))
+        puntos += 40;
+
+    // Tipo de vía
+    if (r.type === "road")
+        puntos += 25;
+
+    if (r.type === "residential")
+        puntos += 20;
+
+    if (r.type === "house")
+        puntos += 20;
+
+    if (r.class === "highway")
+        puntos += 15;
+
+    // Importancia que asigna Nominatim (0-1)
+    if (r.importance)
+        puntos += r.importance * 50;
+
+    // Preferir direcciones con número
+    if (r.address && r.address.house_number)
+        puntos += 15;
+// Bonificar coincidencia exacta del nombre de la calle
+if (texto.includes(calleNorm))
+    puntos += 100;
+    r.__score = puntos;
+
+});
+
+    //---------------------------------------------------
+    // 5. ORDENAR
+    //---------------------------------------------------
+console.table(resultados.map(r => ({
+    score: r.__score,
+    type: r.type,
+    importance: r.importance,
+    display: r.display_name
+})));
+    resultados.sort((a, b) => b.__score - a.__score);
+   console.log("Resultado elegido:", resultados[0]);
+
+    return resultados[0];
+
+}
     /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
     function buscarOCoordenadas(raw) {
     raw = raw.trim();
@@ -1167,7 +1062,6 @@ async function buscarNominatim(consultas){
 
 })();
 }
-
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");
     if (btnLocalizar) {

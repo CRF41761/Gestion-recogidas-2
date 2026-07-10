@@ -958,6 +958,7 @@ console.table(resultados.map(r => ({
     display: r.display_name
 })));
     resultados.sort((a, b) => b.__score - a.__score);
+   console.log("Resultado elegido:", resultados[0]);
 
     return resultados[0];
 

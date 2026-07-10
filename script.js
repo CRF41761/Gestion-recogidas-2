@@ -800,69 +800,104 @@ console.log("Buscar:", texto, "→", datos);
 
     let resultados = [];
 
-   //---------------------------------------------------
-// 1. BÚSQUEDA LIBRE (más flexible)
+//---------------------------------------------------
+// BÚSQUEDA MÚLTIPLE INTELIGENTE
 //---------------------------------------------------
 
-try {
+const consultas = [];
 
-    const consulta =
-        municipio.toLowerCase() === "valencia"
-            ? `${calle}, Valencia, España`
-            : `${calle}, ${municipio}, España`;
+if (municipio.toLowerCase() === "valencia") {
 
-    const url1 =
-        "https://nominatim.openstreetmap.org/search?" +
-        new URLSearchParams({
-            q: consulta,
-            format: "json",
-            addressdetails: 1,
-            countrycodes: "es",
-            limit: 8
-        });
+    consultas.push(`${calle}, Valencia, España`);
 
-    const r1 = await fetch(url1, {
-        headers: {
-            "Accept-Language": "es"
-        }
-    });
+    // Sin tipo de vía
+    const calleSimple = calle
+        .replace(/^Calle\s+/i, "")
+        .replace(/^Avenida\s+/i, "")
+        .replace(/^Plaza\s+/i, "")
+        .replace(/^Paseo\s+/i, "")
+        .replace(/^Carretera\s+/i, "");
 
-    resultados = await r1.json();
+    consultas.push(`${calleSimple}, Valencia, España`);
 
-} catch (e) {}
+    // Versión valenciana
+    consultas.push(
+        calle
+            .replace(/^Calle/i, "Carrer")
+            .replace(/^Avenida/i, "Avinguda")
+            .replace(/^Plaza/i, "Plaça")
+            + ", Valencia, España"
+    );
 
-       //---------------------------------------------------
-    // 3. SEGUNDA OPORTUNIDAD
-    //---------------------------------------------------
+}
+else {
 
-    if (!resultados.length && municipio === "Valencia") {
+    consultas.push(`${calle}, ${municipio}, España`);
+
+    const calleSimple = calle
+        .replace(/^Calle\s+/i, "")
+        .replace(/^Avenida\s+/i, "")
+        .replace(/^Plaza\s+/i, "")
+        .replace(/^Paseo\s+/i, "")
+        .replace(/^Carretera\s+/i, "");
+
+    consultas.push(`${calleSimple}, ${municipio}, España`);
+
+}
+
+const respuestas = await Promise.all(
+
+    consultas.map(async consulta => {
 
         try {
 
-            const url3 =
+            const url =
                 "https://nominatim.openstreetmap.org/search?" +
                 new URLSearchParams({
-                    q: calle,
+                    q: consulta,
                     format: "json",
                     addressdetails: 1,
                     countrycodes: "es",
-                    limit: 10
+                    limit: 5
                 });
 
-            const r3 = await fetch(url3, {
+            const r = await fetch(url, {
                 headers: {
                     "Accept-Language": "es"
                 }
             });
 
-            resultados = await r3.json();
+            return await r.json();
 
-        } catch (e) {}
+        } catch {
 
-    }
+            return [];
 
-    if (!resultados.length)
-        return null;
+        }
+
+    })
+
+);
+
+// Unir resultados
+resultados = respuestas.flat();
+
+// Eliminar duplicados
+const vistos = new Set();
+
+resultados = resultados.filter(r => {
+
+    if (vistos.has(r.place_id))
+        return false;
+
+    vistos.add(r.place_id);
+
+    return true;
+
+});
+
+if (!resultados.length)
+    return null;
 
     //---------------------------------------------------
     // 4. PUNTUAR RESULTADOS

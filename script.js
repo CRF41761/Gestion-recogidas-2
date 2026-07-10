@@ -694,13 +694,15 @@ function mejorarBusqueda(calle){
 
     const especiales = {
 
-        "colon":"Calle Colón",
-        "colon 1":"Calle Colón 1",
-        "puerto":"Avenida del Puerto",
-        "saler":"Carretera del Saler",
-        "ayuntamiento":"Plaza del Ayuntamiento"
+    "colon":"Calle Colón",
 
-    };
+    "puerto":"Avenida del Puerto",
+
+    "saler":"Carretera del Saler",
+
+    "ayuntamiento":"Plaza del Ayuntamiento"
+
+};
 
    const clave = normalizarTexto(calle);
 

@@ -831,44 +831,7 @@ try {
 
 } catch (e) {}
 
-    //---------------------------------------------------
-    // 2. BÚSQUEDA LIBRE
-    //---------------------------------------------------
-
-    if (!resultados.length) {
-
-        try {
-
-            let consulta;
-
-            if (municipio.toLowerCase() === "valencia")
-                consulta = calle + ", Valencia, España";
-            else
-                consulta = calle + ", " + municipio + ", España";
-
-            const url2 =
-                "https://nominatim.openstreetmap.org/search?" +
-                new URLSearchParams({
-                    q: consulta,
-                    format: "json",
-                    addressdetails: 1,
-                    countrycodes: "es",
-                    limit: 8
-                });
-
-            const r2 = await fetch(url2, {
-                headers: {
-                    "Accept-Language": "es"
-                }
-            });
-
-            resultados = await r2.json();
-
-        } catch (e) {}
-
-    }
-
-    //---------------------------------------------------
+       //---------------------------------------------------
     // 3. SEGUNDA OPORTUNIDAD
     //---------------------------------------------------
 

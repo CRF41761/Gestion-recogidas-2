@@ -800,33 +800,36 @@ console.log("Buscar:", texto, "→", datos);
 
     let resultados = [];
 
-    //---------------------------------------------------
-    // 1. BÚSQUEDA ESTRUCTURADA (la más precisa)
-    //---------------------------------------------------
+   //---------------------------------------------------
+// 1. BÚSQUEDA LIBRE (más flexible)
+//---------------------------------------------------
 
-    try {
+try {
 
-        const url1 =
-            "https://nominatim.openstreetmap.org/search?" +
-            new URLSearchParams({
-                street: calle,
-                city: municipio,
-                country: "España",
-                countrycodes: "es",
-                format: "json",
-                addressdetails: 1,
-                limit: 8
-            });
+    const consulta =
+        municipio.toLowerCase() === "valencia"
+            ? `${calle}, Valencia, España`
+            : `${calle}, ${municipio}, España`;
 
-        const r1 = await fetch(url1, {
-            headers: {
-                "Accept-Language": "es"
-            }
+    const url1 =
+        "https://nominatim.openstreetmap.org/search?" +
+        new URLSearchParams({
+            q: consulta,
+            format: "json",
+            addressdetails: 1,
+            countrycodes: "es",
+            limit: 8
         });
 
-        resultados = await r1.json();
+    const r1 = await fetch(url1, {
+        headers: {
+            "Accept-Language": "es"
+        }
+    });
 
-    } catch (e) {}
+    resultados = await r1.json();
+
+} catch (e) {}
 
     //---------------------------------------------------
     // 2. BÚSQUEDA LIBRE

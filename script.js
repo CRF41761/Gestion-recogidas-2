@@ -642,6 +642,297 @@ function onMapClick(e) {
     mostrarPopupYActualizarMunicipio(latlng.lat, latlng.lng);
 }
 map.on("click", onMapClick);
+   // ==========================================================
+// NORMALIZAR TEXTO
+// ==========================================================
+function normalizarTexto(txt) {
+
+    return (txt || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+
+}
+
+// ==========================================================
+// MEJORAR DIRECCIÓN ESCRITA
+// ==========================================================
+function mejorarBusqueda(calle){
+
+    calle = calle.trim();
+
+    const reglas = [
+
+        [/^c\/\s*/i,"Calle "],
+        [/^c\.\s*/i,"Calle "],
+        [/^c\s+/i,"Calle "],
+
+        [/^cl\s+/i,"Calle "],
+
+        [/^av\s+/i,"Avenida "],
+        [/^avda\s+/i,"Avenida "],
+
+        [/^pl\s+/i,"Plaza "],
+        [/^pza\s+/i,"Plaza "],
+
+        [/^pg\s+/i,"Paseo "],
+
+        [/^crta\s+/i,"Carretera "]
+
+    ];
+
+    for(const r of reglas){
+
+        calle = calle.replace(r[0],r[1]);
+
+    }
+
+    // Casos muy habituales
+
+    const especiales = {
+
+        "colon":"Calle Colón",
+        "colon 1":"Calle Colón 1",
+        "puerto":"Avenida del Puerto",
+        "saler":"Carretera del Saler",
+        "ayuntamiento":"Plaza del Ayuntamiento"
+
+    };
+
+    const clave = normalizarTexto(calle);
+
+    if(especiales[clave])
+        return especiales[clave];
+
+    return calle;
+
+}
+
+// ==========================================================
+// DETECTAR MUNICIPIO
+// ==========================================================
+function detectarMunicipio(texto){
+
+    let municipio = "Valencia";
+    let calle = texto.trim();
+
+    if(!window.municipiosData)
+        return {calle,municipio};
+
+    const textoNorm = normalizarTexto(texto);
+
+    let mejor = "";
+
+    window.municipiosData.forEach(m=>{
+
+        const nombres=[];
+
+        if(m.nombre) nombres.push(m.nombre);
+
+        if(m.nombre_es) nombres.push(m.nombre_es);
+
+        if(m.nombre_val) nombres.push(m.nombre_val);
+
+        if(m.valenciano) nombres.push(m.valenciano);
+
+        if(m.castellano) nombres.push(m.castellano);
+
+        nombres.forEach(n=>{
+
+            const nn=normalizarTexto(n);
+
+            if(textoNorm.endsWith(nn)){
+
+                if(nn.length>mejor.length){
+
+                    mejor=n;
+
+                }
+
+            }
+
+        });
+
+    });
+
+    if(mejor){
+
+        municipio=mejor;
+
+        calle=calle.substring(
+            0,
+            calle.length-mejor.length
+        ).trim();
+
+    }
+
+    calle=mejorarBusqueda(calle);
+
+    return {
+
+        calle,
+        municipio
+
+    };
+
+}
+   // ==========================================================
+// BUSCADOR INTELIGENTE
+// ==========================================================
+async function buscarDireccionInteligente(texto) {
+
+    const datos = detectarMunicipio(texto);
+
+    const calle = datos.calle;
+    const municipio = datos.municipio;
+
+    let resultados = [];
+
+    //---------------------------------------------------
+    // 1. BÚSQUEDA ESTRUCTURADA (la más precisa)
+    //---------------------------------------------------
+
+    try {
+
+        const url1 =
+            "https://nominatim.openstreetmap.org/search?" +
+            new URLSearchParams({
+                street: calle,
+                city: municipio,
+                country: "España",
+                countrycodes: "es",
+                format: "json",
+                addressdetails: 1,
+                limit: 8
+            });
+
+        const r1 = await fetch(url1, {
+            headers: {
+                "Accept-Language": "es"
+            }
+        });
+
+        resultados = await r1.json();
+
+    } catch (e) {}
+
+    //---------------------------------------------------
+    // 2. BÚSQUEDA LIBRE
+    //---------------------------------------------------
+
+    if (!resultados.length) {
+
+        try {
+
+            let consulta;
+
+            if (municipio.toLowerCase() === "valencia")
+                consulta = calle + ", Valencia, España";
+            else
+                consulta = calle + ", " + municipio + ", España";
+
+            const url2 =
+                "https://nominatim.openstreetmap.org/search?" +
+                new URLSearchParams({
+                    q: consulta,
+                    format: "json",
+                    addressdetails: 1,
+                    countrycodes: "es",
+                    limit: 8
+                });
+
+            const r2 = await fetch(url2, {
+                headers: {
+                    "Accept-Language": "es"
+                }
+            });
+
+            resultados = await r2.json();
+
+        } catch (e) {}
+
+    }
+
+    //---------------------------------------------------
+    // 3. SEGUNDA OPORTUNIDAD
+    //---------------------------------------------------
+
+    if (!resultados.length && municipio === "Valencia") {
+
+        try {
+
+            const url3 =
+                "https://nominatim.openstreetmap.org/search?" +
+                new URLSearchParams({
+                    q: calle,
+                    format: "json",
+                    addressdetails: 1,
+                    countrycodes: "es",
+                    limit: 10
+                });
+
+            const r3 = await fetch(url3, {
+                headers: {
+                    "Accept-Language": "es"
+                }
+            });
+
+            resultados = await r3.json();
+
+        } catch (e) {}
+
+    }
+
+    if (!resultados.length)
+        return null;
+
+    //---------------------------------------------------
+    // 4. PUNTUAR RESULTADOS
+    //---------------------------------------------------
+
+    const calleNorm = normalizarTexto(calle);
+    const municipioNorm = normalizarTexto(municipio);
+
+    resultados.forEach(r => {
+
+        let puntos = 0;
+
+        const texto = normalizarTexto(r.display_name);
+
+        if (texto.includes(calleNorm))
+            puntos += 60;
+
+        if (texto.includes(municipioNorm))
+            puntos += 120;
+
+        if (texto.includes("valencia"))
+            puntos += 30;
+
+        if (r.type === "residential")
+            puntos += 20;
+
+        if (r.type === "road")
+            puntos += 15;
+
+        if (r.class === "highway")
+            puntos += 10;
+
+        r.__score = puntos;
+
+    });
+
+    //---------------------------------------------------
+    // 5. ORDENAR
+    //---------------------------------------------------
+
+    resultados.sort((a, b) => b.__score - a.__score);
+
+    return resultados[0];
+
+}
     /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
     function buscarOCoordenadas(raw) {
     raw = raw.trim();
@@ -678,31 +969,52 @@ map.on("click", onMapClick);
         }
     }
 
-    // 3. Si no, tratar como dirección
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&q=${encodeURIComponent(raw)}`;
-    fetch(url)
-        .then(r => r.json())
-        .then(data => {
-            if (!data || data.length === 0) {
-                alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
-                return;
-            }
-            const lat = parseFloat(data[0].lat);
-            const lng = parseFloat(data[0].lon);
-            detenerSeguimiento();
-            if (marker) marker.setLatLng([lat, lng]);
-            else marker = L.marker([lat, lng]).addTo(map);
-            map.setView([lat, lng], 16);
-            // ✅ Llamar a la función reutilizable
+   // 3. Si no, tratar como dirección
+(async () => {
+
+    try {
+
+        const resultado = await buscarDireccionInteligente(raw);
+
+        if (!resultado) {
+
+            alert("No se ha encontrado la dirección.");
+
+            return;
+
+        }
+
+        const lat = parseFloat(resultado.lat);
+        const lng = parseFloat(resultado.lon);
+
+        detenerSeguimiento();
+
+        if (marker)
+            marker.setLatLng([lat, lng]);
+        else
+            marker = L.marker([lat, lng]).addTo(map);
+
+        map.setView([lat, lng], 16);
+
+        // Mantener exactamente el comportamiento actual
         mostrarPopupYActualizarMunicipio(lat, lng);
-        
-        document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-    })
-    .catch(err => {
+
+        document.getElementById("coordenadas").value =
+            lat.toFixed(5) + ", " + lng.toFixed(5);
+
+        document.getElementById("coordenadas_mapa").value =
+            lat.toFixed(5) + ", " + lng.toFixed(5);
+
+    }
+    catch (err) {
+
         console.error(err);
+
         alert("Error al buscar la dirección.");
-    });
+
+    }
+
+})();
 }
 
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));

@@ -951,7 +951,12 @@ console.log("Buscar:", texto, "→", datos);
     //---------------------------------------------------
     // 5. ORDENAR
     //---------------------------------------------------
-
+console.table(resultados.map(r => ({
+    score: r.__score,
+    type: r.type,
+    importance: r.importance,
+    display: r.display_name
+})));
     resultados.sort((a, b) => b.__score - a.__score);
 
     return resultados[0];

@@ -642,343 +642,6 @@ function onMapClick(e) {
     mostrarPopupYActualizarMunicipio(latlng.lat, latlng.lng);
 }
 map.on("click", onMapClick);
-   Ok , dime como lo hago. Asi es como tengo esa parte del codigo ahora:    // ==========================================================
-// NORMALIZAR TEXTO
-// ==========================================================
-function normalizarTexto(txt) {
-
-    return (txt || "")
-        .toString()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .toLowerCase();
-
-}
-
-// ==========================================================
-// MEJORAR DIRECCIÓN ESCRITA
-// ==========================================================
-function mejorarBusqueda(calle){
-
-    calle = calle.trim().replace(/\s+/g, " ");
-
-    const reglas = [
-
-        [/^c\/\s*/i,"Calle "],
-        [/^c\.\s*/i,"Calle "],
-        [/^c\s+/i,"Calle "],
-
-        [/^cl\s+/i,"Calle "],
-
-        [/^av\s+/i,"Avenida "],
-        [/^avda\s+/i,"Avenida "],
-
-        [/^pl\s+/i,"Plaza "],
-        [/^pza\s+/i,"Plaza "],
-
-        [/^pg\s+/i,"Paseo "],
-
-        [/^crta\s+/i,"Carretera "]
-
-    ];
-
-    for(const r of reglas){
-
-        calle = calle.replace(r[0],r[1]);
-
-    }
-
-    // Casos muy habituales
-
-    const especiales = {
-
-    "colon":"Calle Colón",
-
-    "puerto":"Avenida del Puerto",
-
-    "saler":"Carretera del Saler",
-
-    "ayuntamiento":"Plaza del Ayuntamiento"
-
-};
-
-   const clave = normalizarTexto(calle);
-
-const claveSimple = clave
-    .replace(/^calle\s+/, "")
-    .replace(/^avenida\s+/, "")
-    .replace(/^plaza\s+/, "")
-    .replace(/^paseo\s+/, "")
-    .replace(/^carretera\s+/, "");
-
-if (especiales[claveSimple])
-    return especiales[claveSimple];
-
-return calle;
-
-}
-
-// ==========================================================
-// DETECTAR MUNICIPIO
-// ==========================================================
-function detectarMunicipio(texto){
-
-    let municipio = "Valencia";
-    let calle = texto.trim();
-
-    if(!window.municipiosData)
-        return {calle,municipio};
-
-    const textoNorm = normalizarTexto(texto);
-
-    let mejor = "";
-
-    window.municipiosData.forEach(m=>{
-
-        const nombres=[];
-
-        if(m.nombre) nombres.push(m.nombre);
-
-        if(m.nombre_es) nombres.push(m.nombre_es);
-
-        if(m.nombre_val) nombres.push(m.nombre_val);
-
-        if(m.valenciano) nombres.push(m.valenciano);
-
-        if(m.castellano) nombres.push(m.castellano);
-
-        nombres.forEach(n=>{
-
-            const nn=normalizarTexto(n);
-
-            if(textoNorm.endsWith(nn)){
-
-                if(nn.length>mejor.length){
-
-                    mejor=n;
-
-                }
-
-            }
-
-        });
-
-    });
-
-    if(mejor){
-
-        municipio=mejor;
-
-        calle=calle.substring(
-            0,
-            calle.length-mejor.length
-        ).trim();
-
-    }
-
-    calle=mejorarBusqueda(calle);
-
-    return {
-
-        calle,
-        municipio
-
-    };
-
-}
-   // ==========================================================
-// BUSCADOR INTELIGENTE
-// ==========================================================
-async function buscarDireccionInteligente(texto) {
-
-    const datos = detectarMunicipio(texto);
-console.log("Buscar:", texto, "→", datos);
-    const calle = datos.calle;
-    const municipio = datos.municipio;
-
-    let resultados = [];
-
-//---------------------------------------------------
-// BÚSQUEDA MÚLTIPLE INTELIGENTE
-//---------------------------------------------------
-
-const consultas = [];
-
-if (municipio.toLowerCase() === "valencia") {
-
-    consultas.push(`${calle}, Valencia, España`);
-
-    // Sin tipo de vía
-    const calleSimple = calle
-        .replace(/^Calle\s+/i, "")
-        .replace(/^Avenida\s+/i, "")
-        .replace(/^Plaza\s+/i, "")
-        .replace(/^Paseo\s+/i, "")
-        .replace(/^Carretera\s+/i, "");
-
-    consultas.push(`${calleSimple}, Valencia, España`);
-
-    // Versión valenciana
-    consultas.push(
-        calle
-            .replace(/^Calle/i, "Carrer")
-            .replace(/^Avenida/i, "Avinguda")
-            .replace(/^Plaza/i, "Plaça")
-            + ", Valencia, España"
-    );
-
-}
-else {
-
-    consultas.push(`${calle}, ${municipio}, España`);
-
-    const calleSimple = calle
-        .replace(/^Calle\s+/i, "")
-        .replace(/^Avenida\s+/i, "")
-        .replace(/^Plaza\s+/i, "")
-        .replace(/^Paseo\s+/i, "")
-        .replace(/^Carretera\s+/i, "");
-
-    consultas.push(`${calleSimple}, ${municipio}, España`);
-
-}
-
-const respuestas = await Promise.all(
-
-    consultas.map(async consulta => {
-
-        try {
-
-            const url =
-                "https://nominatim.openstreetmap.org/search?" +
-                new URLSearchParams({
-                    q: consulta,
-                    format: "json",
-                    addressdetails: 1,
-                    countrycodes: "es",
-                    limit: 5
-                });
-
-            const r = await fetch(url, {
-                headers: {
-                    "Accept-Language": "es"
-                }
-            });
-
-            return await r.json();
-
-        } catch {
-
-            return [];
-
-        }
-
-    })
-
-);
-
-// Unir resultados
-resultados = respuestas.flat();
-
-// Eliminar duplicados
-const vistos = new Set();
-
-resultados = resultados.filter(r => {
-
-    if (vistos.has(r.place_id))
-        return false;
-
-    vistos.add(r.place_id);
-
-    return true;
-
-});
-
-if (!resultados.length)
-    return null;
-
-    //---------------------------------------------------
-    // 4. PUNTUAR RESULTADOS
-    //---------------------------------------------------
-
-    const calleNorm = normalizarTexto(calle);
-    const municipioNorm = normalizarTexto(municipio);
-
- resultados.forEach(r => {
-
-    let puntos = 0;
-
-    const texto = normalizarTexto(r.display_name);
-// Si el municipio es Valencia, penalizar resultados que no sean Valencia
-if (municipioNorm === "valencia") {
-
-    if (
-        !texto.includes("valencia") &&
-        !texto.includes("valència")
-    ) {
-
-        r.__score = -9999;
-        return;
-
-    }
-
-}
-    // Coincidencia con la calle
-    if (texto.includes(calleNorm))
-        puntos += 60;
-
-    // Coincidencia con el municipio
-    if (texto.includes(municipioNorm))
-        puntos += 120;
-
-    // Priorizar Valencia cuando es el municipio por defecto
-    if (municipioNorm === "valencia" && texto.includes("valencia"))
-        puntos += 40;
-
-    // Tipo de vía
-    if (r.type === "road")
-        puntos += 25;
-
-    if (r.type === "residential")
-        puntos += 20;
-
-    if (r.type === "house")
-        puntos += 20;
-
-    if (r.class === "highway")
-        puntos += 15;
-
-    // Importancia que asigna Nominatim (0-1)
-    if (r.importance)
-        puntos += r.importance * 50;
-
-    // Preferir direcciones con número
-    if (r.address && r.address.house_number)
-        puntos += 15;
-// Bonificar coincidencia exacta del nombre de la calle
-if (texto.includes(calleNorm))
-    puntos += 100;
-    r.__score = puntos;
-
-});
-
-    //---------------------------------------------------
-    // 5. ORDENAR
-    //---------------------------------------------------
-console.table(resultados.map(r => ({
-    score: r.__score,
-    type: r.type,
-    importance: r.importance,
-    display: r.display_name
-})));
-    resultados.sort((a, b) => b.__score - a.__score);
-   console.log("Resultado elegido:", resultados[0]);
-
-    return resultados[0];
-
-}
     /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
     function buscarOCoordenadas(raw) {
     raw = raw.trim();
@@ -1015,53 +678,33 @@ console.table(resultados.map(r => ({
         }
     }
 
-   // 3. Si no, tratar como dirección
-(async () => {
-
-    try {
-
-        const resultado = await buscarDireccionInteligente(raw);
-
-        if (!resultado) {
-
-            alert("No se ha encontrado la dirección.");
-
-            return;
-
-        }
-
-        const lat = parseFloat(resultado.lat);
-        const lng = parseFloat(resultado.lon);
-
-        detenerSeguimiento();
-
-        if (marker)
-            marker.setLatLng([lat, lng]);
-        else
-            marker = L.marker([lat, lng]).addTo(map);
-
-        map.setView([lat, lng], 16);
-
-        // Mantener exactamente el comportamiento actual
+    // 3. Si no, tratar como dirección
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&q=${encodeURIComponent(raw)}`;
+    fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            if (!data || data.length === 0) {
+                alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
+                return;
+            }
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+            detenerSeguimiento();
+            if (marker) marker.setLatLng([lat, lng]);
+            else marker = L.marker([lat, lng]).addTo(map);
+            map.setView([lat, lng], 16);
+            // ✅ Llamar a la función reutilizable
         mostrarPopupYActualizarMunicipio(lat, lng);
-
-        document.getElementById("coordenadas").value =
-            lat.toFixed(5) + ", " + lng.toFixed(5);
-
-        document.getElementById("coordenadas_mapa").value =
-            lat.toFixed(5) + ", " + lng.toFixed(5);
-
-    }
-    catch (err) {
-
+        
+        document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+    })
+    .catch(err => {
         console.error(err);
-
         alert("Error al buscar la dirección.");
-
-    }
-
-})();
+    });
 }
+
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");
     if (btnLocalizar) {
@@ -1903,7 +1546,6 @@ document.addEventListener('visibilitychange', () => {
 
 // 3. ✅ CUANDO LA VENTANA RECIBE FOCO
 window.addEventListener('focus', actualizarFechaSiEsAnterior);
-
 
 
 

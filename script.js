@@ -911,7 +911,20 @@ if (!resultados.length)
     let puntos = 0;
 
     const texto = normalizarTexto(r.display_name);
+// Si el municipio es Valencia, penalizar resultados que no sean Valencia
+if (municipioNorm === "valencia") {
 
+    if (
+        !texto.includes("valencia") &&
+        !texto.includes("valència")
+    ) {
+
+        r.__score = -9999;
+        return;
+
+    }
+
+}
     // Coincidencia con la calle
     if (texto.includes(calleNorm))
         puntos += 60;

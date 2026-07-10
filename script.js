@@ -880,7 +880,19 @@ console.log("Buscar:", texto, "→", datos);
     const municipio = datos.municipio;
 
     let resultados = [];
+   
+//---------------------------------------------------
+// BUSCAR PRIMERO EN PHOTON
+//---------------------------------------------------
 
+resultados = await buscarPhoton([
+
+    `${calle}, ${municipio}, España`
+
+]);
+
+
+console.log("Resultados Photon:", resultados);
 //---------------------------------------------------
 // BÚSQUEDA MÚLTIPLE INTELIGENTE
 //---------------------------------------------------

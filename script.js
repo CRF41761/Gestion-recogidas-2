@@ -896,33 +896,48 @@ async function buscarDireccionInteligente(texto) {
     const calleNorm = normalizarTexto(calle);
     const municipioNorm = normalizarTexto(municipio);
 
-    resultados.forEach(r => {
+ resultados.forEach(r => {
 
-        let puntos = 0;
+    let puntos = 0;
 
-        const texto = normalizarTexto(r.display_name);
+    const texto = normalizarTexto(r.display_name);
 
-        if (texto.includes(calleNorm))
-            puntos += 60;
+    // Coincidencia con la calle
+    if (texto.includes(calleNorm))
+        puntos += 60;
 
-        if (texto.includes(municipioNorm))
-            puntos += 120;
+    // Coincidencia con el municipio
+    if (texto.includes(municipioNorm))
+        puntos += 120;
 
-        if (texto.includes("valencia"))
-            puntos += 30;
+    // Priorizar Valencia cuando es el municipio por defecto
+    if (municipioNorm === "valencia" && texto.includes("valencia"))
+        puntos += 40;
 
-        if (r.type === "residential")
-            puntos += 20;
+    // Tipo de vía
+    if (r.type === "road")
+        puntos += 25;
 
-        if (r.type === "road")
-            puntos += 15;
+    if (r.type === "residential")
+        puntos += 20;
 
-        if (r.class === "highway")
-            puntos += 10;
+    if (r.type === "house")
+        puntos += 20;
 
-        r.__score = puntos;
+    if (r.class === "highway")
+        puntos += 15;
 
-    });
+    // Importancia que asigna Nominatim (0-1)
+    if (r.importance)
+        puntos += r.importance * 50;
+
+    // Preferir direcciones con número
+    if (r.address && r.address.house_number)
+        puntos += 15;
+
+    r.__score = puntos;
+
+});
 
     //---------------------------------------------------
     // 5. ORDENAR

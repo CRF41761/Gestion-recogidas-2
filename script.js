@@ -702,12 +702,19 @@ function mejorarBusqueda(calle){
 
     };
 
-    const clave = normalizarTexto(calle);
+   const clave = normalizarTexto(calle);
 
-    if(especiales[clave])
-        return especiales[clave];
+const claveSimple = clave
+    .replace(/^calle\s+/, "")
+    .replace(/^avenida\s+/, "")
+    .replace(/^plaza\s+/, "")
+    .replace(/^paseo\s+/, "")
+    .replace(/^carretera\s+/, "");
 
-    return calle;
+if (especiales[claveSimple])
+    return especiales[claveSimple];
+
+return calle;
 
 }
 

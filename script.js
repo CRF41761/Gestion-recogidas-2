@@ -789,6 +789,87 @@ function detectarMunicipio(texto){
 
 }
    // ==========================================================
+// BUSCAR CON PHOTON
+// ==========================================================
+async function buscarPhoton(consultas){
+
+    let resultados = [];
+
+    const respuestas = await Promise.all(
+
+        consultas.map(async consulta => {
+
+            try {
+
+                const url =
+                "https://photon.komoot.io/api/?" +
+                new URLSearchParams({
+
+                    q: consulta,
+                    lang: "es",
+                    limit: 5
+
+                });
+
+
+                const r = await fetch(url);
+
+                const data = await r.json();
+
+
+                return data.features || [];
+
+
+            }
+            catch(e){
+
+                console.error("Error Photon:", e);
+
+                return [];
+
+            }
+
+        })
+
+    );
+
+
+    resultados = respuestas.flat();
+
+
+    return resultados.map(f => {
+
+        return {
+
+            lat: f.geometry.coordinates[1],
+            lon: f.geometry.coordinates[0],
+
+            display_name:
+                [
+                    f.properties.name,
+                    f.properties.city,
+                    f.properties.state
+                ]
+                .filter(Boolean)
+                .join(", "),
+
+            type:
+                f.properties.osm_value || "",
+
+            class:
+                f.properties.osm_key || "",
+
+            importance:
+                0.5,
+
+            source:"photon"
+
+        };
+
+    });
+
+}
+   // ==========================================================
 // BUSCADOR INTELIGENTE
 // ==========================================================
 async function buscarDireccionInteligente(texto) {

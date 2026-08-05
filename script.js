@@ -523,19 +523,18 @@ function obtenerPosicionRapida() {
             reject(new Error('Geolocalización no soportada'));
             return;
         }
-        
-        // Intento 1: Posición estándar (WiFi/IP) con timeout generoso
+        // Intento 1: Posición rápida (WiFi/IP)
         navigator.geolocation.getCurrentPosition(
             pos => resolve(pos),
             err => {
-                // Si falla, intentar con alta precisión (GPS si existe)
+                // Si falla, intentar con alta precisión
                 navigator.geolocation.getCurrentPosition(
                     pos => resolve(pos),
                     err2 => reject(err2),
-                    { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 }
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
                 );
             },
-            { enableHighAccuracy: false, timeout: 10000, maximumAge: 120000 }
+            { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
         );
     });
 }

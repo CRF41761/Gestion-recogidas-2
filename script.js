@@ -106,7 +106,8 @@ function getFechaLocalISO() {
 // Función para obtener el municipio a partir de coordenadas
 async function obtenerMunicipio(lat, lng) {
   try {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1&countrycodes=ES`;
+    // ✅ AÑADIR accept-language=ca para pedir datos en valenciano
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1&countrycodes=ES&accept-language=ca`;
     const response = await fetch(url);
     const data = await response.json();
     

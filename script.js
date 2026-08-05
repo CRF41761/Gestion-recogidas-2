@@ -612,8 +612,14 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
         }
     });
 }
-    function iniciarSeguimiento() {
+        function iniciarSeguimiento() {
         if (!navigator.geolocation) return;
+        
+        // Detener seguimiento anterior si existe
+        if (watchId !== null) {
+            navigator.geolocation.clearWatch(watchId);
+        }
+        
         watchId = navigator.geolocation.watchPosition(
             pos => {
                 if (!seguimientoActivo) return;
@@ -624,8 +630,10 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
                 marker ? marker.setLatLng([lat, lng])
                        : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
             },
-            err => console.error("Error GPS:", err),
-            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+            err => {
+                console.error("Error GPS:", err);
+            },
+            { enableHighAccuracy: false, maximumAge: 30000, timeout: 15000 }
         );
     }
 

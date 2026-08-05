@@ -830,17 +830,21 @@ function buscarOCoordenadas(raw) {
         e.preventDefault();
         
         // Si ya tenemos una última posición, ir ahí inmediatamente
-        if (ultimaPosicion) {
-            const [lat, lng] = ultimaPosicion;
-            seguimientoActivo = true;
-            forzarZoomInicial = true;
-            if (marker) marker.setLatLng([lat, lng]);
-            else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-            map.setView([lat, lng], 13);
-            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-            iniciarSeguimiento();
-            return;
-        }
+       if (ultimaPosicion) {
+    const [lat, lng] = ultimaPosicion;
+    seguimientoActivo = true;
+    forzarZoomInicial = true;
+    if (marker) marker.setLatLng([lat, lng]);
+    else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+    map.setView([lat, lng], 13);
+    document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+    
+    // ✅ AÑADIR: Actualizar municipio
+    mostrarPopupYActualizarMunicipio(lat, lng);
+    
+    iniciarSeguimiento();
+    return;
+}
         
         // Si no, buscar posición nueva
         mostrarEstadoGPS('🔍 Buscando tu ubicación...', 'info');

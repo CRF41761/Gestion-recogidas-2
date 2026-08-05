@@ -516,59 +516,7 @@ if (especieComunInput) {
             }
         });
     }
-// ✅ NUEVA FUNCIÓN: Obtener posición rápida con fallback
-function obtenerPosicionRapida() {
-    return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            reject(new Error('Geolocalización no soportada'));
-            return;
-        }
 
-        // Intento 1: Posición rápida (WiFi/IP, baja precisión)
-        navigator.geolocation.getCurrentPosition(
-            pos => resolve(pos),
-            err => {
-                // Si falla, intentar con alta precisión
-                navigator.geolocation.getCurrentPosition(
-                    pos => resolve(pos),
-                    err2 => reject(err2),
-                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
-                );
-            },
-            { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
-        );
-    });
-}
-
-// ✅ NUEVA FUNCIÓN: Mostrar mensaje de estado
-function mostrarEstadoGPS(mensaje, tipo = 'info') {
-    // Eliminar mensaje anterior si existe
-    const existente = document.getElementById('gpsStatus');
-    if (existente) existente.remove();
-
-    const div = document.createElement('div');
-    div.id = 'gpsStatus';
-    div.textContent = mensaje;
-    Object.assign(div.style, {
-        position: 'fixed',
-        top: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        padding: '10px 20px',
-        borderRadius: '6px',
-        zIndex: '10000',
-        fontWeight: 'bold',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-        backgroundColor: tipo === 'error' ? '#dc3545' : tipo === 'success' ? '#28a745' : '#17a2b8',
-        color: 'white',
-        fontSize: '14px'
-    });
-    document.body.appendChild(div);
-
-    setTimeout(() => {
-        if (div.parentNode) div.remove();
-    }, 4000);
-}
     /* Mostrar/ocultar campo "Código anilla" */
     const chkRec = document.getElementById('recuperacion');
     const wrap   = document.getElementById('anillaWrapper');
@@ -614,36 +562,27 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
         }
     });
 }
-    // Función mejorada para iniciar seguimiento
-function iniciarSeguimiento() {
-    if (!navigator.geolocation) return;
-    
-    // Detener seguimiento anterior si existe
-    if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
+    function iniciarSeguimiento() {
+        if (!navigator.geolocation) return;
+        watchId = navigator.geolocation.watchPosition(
+            pos => {
+                if (!seguimientoActivo) return;
+                const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                ultimaPosicion = [lat, lng];
+                map.setView([lat, lng], forzarZoomInicial ? 13 : map.getZoom());
+                forzarZoomInicial = false;
+                marker ? marker.setLatLng([lat, lng])
+                       : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+            },
+            err => console.error("Error GPS:", err),
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+        );
     }
-    
-    watchId = navigator.geolocation.watchPosition(
-        pos => {
-            if (!seguimientoActivo) return;
-            const lat = pos.coords.latitude, lng = pos.coords.longitude;
-            ultimaPosicion = [lat, lng];
-            map.setView([lat, lng], forzarZoomInicial ? 13 : map.getZoom());
-            forzarZoomInicial = false;
-            marker ? marker.setLatLng([lat, lng])
-                   : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-        },
-        err => {
-            console.error("Error GPS:", err);
-        },
-        { enableHighAccuracy: false, maximumAge: 30000, timeout: 15000 }
-    );
-}
 
-function detenerSeguimiento() {
-    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-    watchId = null; seguimientoActivo = false;
-}
+    function detenerSeguimiento() {
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        watchId = null; seguimientoActivo = false;
+    }
 // ✅ NUEVA FUNCIÓN: Convertir municipio a valenciano de forma robusta
 function convertirAVaenciano(municipioNominatim) {
     if (!municipioNominatim || municipioNominatim === "Desconocido" || municipioNominatim === "No encontrado") {
@@ -811,86 +750,25 @@ function buscarOCoordenadas(raw) {
         btnLocalizar.addEventListener("click", () => buscarOCoordenadas(document.getElementById("coordenadas").value));
     }
 
-const locateButton = document.createElement("button");
-locateButton.textContent = "📍 Volver a mi ubicación";
-locateButton.type = "button";
-Object.assign(locateButton.style, { 
-    marginTop: "10px", 
-    marginBottom: "15px", 
-    padding: "10px 15px", 
-    backgroundColor: "#28a745", 
-    color: "white", 
-    border: "none", 
-    borderRadius: "4px", 
-    cursor: "pointer", 
-    fontSize: "16px",
-    display: "flex",
-    alignItems: "center",
-    gap: "5px"
-});
-
-locateButton.addEventListener("click", async e => {
-    e.preventDefault();
-    
-    // Si ya tenemos una última posición, ir ahí inmediatamente
-    if (ultimaPosicion) {
-        const [lat, lng] = ultimaPosicion;
+    const locateButton = document.createElement("button");
+    locateButton.textContent = "Volver a mi ubicación";
+    locateButton.type = "button";
+    Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
+    locateButton.addEventListener("click", e => {
+        e.preventDefault();
         seguimientoActivo = true;
         forzarZoomInicial = true;
-        if (marker) marker.setLatLng([lat, lng]);
-        else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-        map.setView([lat, lng], 13);
-        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        iniciarSeguimiento();
-        return;
-    }
-    
-    // Si no, buscar posición nueva
-    mostrarEstadoGPS('🔍 Buscando tu ubicación...', 'info');
-    locateButton.disabled = true;
-    locateButton.textContent = '⏳ Buscando...';
-    
-    try {
-        const pos = await obtenerPosicionRapida();
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        ultimaPosicion = [lat, lng];
-        
-        seguimientoActivo = true;
-        forzarZoomInicial = true;
-        
-        if (marker) marker.setLatLng([lat, lng]);
-        else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-        
-        map.setView([lat, lng], 13);
-        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        
-        mostrarEstadoGPS('✅ Ubicación encontrada', 'success');
-        
-        // Iniciar seguimiento continuo
-        iniciarSeguimiento();
-        
-    } catch (err) {
-        console.error("Error al obtener ubicación:", err);
-        
-        let mensaje = '❌ No se pudo obtener tu ubicación';
-        if (err.code === 1) {
-            mensaje = '❌ Permiso de ubicación denegado. Actívalo en la configuración del navegador.';
-        } else if (err.code === 2) {
-            mensaje = '❌ No hay señal GPS disponible. Intenta en exterior.';
-        } else if (err.code === 3) {
-            mensaje = '❌ Tiempo de espera agotado. Intenta de nuevo.';
+        if (ultimaPosicion) {
+            const [lat, lng] = ultimaPosicion;
+            if (marker) marker.setLatLng([lat, lng]);
+            else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+            map.setView([lat, lng], 13);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
         }
-        
-        mostrarEstadoGPS(mensaje, 'error');
-    } finally {
-        locateButton.disabled = false;
-        locateButton.textContent = "📍 Volver a mi ubicación";
-    }
-});
-
-const mapElement = document.getElementById("map");
-mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
+        iniciarSeguimiento();
+    });
+    const mapElement = document.getElementById("map");
+    mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 
     // ✅ ELIMINADO: la llamada a getNumeroEntrada al cargar la página
     // El campo numero_entrada quedará vacío (como debe ser)
@@ -1707,7 +1585,6 @@ document.addEventListener('visibilitychange', () => {
 
 // 3. ✅ CUANDO LA VENTANA RECIBE FOCO
 window.addEventListener('focus', actualizarFechaSiEsAnterior);
-
 
 
 

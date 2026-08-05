@@ -776,26 +776,43 @@ function buscarOCoordenadas(raw) {
     buscarDireccionConPrioridad(raw);
 }
 
-// ✅ FUNCIÓN MEJORADA: Búsqueda con prioridades (municipios → Valencia ciudad → provincia → CV → España)
+// ✅ FUNCIÓN MEJORADA: Detecta municipios tanto en valenciano como en castellano
 async function buscarDireccionConPrioridad(query) {
     const queryEncoded = encodeURIComponent(query);
     
-    // ✅ NUEVO: Verificar si el query coincide con un municipio
+    // ✅ Detectar si el query coincide con un municipio (valenciano o castellano)
     const queryNormalizado = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
     let esMunicipio = false;
+    let nombreOficialMunicipio = null; // Nombre en valenciano para la búsqueda
     
-    // Buscar en municipiosData (si existe)
+    // 1. Buscar directamente en municipiosData (nombres oficiales en valenciano)
     if (window.municipiosData) {
-        esMunicipio = window.municipiosData.some(m => {
+        const encontrado = window.municipiosData.find(m => {
             const mNorm = m.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
             return mNorm === queryNormalizado;
         });
+        if (encontrado) {
+            esMunicipio = true;
+            nombreOficialMunicipio = encontrado;
+        }
     }
     
-    // Si es un municipio, buscarlo directamente
-    if (esMunicipio) {
-        console.log(`🏙️ Detectado como municipio: ${query}`);
-        const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${queryEncoded}, Comunitat Valenciana`;
+    // 2. ✅ Si no se encontró, buscar en las CLAVES del mapeo (nombres en castellano)
+    if (!esMunicipio && window.mapeoMunicipios) {
+        for (const clave in window.mapeoMunicipios) {
+            const claveNorm = clave.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            if (claveNorm === queryNormalizado) {
+                esMunicipio = true;
+                nombreOficialMunicipio = window.mapeoMunicipios[clave]; // Nombre en valenciano
+                break;
+            }
+        }
+    }
+    
+    // Si es un municipio, buscarlo directamente con el nombre oficial en valenciano
+    if (esMunicipio && nombreOficialMunicipio) {
+        console.log(`🏙️ Detectado como municipio: "${query}" → "${nombreOficialMunicipio}"`);
+        const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(nombreOficialMunicipio)}, Comunitat Valenciana`;
         
         try {
             const response = await fetch(urlMunicipio);
@@ -808,7 +825,7 @@ async function buscarDireccionConPrioridad(query) {
                 detenerSeguimiento();
                 if (marker) marker.setLatLng([lat, lng]);
                 else marker = L.marker([lat, lng]).addTo(map);
-                map.setView([lat, lng], 14); // Zoom menos cercano para ver el municipio completo
+                map.setView([lat, lng], 14);
                 
                 mostrarPopupYActualizarMunicipio(lat, lng);
                 
@@ -818,8 +835,7 @@ async function buscarDireccionConPrioridad(query) {
                 return;
             }
         } catch (err) {
-            console.warn(`Error buscando municipio ${query}:`, err);
-            // Continuar con las búsquedas por bounding box
+            console.warn(`Error buscando municipio ${nombreOficialMunicipio}:`, err);
         }
     }
     

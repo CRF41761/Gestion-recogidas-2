@@ -992,15 +992,15 @@ function mostrarSelectorMunicipios(municipios, queryOriginal) {
         `;
         
         municipios.forEach((municipio, index) => {
-            html += `
-                <button class="opcion-municipio" data-indice="${index}" 
-                        style="display:block; width:100%; text-align:left; padding:10px; margin:5px 0;
-                               background:#f8f9fa; border:1px solid #ddd; border-radius:4px; cursor:pointer;
-                               font-size:14px;">
-                    📍 ${municipio}
-                </button>
-            `;
-        });
+    html += `
+        <button class="opcion-municipio" data-indice="${index}" 
+                style="display:block; width:100%; text-align:left; padding:10px; margin:5px 0;
+                       background:#f8f9fa; border:1px solid #ddd; border-radius:4px; cursor:pointer;
+                       font-size:14px; color:#2c3e50; font-weight:500;">
+            📍 ${municipio}
+        </button>
+    `;
+});
         
         html += `
             </div>

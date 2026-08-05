@@ -852,26 +852,29 @@ function buscarOCoordenadas(raw) {
         locateButton.textContent = '⏳ Buscando...';
         
         try {
-            const pos = await obtenerPosicionRapida();
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            ultimaPosicion = [lat, lng];
-            
-            seguimientoActivo = true;
-            forzarZoomInicial = true;
-            
-            if (marker) marker.setLatLng([lat, lng]);
-            else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-            
-            map.setView([lat, lng], 13);
-            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-            
-            mostrarEstadoGPS('✅ Ubicación encontrada', 'success');
-            
-            // Iniciar seguimiento continuo
-            iniciarSeguimiento();
-            
-        } catch (err) {
+    const pos = await obtenerPosicionRapida();
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    ultimaPosicion = [lat, lng];
+    
+    seguimientoActivo = true;
+    forzarZoomInicial = true;
+    
+    if (marker) marker.setLatLng([lat, lng]);
+    else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+    
+    map.setView([lat, lng], 13);
+    document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+    
+    // ✅ AÑADIR: Actualizar municipio
+    mostrarPopupYActualizarMunicipio(lat, lng);
+    
+    mostrarEstadoGPS('✅ Ubicación encontrada', 'success');
+    
+    // Iniciar seguimiento continuo
+    iniciarSeguimiento();
+    
+} catch (err) {
             console.error("Error al obtener ubicación:", err);
             
             let mensaje = '❌ No se pudo obtener tu ubicación';

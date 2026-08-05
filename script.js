@@ -776,43 +776,20 @@ function buscarOCoordenadas(raw) {
     buscarDireccionConPrioridad(raw);
 }
 
-// ✅ FUNCIÓN MEJORADA: Detecta tipo de vía para decidir cómo buscar
+// ✅ FUNCIÓN MEJORADA: Con detección parcial de municipios y selección múltiple
 async function buscarDireccionConPrioridad(query) {
     const queryEncoded = encodeURIComponent(query);
     
-    // ✅ Detectar si el query coincide con un municipio (valenciano o castellano)
+    // Normalizar query (sin acentos, minúsculas)
     const queryNormalizado = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-    let esMunicipio = false;
-    let nombreOficialMunicipio = null;
     
-    // 1. Buscar directamente en municipiosData (nombres oficiales en valenciano)
-    if (window.municipiosData) {
-        const encontrado = window.municipiosData.find(m => {
-            const mNorm = m.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-            return mNorm === queryNormalizado;
-        });
-        if (encontrado) {
-            esMunicipio = true;
-            nombreOficialMunicipio = encontrado;
-        }
-    }
+    // ✅ 1. BUSCAR MUNICIPIO (exacto o parcial)
+    const resultadoMunicipio = await buscarMunicipio(query, queryNormalizado);
     
-    // 2. Buscar en las CLAVES del mapeo (nombres en castellano)
-    if (!esMunicipio && window.mapeoMunicipios) {
-        for (const clave in window.mapeoMunicipios) {
-            const claveNorm = clave.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-            if (claveNorm === queryNormalizado) {
-                esMunicipio = true;
-                nombreOficialMunicipio = window.mapeoMunicipios[clave];
-                break;
-            }
-        }
-    }
-    
-    // Si es un municipio, buscarlo directamente
-    if (esMunicipio && nombreOficialMunicipio) {
-        console.log(`🏙️ Detectado como municipio: "${query}" → "${nombreOficialMunicipio}"`);
-        const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(nombreOficialMunicipio)}, Comunitat Valenciana`;
+    if (resultadoMunicipio) {
+        // Si encontramos municipio, buscarlo en Nominatim
+        console.log(`🏙️ Municipio seleccionado: "${resultadoMunicipio}"`);
+        const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(resultadoMunicipio)}, Comunitat Valenciana`;
         
         try {
             const response = await fetch(urlMunicipio);
@@ -835,11 +812,11 @@ async function buscarDireccionConPrioridad(query) {
                 return;
             }
         } catch (err) {
-            console.warn(`Error buscando municipio ${nombreOficialMunicipio}:`, err);
+            console.warn(`Error buscando municipio ${resultadoMunicipio}:`, err);
         }
     }
     
-    // ✅ NUEVO: Detectar si el query menciona un tipo de vía
+    // ✅ 2. Detectar si contiene palabra de vía
     const palabrasVia = [
         'calle', 'c/', 'cl/', 'carrer', 'av.', 'avda', 'avenida', 'avinguda',
         'plaza', 'plaça', 'placa', 'placeta', 'camino', 'cno', 'carretera', 'ctra',
@@ -851,9 +828,9 @@ async function buscarDireccionConPrioridad(query) {
     const queryMinusculas = query.toLowerCase();
     const contieneVia = palabrasVia.some(palabra => queryMinusculas.includes(palabra));
     
-    // Si NO contiene palabra de vía, hacer búsqueda genérica (sin prioridades de calles)
+    // Si NO contiene palabra de vía, búsqueda genérica
     if (!contieneVia) {
-        console.log(`🔍 Búsqueda genérica (sin tipo de vía): "${query}"`);
+        console.log(`🔍 Búsqueda genérica: "${query}"`);
         const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${queryEncoded}`;
         
         try {
@@ -884,10 +861,9 @@ async function buscarDireccionConPrioridad(query) {
         return;
     }
     
-    // ✅ Si SÍ contiene palabra de vía → búsqueda por prioridades de calles
-    console.log(`🛣️ Detectado tipo de vía, buscando con prioridades: "${query}"`);
+    // ✅ 3. Búsqueda de calles por prioridades
+    console.log(`🛣️ Buscando calle con prioridades: "${query}"`);
     
-    // Bounding boxes aproximados
     const BBOX_VALENCIA_CIUDAD = "-0.40,39.45,-0.35,39.48";
     const BBOX_PROVINCIA_VALENCIA = "-1.5,38.7,0.2,40.0";
     const BBOX_PROVINCIA_ALICANTE = "-1.0,37.8,0.2,38.9";
@@ -895,30 +871,12 @@ async function buscarDireccionConPrioridad(query) {
     const BBOX_COMUNITAT_VALENCIANA = "-1.5,37.8,0.5,40.8";
     
     const intentos = [
-        {
-            nombre: "Valencia ciudad",
-            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_VALENCIA_CIUDAD}&bounded=1&q=${queryEncoded}`
-        },
-        {
-            nombre: "Provincia de Valencia",
-            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_VALENCIA}&bounded=1&q=${queryEncoded}`
-        },
-        {
-            nombre: "Provincia de Alicante",
-            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_ALICANTE}&bounded=1&q=${queryEncoded}`
-        },
-        {
-            nombre: "Provincia de Castellón",
-            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_CASTELLON}&bounded=1&q=${queryEncoded}`
-        },
-        {
-            nombre: "Comunitat Valenciana",
-            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_COMUNITAT_VALENCIANA}&bounded=1&q=${queryEncoded}`
-        },
-        {
-            nombre: "España",
-            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${queryEncoded}`
-        }
+        { nombre: "Valencia ciudad", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_VALENCIA_CIUDAD}&bounded=1&q=${queryEncoded}` },
+        { nombre: "Provincia de Valencia", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_VALENCIA}&bounded=1&q=${queryEncoded}` },
+        { nombre: "Provincia de Alicante", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_ALICANTE}&bounded=1&q=${queryEncoded}` },
+        { nombre: "Provincia de Castellón", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_CASTELLON}&bounded=1&q=${queryEncoded}` },
+        { nombre: "Comunitat Valenciana", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_COMUNITAT_VALENCIANA}&bounded=1&q=${queryEncoded}` },
+        { nombre: "España", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${queryEncoded}` }
     ];
     
     for (const intento of intentos) {
@@ -949,6 +907,134 @@ async function buscarDireccionConPrioridad(query) {
     }
     
     alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
+}
+
+// ✅ NUEVA FUNCIÓN: Buscar municipio (exacto o parcial) con selección si hay varios
+async function buscarMunicipio(query, queryNormalizado) {
+    let coincidencias = [];
+    
+    // 1. Búsqueda exacta en municipiosData
+    if (window.municipiosData) {
+        const exacto = window.municipiosData.find(m => {
+            const mNorm = m.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            return mNorm === queryNormalizado;
+        });
+        
+        if (exacto) {
+            return exacto; // Coincidencia exacta directa
+        }
+        
+        // 2. Búsqueda parcial (empieza con)
+        coincidencias = window.municipiosData.filter(m => {
+            const mNorm = m.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            return mNorm.startsWith(queryNormalizado);
+        });
+    }
+    
+    // 3. También buscar en las claves del mapeo (nombres en castellano)
+    if (window.mapeoMunicipios) {
+        for (const clave in window.mapeoMunicipios) {
+            const claveNorm = clave.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            
+            // Coincidencia exacta
+            if (claveNorm === queryNormalizado) {
+                return window.mapeoMunicipios[clave];
+            }
+            
+            // Coincidencia parcial (si no la tenemos ya)
+            if (claveNorm.startsWith(queryNormalizado)) {
+                const valor = window.mapeoMunicipios[clave];
+                if (!coincidencias.includes(valor)) {
+                    coincidencias.push(valor);
+                }
+            }
+        }
+    }
+    
+    // 4. Si hay una sola coincidencia parcial, usarla directamente
+    if (coincidencias.length === 1) {
+        console.log(`🏙️ Coincidencia parcial única: "${query}" → "${coincidencias[0]}"`);
+        return coincidencias[0];
+    }
+    
+    // 5. Si hay varias coincidencias, mostrar diálogo de selección
+    if (coincidencias.length > 1) {
+        console.log(`🤔 Múltiples coincidencias para "${query}":`, coincidencias);
+        const seleccion = await mostrarSelectorMunicipios(coincidencias, query);
+        return seleccion; // Puede ser null si el usuario cancela
+    }
+    
+    // 6. Sin coincidencias
+    return null;
+}
+
+// ✅ NUEVA FUNCIÓN: Mostrar diálogo para elegir entre varios municipios
+function mostrarSelectorMunicipios(municipios, queryOriginal) {
+    return new Promise((resolve) => {
+        // Crear modal
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: flex; align-items: center;
+            justify-content: center; z-index: 10000;
+        `;
+        
+        const contenido = document.createElement('div');
+        contenido.style.cssText = `
+            background: white; border-radius: 8px; padding: 20px;
+            max-width: 400px; width: 90%; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        `;
+        
+        let html = `
+            <h3 style="margin-top:0; color:#2c3e50;">🏙️ Varios municipios encontrados</h3>
+            <p style="color:#666;">Para "<strong>${queryOriginal}</strong>" se han encontrado ${municipios.length} municipios. Elige uno:</p>
+            <div style="max-height: 300px; overflow-y: auto;">
+        `;
+        
+        municipios.forEach((municipio, index) => {
+            html += `
+                <button class="opcion-municipio" data-indice="${index}" 
+                        style="display:block; width:100%; text-align:left; padding:10px; margin:5px 0;
+                               background:#f8f9fa; border:1px solid #ddd; border-radius:4px; cursor:pointer;
+                               font-size:14px;">
+                    📍 ${municipio}
+                </button>
+            `;
+        });
+        
+        html += `
+            </div>
+            <button id="cancelarSelector" style="margin-top:10px; padding:8px 16px; background:#dc3545; 
+                    color:white; border:none; border-radius:4px; cursor:pointer; width:100%;">
+                Cancelar
+            </button>
+        `;
+        
+        contenido.innerHTML = html;
+        modal.appendChild(contenido);
+        document.body.appendChild(modal);
+        
+        // Eventos
+        contenido.querySelectorAll('.opcion-municipio').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const indice = parseInt(btn.dataset.indice);
+                document.body.removeChild(modal);
+                resolve(municipios[indice]);
+            });
+        });
+        
+        contenido.querySelector('#cancelarSelector').addEventListener('click', () => {
+            document.body.removeChild(modal);
+            resolve(null);
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+                resolve(null);
+            }
+        });
+    });
 }
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");

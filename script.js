@@ -732,7 +732,7 @@ function onMapClick(e) {
     mostrarPopupYActualizarMunicipio(latlng.lat, latlng.lng);
 }
 map.on("click", onMapClick);
-    /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
+  /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
 function buscarOCoordenadas(raw) {
     raw = raw.trim();
     if (!raw) return;
@@ -748,7 +748,6 @@ function buscarOCoordenadas(raw) {
             map.setView([lat, lon], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lon.toFixed(5);
             
-            // ✅ AÑADIR: Actualizar municipio
             mostrarPopupYActualizarMunicipio(lat, lon);
             return;
         } catch (err) {
@@ -768,38 +767,80 @@ function buscarOCoordenadas(raw) {
             map.setView([lat, lng], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             
-            // ✅ AÑADIR: Actualizar municipio
             mostrarPopupYActualizarMunicipio(lat, lng);
             return;
         }
     }
 
-    // 3. Si no, tratar como dirección
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(raw)}`;
-    fetch(url)
-        .then(r => r.json())
-        .then(data => {
-            if (!data || data.length === 0) {
-                alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
-                return;
+    // 3. ✅ BÚSQUEDA POR DIRECCIÓN CON PRIORIDADES GEOGRÁFICAS
+    buscarDireccionConPrioridad(raw);
+}
+
+// ✅ NUEVA FUNCIÓN: Búsqueda con prioridades (provincia → CV → España)
+async function buscarDireccionConPrioridad(query) {
+    const queryEncoded = encodeURIComponent(query);
+    
+    // Bounding boxes aproximados
+    const BBOX_PROVINCIA_VALENCIA = "-1.5,38.7,0.2,40.0"; // lon1,lat1,lon2,lat2
+    const BBOX_PROVINCIA_ALICANTE = "-1.0,37.8,0.2,38.9";
+    const BBOX_PROVINCIA_CASTELLON = "-0.5,39.5,0.5,40.8";
+    const BBOX_COMUNITAT_VALENCIANA = "-1.5,37.8,0.5,40.8";
+    
+    // Intentos en orden de prioridad
+    const intentos = [
+        {
+            nombre: "Provincia de Valencia",
+            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_VALENCIA}&bounded=1&q=${queryEncoded}`
+        },
+        {
+            nombre: "Provincia de Alicante",
+            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_ALICANTE}&bounded=1&q=${queryEncoded}`
+        },
+        {
+            nombre: "Provincia de Castellón",
+            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_CASTELLON}&bounded=1&q=${queryEncoded}`
+        },
+        {
+            nombre: "Comunitat Valenciana",
+            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_COMUNITAT_VALENCIANA}&bounded=1&q=${queryEncoded}`
+        },
+        {
+            nombre: "España",
+            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${queryEncoded}`
+        }
+    ];
+    
+    // Probar cada prioridad en orden
+    for (const intento of intentos) {
+        try {
+            const response = await fetch(intento.url);
+            const data = await response.json();
+            
+            if (data && data.length > 0) {
+                console.log(`✅ Encontrado en: ${intento.nombre}`);
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                
+                detenerSeguimiento();
+                if (marker) marker.setLatLng([lat, lng]);
+                else marker = L.marker([lat, lng]).addTo(map);
+                map.setView([lat, lng], 16);
+                
+                mostrarPopupYActualizarMunicipio(lat, lng);
+                
+                document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                
+                return; // Salir al encontrar el primer resultado
             }
-            const lat = parseFloat(data[0].lat);
-            const lng = parseFloat(data[0].lon);
-            detenerSeguimiento();
-            if (marker) marker.setLatLng([lat, lng]);
-            else marker = L.marker([lat, lng]).addTo(map);
-            map.setView([lat, lng], 16);
-            
-            // ✅ Ya estaba aquí, lo mantenemos
-            mostrarPopupYActualizarMunicipio(lat, lng);
-            
-            document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error al buscar la dirección.");
-        });
+        } catch (err) {
+            console.warn(`Error en búsqueda ${intento.nombre}:`, err);
+            // Continuar con el siguiente intento
+        }
+    }
+    
+    // Si no se encontró nada en ninguna prioridad
+    alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
 }
 
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));

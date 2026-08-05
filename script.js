@@ -516,7 +516,57 @@ if (especieComunInput) {
             }
         });
     }
+// ✅ NUEVA FUNCIÓN: Obtener posición rápida con fallback
+function obtenerPosicionRapida() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocalización no soportada'));
+            return;
+        }
+        // Intento 1: Posición rápida (WiFi/IP)
+        navigator.geolocation.getCurrentPosition(
+            pos => resolve(pos),
+            err => {
+                // Si falla, intentar con alta precisión
+                navigator.geolocation.getCurrentPosition(
+                    pos => resolve(pos),
+                    err2 => reject(err2),
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
+                );
+            },
+            { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+        );
+    });
+}
 
+// ✅ NUEVA FUNCIÓN: Mostrar mensaje de estado (toast)
+function mostrarEstadoGPS(mensaje, tipo = 'info') {
+    const existente = document.getElementById('gpsStatus');
+    if (existente) existente.remove();
+
+    const div = document.createElement('div');
+    div.id = 'gpsStatus';
+    div.textContent = mensaje;
+    Object.assign(div.style, {
+        position: 'fixed',
+        top: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        padding: '10px 20px',
+        borderRadius: '6px',
+        zIndex: '10000',
+        fontWeight: 'bold',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+        backgroundColor: tipo === 'error' ? '#dc3545' : tipo === 'success' ? '#28a745' : '#17a2b8',
+        color: 'white',
+        fontSize: '14px'
+    });
+    document.body.appendChild(div);
+
+    setTimeout(() => {
+        if (div.parentNode) div.remove();
+    }, 4000);
+}
     /* Mostrar/ocultar campo "Código anilla" */
     const chkRec = document.getElementById('recuperacion');
     const wrap   = document.getElementById('anillaWrapper');

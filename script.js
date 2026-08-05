@@ -776,18 +776,61 @@ function buscarOCoordenadas(raw) {
     buscarDireccionConPrioridad(raw);
 }
 
-// ✅ FUNCIÓN MEJORADA: Búsqueda con prioridades (Valencia ciudad → provincia → CV → España)
+// ✅ FUNCIÓN MEJORADA: Búsqueda con prioridades (municipios → Valencia ciudad → provincia → CV → España)
 async function buscarDireccionConPrioridad(query) {
     const queryEncoded = encodeURIComponent(query);
     
-    // Bounding boxes aproximados
-const BBOX_VALENCIA_CIUDAD = "-0.40,39.45,-0.35,39.48"; // Centro urbano de Valencia ciudad
-const BBOX_PROVINCIA_VALENCIA = "-1.5,38.7,0.2,40.0";
-const BBOX_PROVINCIA_ALICANTE = "-1.0,37.8,0.2,38.9";
-const BBOX_PROVINCIA_CASTELLON = "-0.5,39.5,0.5,40.8";
-const BBOX_COMUNITAT_VALENCIANA = "-1.5,37.8,0.5,40.8";
+    // ✅ NUEVO: Verificar si el query coincide con un municipio
+    const queryNormalizado = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    let esMunicipio = false;
     
-    // Intentos en orden de prioridad
+    // Buscar en municipiosData (si existe)
+    if (window.municipiosData) {
+        esMunicipio = window.municipiosData.some(m => {
+            const mNorm = m.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            return mNorm === queryNormalizado;
+        });
+    }
+    
+    // Si es un municipio, buscarlo directamente
+    if (esMunicipio) {
+        console.log(`🏙️ Detectado como municipio: ${query}`);
+        const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${queryEncoded}, Comunitat Valenciana`;
+        
+        try {
+            const response = await fetch(urlMunicipio);
+            const data = await response.json();
+            
+            if (data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                
+                detenerSeguimiento();
+                if (marker) marker.setLatLng([lat, lng]);
+                else marker = L.marker([lat, lng]).addTo(map);
+                map.setView([lat, lng], 14); // Zoom menos cercano para ver el municipio completo
+                
+                mostrarPopupYActualizarMunicipio(lat, lng);
+                
+                document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                
+                return;
+            }
+        } catch (err) {
+            console.warn(`Error buscando municipio ${query}:`, err);
+            // Continuar con las búsquedas por bounding box
+        }
+    }
+    
+    // Bounding boxes aproximados
+    const BBOX_VALENCIA_CIUDAD = "-0.40,39.45,-0.35,39.48";
+    const BBOX_PROVINCIA_VALENCIA = "-1.5,38.7,0.2,40.0";
+    const BBOX_PROVINCIA_ALICANTE = "-1.0,37.8,0.2,38.9";
+    const BBOX_PROVINCIA_CASTELLON = "-0.5,39.5,0.5,40.8";
+    const BBOX_COMUNITAT_VALENCIANA = "-1.5,37.8,0.5,40.8";
+    
+    // Intentos en orden de prioridad (solo si NO es un municipio)
     const intentos = [
         {
             nombre: "Valencia ciudad",
@@ -836,15 +879,13 @@ const BBOX_COMUNITAT_VALENCIANA = "-1.5,37.8,0.5,40.8";
                 document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
                 document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
                 
-                return; // Salir al encontrar el primer resultado
+                return;
             }
         } catch (err) {
             console.warn(`Error en búsqueda ${intento.nombre}:`, err);
-            // Continuar con el siguiente intento
         }
     }
     
-    // Si no se encontró nada en ninguna prioridad
     alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
 }
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));

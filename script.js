@@ -776,14 +776,14 @@ function buscarOCoordenadas(raw) {
     buscarDireccionConPrioridad(raw);
 }
 
-// ✅ FUNCIÓN MEJORADA: Detecta municipios tanto en valenciano como en castellano
+// ✅ FUNCIÓN MEJORADA: Detecta tipo de vía para decidir cómo buscar
 async function buscarDireccionConPrioridad(query) {
     const queryEncoded = encodeURIComponent(query);
     
     // ✅ Detectar si el query coincide con un municipio (valenciano o castellano)
     const queryNormalizado = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
     let esMunicipio = false;
-    let nombreOficialMunicipio = null; // Nombre en valenciano para la búsqueda
+    let nombreOficialMunicipio = null;
     
     // 1. Buscar directamente en municipiosData (nombres oficiales en valenciano)
     if (window.municipiosData) {
@@ -797,19 +797,19 @@ async function buscarDireccionConPrioridad(query) {
         }
     }
     
-    // 2. ✅ Si no se encontró, buscar en las CLAVES del mapeo (nombres en castellano)
+    // 2. Buscar en las CLAVES del mapeo (nombres en castellano)
     if (!esMunicipio && window.mapeoMunicipios) {
         for (const clave in window.mapeoMunicipios) {
             const claveNorm = clave.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
             if (claveNorm === queryNormalizado) {
                 esMunicipio = true;
-                nombreOficialMunicipio = window.mapeoMunicipios[clave]; // Nombre en valenciano
+                nombreOficialMunicipio = window.mapeoMunicipios[clave];
                 break;
             }
         }
     }
     
-    // Si es un municipio, buscarlo directamente con el nombre oficial en valenciano
+    // Si es un municipio, buscarlo directamente
     if (esMunicipio && nombreOficialMunicipio) {
         console.log(`🏙️ Detectado como municipio: "${query}" → "${nombreOficialMunicipio}"`);
         const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(nombreOficialMunicipio)}, Comunitat Valenciana`;
@@ -839,6 +839,54 @@ async function buscarDireccionConPrioridad(query) {
         }
     }
     
+    // ✅ NUEVO: Detectar si el query menciona un tipo de vía
+    const palabrasVia = [
+        'calle', 'c/', 'cl/', 'carrer', 'av.', 'avda', 'avenida', 'avinguda',
+        'plaza', 'plaça', 'placa', 'placeta', 'camino', 'cno', 'carretera', 'ctra',
+        'paseo', 'pg', 'ronda', 'travesia', 'travessia', 'callejon', 'callejo',
+        'alameda', 'bulevar', 'via', 'vía', 'rambla', 'glorieta', 'rotonda',
+        'camí', 'cami', 'senda', 'vereda', 'autovia', 'autopista'
+    ];
+    
+    const queryMinusculas = query.toLowerCase();
+    const contieneVia = palabrasVia.some(palabra => queryMinusculas.includes(palabra));
+    
+    // Si NO contiene palabra de vía, hacer búsqueda genérica (sin prioridades de calles)
+    if (!contieneVia) {
+        console.log(`🔍 Búsqueda genérica (sin tipo de vía): "${query}"`);
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${queryEncoded}`;
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                
+                detenerSeguimiento();
+                if (marker) marker.setLatLng([lat, lng]);
+                else marker = L.marker([lat, lng]).addTo(map);
+                map.setView([lat, lng], 14);
+                
+                mostrarPopupYActualizarMunicipio(lat, lng);
+                
+                document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                
+                return;
+            }
+        } catch (err) {
+            console.warn("Error en búsqueda genérica:", err);
+        }
+        
+        alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
+        return;
+    }
+    
+    // ✅ Si SÍ contiene palabra de vía → búsqueda por prioridades de calles
+    console.log(`🛣️ Detectado tipo de vía, buscando con prioridades: "${query}"`);
+    
     // Bounding boxes aproximados
     const BBOX_VALENCIA_CIUDAD = "-0.40,39.45,-0.35,39.48";
     const BBOX_PROVINCIA_VALENCIA = "-1.5,38.7,0.2,40.0";
@@ -846,7 +894,6 @@ async function buscarDireccionConPrioridad(query) {
     const BBOX_PROVINCIA_CASTELLON = "-0.5,39.5,0.5,40.8";
     const BBOX_COMUNITAT_VALENCIANA = "-1.5,37.8,0.5,40.8";
     
-    // Intentos en orden de prioridad (solo si NO es un municipio)
     const intentos = [
         {
             nombre: "Valencia ciudad",
@@ -874,7 +921,6 @@ async function buscarDireccionConPrioridad(query) {
         }
     ];
     
-    // Probar cada prioridad en orden
     for (const intento of intentos) {
         try {
             const response = await fetch(intento.url);

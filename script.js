@@ -808,23 +808,84 @@ function buscarOCoordenadas(raw) {
         btnLocalizar.addEventListener("click", () => buscarOCoordenadas(document.getElementById("coordenadas").value));
     }
 
-    const locateButton = document.createElement("button");
-    locateButton.textContent = "Volver a mi ubicación";
+       const locateButton = document.createElement("button");
+    locateButton.textContent = "📍 Volver a mi ubicación";
     locateButton.type = "button";
-    Object.assign(locateButton.style, { marginTop: "10px", marginBottom: "15px", padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" });
-    locateButton.addEventListener("click", e => {
+    Object.assign(locateButton.style, { 
+        marginTop: "10px", 
+        marginBottom: "15px", 
+        padding: "10px 15px", 
+        backgroundColor: "#28a745", 
+        color: "white", 
+        border: "none", 
+        borderRadius: "4px", 
+        cursor: "pointer", 
+        fontSize: "16px",
+        display: "flex",
+        alignItems: "center",
+        gap: "5px"
+    });
+
+    locateButton.addEventListener("click", async e => {
         e.preventDefault();
-        seguimientoActivo = true;
-        forzarZoomInicial = true;
+        
+        // Si ya tenemos una última posición, ir ahí inmediatamente
         if (ultimaPosicion) {
             const [lat, lng] = ultimaPosicion;
+            seguimientoActivo = true;
+            forzarZoomInicial = true;
             if (marker) marker.setLatLng([lat, lng]);
             else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
             map.setView([lat, lng], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            iniciarSeguimiento();
+            return;
         }
-        iniciarSeguimiento();
+        
+        // Si no, buscar posición nueva
+        mostrarEstadoGPS('🔍 Buscando tu ubicación...', 'info');
+        locateButton.disabled = true;
+        locateButton.textContent = '⏳ Buscando...';
+        
+        try {
+            const pos = await obtenerPosicionRapida();
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            ultimaPosicion = [lat, lng];
+            
+            seguimientoActivo = true;
+            forzarZoomInicial = true;
+            
+            if (marker) marker.setLatLng([lat, lng]);
+            else marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+            
+            map.setView([lat, lng], 13);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            
+            mostrarEstadoGPS('✅ Ubicación encontrada', 'success');
+            
+            // Iniciar seguimiento continuo
+            iniciarSeguimiento();
+            
+        } catch (err) {
+            console.error("Error al obtener ubicación:", err);
+            
+            let mensaje = '❌ No se pudo obtener tu ubicación';
+            if (err.code === 1) {
+                mensaje = '❌ Permiso de ubicación denegado. Actívalo en la configuración.';
+            } else if (err.code === 2) {
+                mensaje = '❌ No hay señal GPS. Intenta en exterior.';
+            } else if (err.code === 3) {
+                mensaje = '❌ Tiempo de espera agotado. Intenta de nuevo.';
+            }
+            
+            mostrarEstadoGPS(mensaje, 'error');
+        } finally {
+            locateButton.disabled = false;
+            locateButton.textContent = "📍 Volver a mi ubicación";
+        }
     });
+
     const mapElement = document.getElementById("map");
     mapElement.parentNode.insertBefore(locateButton, mapElement.nextSibling);
 

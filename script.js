@@ -675,7 +675,7 @@ function onMapClick(e) {
 }
 map.on("click", onMapClick);
     /* ---------- BUSCAR COORDENADAS O DIRECCIÓN ---------- */
-    function buscarOCoordenadas(raw) {
+function buscarOCoordenadas(raw) {
     raw = raw.trim();
     if (!raw) return;
 
@@ -689,6 +689,9 @@ map.on("click", onMapClick);
             else marker = L.marker([lat, lon]).addTo(map);
             map.setView([lat, lon], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lon.toFixed(5);
+            
+            // ✅ AÑADIR: Actualizar municipio
+            mostrarPopupYActualizarMunicipio(lat, lon);
             return;
         } catch (err) {
             console.error("Error convirtiendo UTM:", err);
@@ -706,13 +709,15 @@ map.on("click", onMapClick);
             else marker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 13);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            
+            // ✅ AÑADIR: Actualizar municipio
+            mostrarPopupYActualizarMunicipio(lat, lng);
             return;
         }
     }
 
     // 3. Si no, tratar como dirección
-    // ✅ AÑADIR accept-language=ca
-const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(raw)}`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(raw)}`;
     fetch(url)
         .then(r => r.json())
         .then(data => {
@@ -726,16 +731,17 @@ const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&coun
             if (marker) marker.setLatLng([lat, lng]);
             else marker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 16);
-            // ✅ Llamar a la función reutilizable
-        mostrarPopupYActualizarMunicipio(lat, lng);
-        
-        document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Error al buscar la dirección.");
-    });
+            
+            // ✅ Ya estaba aquí, lo mantenemos
+            mostrarPopupYActualizarMunicipio(lat, lng);
+            
+            document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error al buscar la dirección.");
+        });
 }
 
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));

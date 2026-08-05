@@ -582,7 +582,48 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
         if (watchId !== null) navigator.geolocation.clearWatch(watchId);
         watchId = null; seguimientoActivo = false;
     }
+// ✅ NUEVA FUNCIÓN: Convertir municipio a valenciano de forma robusta
+function convertirAVaenciano(municipioNominatim) {
+    if (!municipioNominatim || municipioNominatim === "Desconocido" || municipioNominatim === "No encontrado") {
+        return municipioNominatim;
+    }
 
+    // Función para normalizar (quitar acentos y pasar a minúsculas)
+    const normalizar = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+    const municipioNorm = normalizar(municipioNominatim);
+
+    // 1. Buscar en las CLAVES del mapeo (normalizadas)
+    if (window.mapeoMunicipios) {
+        for (const clave in window.mapeoMunicipios) {
+            if (normalizar(clave) === municipioNorm) {
+                return window.mapeoMunicipios[clave]; // Devuelve el valor en valenciano
+            }
+        }
+    }
+
+    // 2. Buscar en los VALORES del mapeo (por si Nominatim devuelve algo que ya está en valenciano)
+    if (window.mapeoMunicipios) {
+        for (const clave in window.mapeoMunicipios) {
+            const valor = window.mapeoMunicipios[clave];
+            if (normalizar(valor) === municipioNorm) {
+                return valor; // Ya está en valenciano
+            }
+        }
+    }
+
+    // 3. Buscar directamente en municipiosData (normalizado)
+    if (window.municipiosData) {
+        const encontrado = window.municipiosData.find(m => normalizar(m) === municipioNorm);
+        if (encontrado) {
+            return encontrado; // Devuelve la versión con acentos correctos
+        }
+    }
+
+    // 4. Si no se encuentra, devolver el original (con warning en consola)
+    console.warn(`⚠️ No se pudo convertir "${municipioNominatim}" a valenciano`);
+    return municipioNominatim;
+}
    // Función reutilizable para mostrar popup y actualizar municipio
 function mostrarPopupYActualizarMunicipio(lat, lng) {
     obtenerMunicipio(lat, lng).then(({ municipio, provincia }) => {

@@ -776,18 +776,23 @@ function buscarOCoordenadas(raw) {
     buscarDireccionConPrioridad(raw);
 }
 
-// ✅ NUEVA FUNCIÓN: Búsqueda con prioridades (provincia → CV → España)
+// ✅ FUNCIÓN MEJORADA: Búsqueda con prioridades (Valencia ciudad → provincia → CV → España)
 async function buscarDireccionConPrioridad(query) {
     const queryEncoded = encodeURIComponent(query);
     
     // Bounding boxes aproximados
-    const BBOX_PROVINCIA_VALENCIA = "-1.5,38.7,0.2,40.0"; // lon1,lat1,lon2,lat2
+    const BBOX_VALENCIA_CIUDAD = "-0.45,39.40,-0.30,39.52"; // Solo Valencia ciudad y área metropolitana
+    const BBOX_PROVINCIA_VALENCIA = "-1.5,38.7,0.2,40.0";
     const BBOX_PROVINCIA_ALICANTE = "-1.0,37.8,0.2,38.9";
     const BBOX_PROVINCIA_CASTELLON = "-0.5,39.5,0.5,40.8";
     const BBOX_COMUNITAT_VALENCIANA = "-1.5,37.8,0.5,40.8";
     
     // Intentos en orden de prioridad
     const intentos = [
+        {
+            nombre: "Valencia ciudad",
+            url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_VALENCIA_CIUDAD}&bounded=1&q=${queryEncoded}`
+        },
         {
             nombre: "Provincia de Valencia",
             url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_VALENCIA}&bounded=1&q=${queryEncoded}`
@@ -842,7 +847,6 @@ async function buscarDireccionConPrioridad(query) {
     // Si no se encontró nada en ninguna prioridad
     alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
 }
-
     document.getElementById("coordenadas").addEventListener("change", e => buscarOCoordenadas(e.target.value));
     const btnLocalizar = document.getElementById("btnLocalizar");
     if (btnLocalizar) {

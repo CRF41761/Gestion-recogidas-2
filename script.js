@@ -614,27 +614,36 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
         }
     });
 }
-    function iniciarSeguimiento() {
-        if (!navigator.geolocation) return;
-        watchId = navigator.geolocation.watchPosition(
-            pos => {
-                if (!seguimientoActivo) return;
-                const lat = pos.coords.latitude, lng = pos.coords.longitude;
-                ultimaPosicion = [lat, lng];
-                map.setView([lat, lng], forzarZoomInicial ? 13 : map.getZoom());
-                forzarZoomInicial = false;
-                marker ? marker.setLatLng([lat, lng])
-                       : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
-            },
-            err => console.error("Error GPS:", err),
-            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
-        );
+    // Función mejorada para iniciar seguimiento
+function iniciarSeguimiento() {
+    if (!navigator.geolocation) return;
+    
+    // Detener seguimiento anterior si existe
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
     }
+    
+    watchId = navigator.geolocation.watchPosition(
+        pos => {
+            if (!seguimientoActivo) return;
+            const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            ultimaPosicion = [lat, lng];
+            map.setView([lat, lng], forzarZoomInicial ? 13 : map.getZoom());
+            forzarZoomInicial = false;
+            marker ? marker.setLatLng([lat, lng])
+                   : marker = L.marker([lat, lng]).addTo(map).bindPopup("Estás aquí").openPopup();
+        },
+        err => {
+            console.error("Error GPS:", err);
+        },
+        { enableHighAccuracy: false, maximumAge: 30000, timeout: 15000 }
+    );
+}
 
-    function detenerSeguimiento() {
-        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-        watchId = null; seguimientoActivo = false;
-    }
+function detenerSeguimiento() {
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+    watchId = null; seguimientoActivo = false;
+}
 // ✅ NUEVA FUNCIÓN: Convertir municipio a valenciano de forma robusta
 function convertirAVaenciano(municipioNominatim) {
     if (!municipioNominatim || municipioNominatim === "Desconocido" || municipioNominatim === "No encontrado") {

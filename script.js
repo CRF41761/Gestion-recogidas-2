@@ -684,7 +684,7 @@ function convertirAVaenciano(municipioNominatim) {
     return municipioNominatim;
 }
 // Función reutilizable para mostrar popup y actualizar municipio
-function mostrarPopupYActualizarMunicipio(lat, lng) {
+function mostrarPopupYActualizarMunicipio(lat, lng, nombreForzado = null) {
     obtenerMunicipio(lat, lng).then(({ municipio, provincia }) => {
         const popupContent = `
             <div style="font-family:sans-serif; font-size:14px;">
@@ -703,11 +703,11 @@ function mostrarPopupYActualizarMunicipio(lat, lng) {
         }
         marker.openPopup();
         
-        // ✅ USAR LA NUEVA FUNCIÓN DE CONVERSIÓN ROBUSTA
         const municipioInput = document.getElementById('municipio');
         if (municipioInput && municipio !== "Desconocido" && municipio !== "No encontrado") {
-            const municipioValenciano = convertirAVaenciano(municipio);
-            municipioInput.value = municipioValenciano;
+            // ✅ Si hay nombre forzado, usarlo; si no, convertir desde Nominatim
+            const nombreFinal = nombreForzado || convertirAVaenciano(municipio);
+            municipioInput.value = nombreFinal;
             municipioInput.dispatchEvent(new Event('input'));
         }
     });

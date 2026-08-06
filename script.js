@@ -804,15 +804,8 @@ if (resultadoMunicipio) {
             else marker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 14);
             
-            // ✅ Mostrar popup con datos de Nominatim (para info visual)
-            mostrarPopupYActualizarMunicipio(lat, lng);
-            
-            // ✅ FORZAR el nombre del municipio que YA detectamos (el correcto del JSON)
-            const municipioInput = document.getElementById('municipio');
-            if (municipioInput) {
-                municipioInput.value = resultadoMunicipio;
-                municipioInput.dispatchEvent(new Event('input'));
-            }
+            // ✅ Pasar el nombre correcto como tercer parámetro
+            mostrarPopupYActualizarMunicipio(lat, lng, resultadoMunicipio);
             
             document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);

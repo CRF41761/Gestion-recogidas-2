@@ -786,35 +786,43 @@ async function buscarDireccionConPrioridad(query) {
     // ✅ 1. BUSCAR MUNICIPIO (exacto o parcial)
     const resultadoMunicipio = await buscarMunicipio(query, queryNormalizado);
     
-    if (resultadoMunicipio) {
-        // Si encontramos municipio, buscarlo en Nominatim
-        console.log(`🏙️ Municipio seleccionado: "${resultadoMunicipio}"`);
-        const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(resultadoMunicipio)}, Comunitat Valenciana`;
+if (resultadoMunicipio) {
+    // Si encontramos municipio, buscarlo en Nominatim
+    console.log(`🏙️ Municipio seleccionado: "${resultadoMunicipio}"`);
+    const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(resultadoMunicipio)}, Comunitat Valenciana`;
+    
+    try {
+        const response = await fetch(urlMunicipio);
+        const data = await response.json();
         
-        try {
-            const response = await fetch(urlMunicipio);
-            const data = await response.json();
+        if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
             
-            if (data && data.length > 0) {
-                const lat = parseFloat(data[0].lat);
-                const lng = parseFloat(data[0].lon);
-                
-                detenerSeguimiento();
-                if (marker) marker.setLatLng([lat, lng]);
-                else marker = L.marker([lat, lng]).addTo(map);
-                map.setView([lat, lng], 14);
-                
-                mostrarPopupYActualizarMunicipio(lat, lng);
-                
-                document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-                
-                return;
+            detenerSeguimiento();
+            if (marker) marker.setLatLng([lat, lng]);
+            else marker = L.marker([lat, lng]).addTo(map);
+            map.setView([lat, lng], 14);
+            
+            // ✅ Mostrar popup con datos de Nominatim (para info visual)
+            mostrarPopupYActualizarMunicipio(lat, lng);
+            
+            // ✅ FORZAR el nombre del municipio que YA detectamos (el correcto del JSON)
+            const municipioInput = document.getElementById('municipio');
+            if (municipioInput) {
+                municipioInput.value = resultadoMunicipio;
+                municipioInput.dispatchEvent(new Event('input'));
             }
-        } catch (err) {
-            console.warn(`Error buscando municipio ${resultadoMunicipio}:`, err);
+            
+            document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            
+            return;
         }
+    } catch (err) {
+        console.warn(`Error buscando municipio ${resultadoMunicipio}:`, err);
     }
+}
     
     // ✅ 2. Detectar si contiene palabra de vía
     const palabrasVia = [

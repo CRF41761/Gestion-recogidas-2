@@ -804,8 +804,28 @@ if (resultadoMunicipio) {
             else marker = L.marker([lat, lng]).addTo(map);
             map.setView([lat, lng], 14);
             
-            // ✅ Pasar el nombre correcto como tercer parámetro
-            mostrarPopupYActualizarMunicipio(lat, lng, resultadoMunicipio);
+            // ✅ Mostrar popup manualmente con el nombre correcto
+            const popupContent = `
+                <div style="font-family:sans-serif; font-size:14px;">
+                    <strong>📍 Coordenadas:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}<br>
+                    <strong>🏙️ Municipio:</strong> ${resultadoMunicipio}<br>
+                    <small style="color:#666;">Datos de OpenStreetMap</small>
+                </div>
+            `;
+            
+            if (marker.getPopup()) {
+                marker.setPopupContent(popupContent);
+            } else {
+                marker.bindPopup(popupContent);
+            }
+            marker.openPopup();
+            
+            // ✅ Establecer el nombre correcto directamente en el campo
+            const municipioInput = document.getElementById('municipio');
+            if (municipioInput) {
+                municipioInput.value = resultadoMunicipio;
+                municipioInput.dispatchEvent(new Event('input'));
+            }
             
             document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
             document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);

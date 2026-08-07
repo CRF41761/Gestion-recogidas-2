@@ -936,68 +936,109 @@ function buscarOCoordenadas(raw) {
     buscarDireccionConPrioridad(raw);
 }
 
-// ✅ FUNCIÓN MEJORADA: Con detección parcial de municipios y selección múltiple
+// ✅ FUNCIÓN MEJORADA: Con detección de localidades locales + municipios + calles
 async function buscarDireccionConPrioridad(query) {
     const queryEncoded = encodeURIComponent(query);
     
     // Normalizar query (sin acentos, minúsculas)
     const queryNormalizado = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
     
-    // ✅ 1. BUSCAR MUNICIPIO (exacto o parcial)
+    // ✅ 1. BUSCAR EN LOCALIDADES LOCALES (pedanías, barrios, partidas)
+    if (localidadesLocales[queryNormalizado]) {
+        const localidad = localidadesLocales[queryNormalizado];
+        console.log(`🏘️ Localidad local encontrada: "${query}" → ${localidad.municipio}`);
+        
+        const [lat, lng] = localidad.coords;
+        
+        detenerSeguimiento();
+        if (marker) marker.setLatLng([lat, lng]);
+        else marker = L.marker([lat, lng]).addTo(map);
+        map.setView([lat, lng], localidad.zoom || 15);
+        
+        // Mostrar popup
+        const popupContent = `
+            <div style="font-family:sans-serif; font-size:14px;">
+                <strong>📍 Coordenadas:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}<br>
+                <strong>🏘️ Localidad:</strong> ${query}<br>
+                <strong>🏙️ Municipio:</strong> ${localidad.municipio}<br>
+                <small style="color:#666;">Datos locales</small>
+            </div>
+        `;
+        
+        if (marker.getPopup()) {
+            marker.setPopupContent(popupContent);
+        } else {
+            marker.bindPopup(popupContent);
+        }
+        marker.openPopup();
+        
+        // Establecer el municipio en el campo
+        const municipioInput = document.getElementById('municipio');
+        if (municipioInput) {
+            municipioInput.value = localidad.municipio;
+            municipioInput.dispatchEvent(new Event('input'));
+        }
+        
+        document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+        
+        return;
+    }
+    
+    // ✅ 2. BUSCAR MUNICIPIO (exacto o parcial)
     const resultadoMunicipio = await buscarMunicipio(query, queryNormalizado);
     
-if (resultadoMunicipio) {
-    // Si encontramos municipio, buscarlo en Nominatim
-    console.log(`🏙️ Municipio seleccionado: "${resultadoMunicipio}"`);
-    const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(resultadoMunicipio)}, Comunitat Valenciana`;
-    
-    try {
-        const response = await fetch(urlMunicipio);
-        const data = await response.json();
+    if (resultadoMunicipio) {
+        console.log(`🏙️ Municipio seleccionado: "${resultadoMunicipio}"`);
+        const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(resultadoMunicipio)}, Comunitat Valenciana`;
         
-        if (data && data.length > 0) {
-            const lat = parseFloat(data[0].lat);
-            const lng = parseFloat(data[0].lon);
+        try {
+            const response = await fetch(urlMunicipio);
+            const data = await response.json();
             
-            detenerSeguimiento();
-            if (marker) marker.setLatLng([lat, lng]);
-            else marker = L.marker([lat, lng]).addTo(map);
-            map.setView([lat, lng], 14);
-            
-            // ✅ Mostrar popup manualmente con el nombre correcto
-            const popupContent = `
-                <div style="font-family:sans-serif; font-size:14px;">
-                    <strong>📍 Coordenadas:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}<br>
-                    <strong>🏙️ Municipio:</strong> ${resultadoMunicipio}<br>
-                    <small style="color:#666;">Datos de OpenStreetMap</small>
-                </div>
-            `;
-            
-            if (marker.getPopup()) {
-                marker.setPopupContent(popupContent);
-            } else {
-                marker.bindPopup(popupContent);
+            if (data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                
+                detenerSeguimiento();
+                if (marker) marker.setLatLng([lat, lng]);
+                else marker = L.marker([lat, lng]).addTo(map);
+                map.setView([lat, lng], 14);
+                
+                // ✅ Mostrar popup manualmente con el nombre correcto
+                const popupContent = `
+                    <div style="font-family:sans-serif; font-size:14px;">
+                        <strong>📍 Coordenadas:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}<br>
+                        <strong>🏙️ Municipio:</strong> ${resultadoMunicipio}<br>
+                        <small style="color:#666;">Datos de OpenStreetMap</small>
+                    </div>
+                `;
+                
+                if (marker.getPopup()) {
+                    marker.setPopupContent(popupContent);
+                } else {
+                    marker.bindPopup(popupContent);
+                }
+                marker.openPopup();
+                
+                // ✅ Establecer el nombre correcto directamente en el campo
+                const municipioInput = document.getElementById('municipio');
+                if (municipioInput) {
+                    municipioInput.value = resultadoMunicipio;
+                    municipioInput.dispatchEvent(new Event('input'));
+                }
+                
+                document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                
+                return;
             }
-            marker.openPopup();
-            
-            // ✅ Establecer el nombre correcto directamente en el campo
-            const municipioInput = document.getElementById('municipio');
-            if (municipioInput) {
-                municipioInput.value = resultadoMunicipio;
-                municipioInput.dispatchEvent(new Event('input'));
-            }
-            
-            document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-            
-            return;
+        } catch (err) {
+            console.warn(`Error buscando municipio ${resultadoMunicipio}:`, err);
         }
-    } catch (err) {
-        console.warn(`Error buscando municipio ${resultadoMunicipio}:`, err);
     }
-}
     
-    // ✅ 2. Detectar si contiene palabra de vía
+    // ✅ 3. Detectar si contiene palabra de vía
     const palabrasVia = [
         'calle', 'c/', 'cl/', 'carrer', 'av.', 'avda', 'avenida', 'avinguda',
         'plaza', 'plaça', 'placa', 'placeta', 'camino', 'cno', 'carretera', 'ctra',
@@ -1041,6 +1082,54 @@ if (resultadoMunicipio) {
         alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
         return;
     }
+    
+    // ✅ 4. Búsqueda de calles por prioridades
+    console.log(`🛣️ Buscando calle con prioridades: "${query}"`);
+    
+    const BBOX_VALENCIA_CIUDAD = "-0.40,39.45,-0.35,39.48";
+    const BBOX_PROVINCIA_VALENCIA = "-1.5,38.7,0.2,40.0";
+    const BBOX_PROVINCIA_ALICANTE = "-1.0,37.8,0.2,38.9";
+    const BBOX_PROVINCIA_CASTELLON = "-0.5,39.5,0.5,40.8";
+    const BBOX_COMUNITAT_VALENCIANA = "-1.5,37.8,0.5,40.8";
+    
+    const intentos = [
+        { nombre: "Valencia ciudad", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_VALENCIA_CIUDAD}&bounded=1&q=${queryEncoded}` },
+        { nombre: "Provincia de Valencia", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_VALENCIA}&bounded=1&q=${queryEncoded}` },
+        { nombre: "Provincia de Alicante", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_ALICANTE}&bounded=1&q=${queryEncoded}` },
+        { nombre: "Provincia de Castellón", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_CASTELLON}&bounded=1&q=${queryEncoded}` },
+        { nombre: "Comunitat Valenciana", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_COMUNITAT_VALENCIANA}&bounded=1&q=${queryEncoded}` },
+        { nombre: "España", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${queryEncoded}` }
+    ];
+    
+    for (const intento of intentos) {
+        try {
+            const response = await fetch(intento.url);
+            const data = await response.json();
+            
+            if (data && data.length > 0) {
+                console.log(`✅ Encontrado en: ${intento.nombre}`);
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                
+                detenerSeguimiento();
+                if (marker) marker.setLatLng([lat, lng]);
+                else marker = L.marker([lat, lng]).addTo(map);
+                map.setView([lat, lng], 16);
+                
+                mostrarPopupYActualizarMunicipio(lat, lng);
+                
+                document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+                
+                return;
+            }
+        } catch (err) {
+            console.warn(`Error en búsqueda ${intento.nombre}:`, err);
+        }
+    }
+    
+    alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
+}
     
     // ✅ 3. Búsqueda de calles por prioridades
     console.log(`🛣️ Buscando calle con prioridades: "${query}"`);

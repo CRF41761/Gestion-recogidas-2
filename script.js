@@ -1567,9 +1567,11 @@ if (telefonoInput) {
     <p>Para que el mapa ubique bien la dirección, <strong>escribe siempre el nombre de la ciudad o pueblo completo</strong>.</p>
     <ul style="padding-left:20px; margin-top:8px;">
       <li>✅ <strong>Bien:</strong> <code>Calle Colón, Valencia ciudad</code></li>
+      <li>✅ <strong>Bien:</strong> <code>La Torre, Valencia</code></li>
+      <li>✅ <strong>Bien:</strong> <code>Urbanizacion la cañada</code></li>
       <li>✅ <strong>Bien:</strong> <code>Plaza Mayor, Xàtiva</code></li>
       <li>✅ <strong>Bien:</strong> <code>Avenida Elche, Alicante</code></li>
-      <li>❌ <strong>Evita:</strong> <code>Calle Colón, Valencia</code> → puede ir a Alicante</li>
+            <li>❌ <strong>Evita:</strong> <code>Calle Colón, Valencia</code> → puede ir a Alicante</li>
       <li>❌ <strong>Evita:</strong> <code>Calle Colón</code> → puede ir a otro municipio</li>
     </ul>
     <p style="margin-top:12px; font-weight:bold; color:#27ae60;">

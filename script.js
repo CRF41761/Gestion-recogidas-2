@@ -1566,7 +1566,7 @@ if (telefonoInput) {
     <h3>📍 Cómo buscar direcciones correctamente</h3>
     <p>Para que el mapa ubique bien la dirección, <strong>escribe siempre el nombre de la ciudad o pueblo completo</strong>.</p>
     <ul style="padding-left:20px; margin-top:8px;">
-      <li>✅ <strong>Bien:</strong> <code>Calle Colón, Valencia ciudad</code></li>
+      <li>✅ <strong>Bien:</strong> <code>Calle Colon</code></li>
       <li>✅ <strong>Bien:</strong> <code>La Torre, Valencia</code></li>
       <li>✅ <strong>Bien:</strong> <code>Urbanizacion la cañada</code></li>
       <li>✅ <strong>Bien:</strong> <code>Plaza Mayor, Xàtiva</code></li>

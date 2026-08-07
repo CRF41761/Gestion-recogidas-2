@@ -13,166 +13,6 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 /* ============================================ */
 /* ============================================
-   LOCALIDADES LOCALES (pedanías, barrios, partidas, playas)
-   Coordenadas exactas para evitar confusiones con otros lugares de España
-   ============================================ */
-const localidadesLocales = {
-    // ===== VALENCIA CIUDAD - Pedanías =====
-    "la torre": { coords: [39.4119, -0.4117], municipio: "Valencia", zoom: 15 },
-    "benimamet": { coords: [39.4972, -0.4089], municipio: "Valencia", zoom: 15 },
-    "benimàmet": { coords: [39.4972, -0.4089], municipio: "Valencia", zoom: 15 },
-    "beniferri": { coords: [39.4833, -0.4000], municipio: "Valencia", zoom: 15 },
-    "pinedo": { coords: [39.4083, -0.3417], municipio: "Valencia", zoom: 15 },
-    "el saler": { coords: [39.3750, -0.3333], municipio: "Valencia", zoom: 15 },
-    "saler": { coords: [39.3750, -0.3333], municipio: "Valencia", zoom: 15 },
-    "el palmar": { coords: [39.3500, -0.3333], municipio: "Valencia", zoom: 15 },
-    "palmar": { coords: [39.3500, -0.3333], municipio: "Valencia", zoom: 15 },
-    "el perellonet": { coords: [39.3333, -0.3333], municipio: "Valencia", zoom: 15 },
-    "perellonet": { coords: [39.3333, -0.3333], municipio: "Valencia", zoom: 15 },
-    "benicalap": { coords: [39.4917, -0.4083], municipio: "Valencia", zoom: 15 },
-    "torrefiel": { coords: [39.4917, -0.3750], municipio: "Valencia", zoom: 15 },
-    "orriols": { coords: [39.4917, -0.3667], municipio: "Valencia", zoom: 15 },
-    "la punta": { coords: [39.4250, -0.3500], municipio: "Valencia", zoom: 15 },
-    "nazaret": { coords: [39.4417, -0.3417], municipio: "Valencia", zoom: 15 },
-    "el grao": { coords: [39.4500, -0.3333], municipio: "Valencia", zoom: 15 },
-    "grao": { coords: [39.4500, -0.3333], municipio: "Valencia", zoom: 15 },
-    "el cabanyal": { coords: [39.4667, -0.3333], municipio: "Valencia", zoom: 15 },
-    "cabanyal": { coords: [39.4667, -0.3333], municipio: "Valencia", zoom: 15 },
-    "cabañal": { coords: [39.4667, -0.3333], municipio: "Valencia", zoom: 15 },
-    "la malvarrosa": { coords: [39.4750, -0.3333], municipio: "Valencia", zoom: 15 },
-    "malvarrosa": { coords: [39.4750, -0.3333], municipio: "Valencia", zoom: 15 },
-    "ayora": { coords: [39.5500, -0.4167], municipio: "Valencia", zoom: 15 },
-    "la luz": { coords: [39.4583, -0.4000], municipio: "Valencia", zoom: 15 },
-    "tres forques": { coords: [39.4583, -0.4083], municipio: "Valencia", zoom: 15 },
-    "la petxina": { coords: [39.4750, -0.3917], municipio: "Valencia", zoom: 15 },
-    "petxina": { coords: [39.4750, -0.3917], municipio: "Valencia", zoom: 15 },
-    "nou moles": { coords: [39.4750, -0.4000], municipio: "Valencia", zoom: 15 },
-    "arrancapins": { coords: [39.4667, -0.3917], municipio: "Valencia", zoom: 15 },
-    "patraix": { coords: [39.4500, -0.4083], municipio: "Valencia", zoom: 15 },
-    "vara de quart": { coords: [39.4583, -0.4167], municipio: "Valencia", zoom: 15 },
-    "la fontsanta": { coords: [39.4417, -0.4083], municipio: "Valencia", zoom: 15 },
-    "monteolivete": { coords: [39.4500, -0.3583], municipio: "Valencia", zoom: 15 },
-    "en corts": { coords: [39.4500, -0.3667], municipio: "Valencia", zoom: 15 },
-    "borboto": { coords: [39.5000, -0.3833], municipio: "Valencia", zoom: 15 },
-    "carpesa": { coords: [39.4917, -0.3750], municipio: "Valencia", zoom: 15 },
-    "masarrochos": { coords: [39.5083, -0.3833], municipio: "Valencia", zoom: 15 },
-    "massarrojos": { coords: [39.5083, -0.3833], municipio: "Valencia", zoom: 15 },
-    "poble nou": { coords: [39.4833, -0.3417], municipio: "Valencia", zoom: 15 },
-    "ciutat jardí": { coords: [39.4750, -0.3583], municipio: "Valencia", zoom: 15 },
-    "ciutat jardin": { coords: [39.4750, -0.3583], municipio: "Valencia", zoom: 15 },
-    "canyamelar": { coords: [39.4667, -0.3333], municipio: "Valencia", zoom: 15 },
-    "castellar-oliveral": { coords: [39.4250, -0.3583], municipio: "Valencia", zoom: 15 },
-    "castellar": { coords: [39.4250, -0.3583], municipio: "Valencia", zoom: 15 },
-    "horno de alcedo": { coords: [39.4167, -0.3500], municipio: "Valencia", zoom: 15 },
-    "poblados del sur": { coords: [39.4250, -0.3583], municipio: "Valencia", zoom: 14 },
-    
-    // ===== Barrios de Valencia (nombres compartidos con Cataluña) =====
-    "la seu": { coords: [39.4767, -0.3750], municipio: "Valencia", zoom: 16 },
-    "el carme": { coords: [39.4767, -0.3833], municipio: "Valencia", zoom: 16 },
-    "el carmen": { coords: [39.4767, -0.3833], municipio: "Valencia", zoom: 16 },
-    "ruzafa": { coords: [39.4617, -0.3717], municipio: "Valencia", zoom: 16 },
-    "russafa": { coords: [39.4617, -0.3717], municipio: "Valencia", zoom: 16 },
-    "el botànic": { coords: [39.4717, -0.3883], municipio: "Valencia", zoom: 16 },
-    "botanic": { coords: [39.4717, -0.3883], municipio: "Valencia", zoom: 16 },
-    "la xerea": { coords: [39.4783, -0.3733], municipio: "Valencia", zoom: 16 },
-    "el mercat": { coords: [39.4750, -0.3783], municipio: "Valencia", zoom: 16 },
-    "sant francesc": { coords: [39.4700, -0.3767], municipio: "Valencia", zoom: 16 },
-    "la roqueta": { coords: [39.4683, -0.3817], municipio: "Valencia", zoom: 16 },
-    "el calvari": { coords: [39.4883, -0.3717], municipio: "Valencia", zoom: 16 },
-    "sant pau": { coords: [39.4833, -0.3667], municipio: "Valencia", zoom: 16 },
-    "el port": { coords: [39.4500, -0.3333], municipio: "Valencia", zoom: 16 },
-    "la marina": { coords: [39.4500, -0.3333], municipio: "Valencia", zoom: 16 },
-    
-    // ===== Albufera - Devesa =====
-    "la devesa": { coords: [39.3667, -0.3333], municipio: "Valencia", zoom: 14 },
-    "devesa": { coords: [39.3667, -0.3333], municipio: "Valencia", zoom: 14 },
-    "devesa del saler": { coords: [39.3667, -0.3333], municipio: "Valencia", zoom: 14 },
-    "el estany": { coords: [39.3500, -0.3417], municipio: "Valencia", zoom: 14 },
-    "la albufera": { coords: [39.3500, -0.3500], municipio: "Valencia", zoom: 14 },
-    "albufera": { coords: [39.3500, -0.3500], municipio: "Valencia", zoom: 14 },
-    
-    // ===== Paterna - Pedanías =====
-    "la cañada": { coords: [39.5017, -0.4267], municipio: "Paterna", zoom: 15 },
-    "cañada": { coords: [39.5017, -0.4267], municipio: "Paterna", zoom: 15 },
-    "la canyada": { coords: [39.5017, -0.4267], municipio: "Paterna", zoom: 15 },
-    "canyada": { coords: [39.5017, -0.4267], municipio: "Paterna", zoom: 15 },
-    "mas del rosari": { coords: [39.5083, -0.4417], municipio: "Paterna", zoom: 15 },
-    "mas del rosario": { coords: [39.5083, -0.4417], municipio: "Paterna", zoom: 15 },
-    "la coma": { coords: [39.5139, -0.4500], municipio: "Paterna", zoom: 15 },
-    "bovalar": { coords: [39.5167, -0.4333], municipio: "Paterna", zoom: 15 },
-    "la font": { coords: [39.5000, -0.4167], municipio: "Paterna", zoom: 15 },
-    "font del jarro": { coords: [39.5167, -0.4417], municipio: "Paterna", zoom: 15 },
-    "font del gerro": { coords: [39.5167, -0.4417], municipio: "Paterna", zoom: 15 },
-    "la granja": { coords: [39.5083, -0.4500], municipio: "Paterna", zoom: 15 },
-    "lloma llarga": { coords: [39.5167, -0.4583], municipio: "Paterna", zoom: 15 },
-    "parc tecnològic": { coords: [39.5250, -0.4583], municipio: "Paterna", zoom: 15 },
-    "parque tecnologico": { coords: [39.5250, -0.4583], municipio: "Paterna", zoom: 15 },
-    "campamento": { coords: [39.5000, -0.4167], municipio: "Paterna", zoom: 15 },
-    
-    // ===== Torrent =====
-    "el vedat": { coords: [39.4250, -0.4667], municipio: "Torrent", zoom: 15 },
-    "vedat": { coords: [39.4250, -0.4667], municipio: "Torrent", zoom: 15 },
-    "calicanto": { coords: [39.4167, -0.4833], municipio: "Torrent", zoom: 15 },
-    
-    // ===== Sollana =====
-    "el romani": { coords: [39.2833, -0.3833], municipio: "Sollana", zoom: 15 },
-    "romani": { coords: [39.2833, -0.3833], municipio: "Sollana", zoom: 15 },
-    
-    // ===== Sueca - Marenys =====
-    "el perelló": { coords: [39.3000, -0.3167], municipio: "Sueca", zoom: 15 },
-    "el perello": { coords: [39.3000, -0.3167], municipio: "Sueca", zoom: 15 },
-    "perello": { coords: [39.3000, -0.3167], municipio: "Sueca", zoom: 15 },
-    "perelló": { coords: [39.3000, -0.3167], municipio: "Sueca", zoom: 15 },
-    "mareny blau": { coords: [39.3167, -0.3167], municipio: "Sueca", zoom: 15 },
-    "mareny de barraquetes": { coords: [39.3333, -0.3333], municipio: "Sueca", zoom: 15 },
-    "les palmeres": { coords: [39.2583, -0.3333], municipio: "Sueca", zoom: 15 },
-    "palmeres": { coords: [39.2583, -0.3333], municipio: "Sueca", zoom: 15 },
-    "palmeretes": { coords: [39.2500, -0.3417], municipio: "Sueca", zoom: 15 },
-    
-    // ===== Cullera =====
-    "mareny de sant llorenç": { coords: [39.1667, -0.2667], municipio: "Cullera", zoom: 15 },
-    "mareny de sant llorenc": { coords: [39.1667, -0.2667], municipio: "Cullera", zoom: 15 },
-    "el raco": { coords: [39.1667, -0.2500], municipio: "Cullera", zoom: 15 },
-    "el racó": { coords: [39.1667, -0.2500], municipio: "Cullera", zoom: 15 },
-    "raco de cullera": { coords: [39.1667, -0.2500], municipio: "Cullera", zoom: 15 },
-    
-    // ===== Sagunto =====
-    "puerto de sagunto": { coords: [39.6500, -0.2167], municipio: "Sagunto", zoom: 15 },
-    
-    // ===== Godella =====
-    "campo olivar": { coords: [39.5333, -0.4167], municipio: "Godella", zoom: 15 },
-    
-    // ===== Gandia =====
-    "grao de gandia": { coords: [38.9833, -0.1500], municipio: "Gandia", zoom: 15 },
-    "grao de gandía": { coords: [38.9833, -0.1500], municipio: "Gandia", zoom: 15 },
-    "alqueria del duc": { coords: [38.9833, -0.1833], municipio: "Gandia", zoom: 15 },
-    "alquería del duc": { coords: [38.9833, -0.1833], municipio: "Gandia", zoom: 15 },
-    
-    // ===== Xàtiva =====
-    "alboy": { coords: [39.0056, -0.5033], municipio: "Xàtiva", zoom: 15 },
-    
-    // ===== Otras localidades =====
-    "mas camarena": { coords: [39.5333, -0.4667], municipio: "Bétera", zoom: 15 },
-    "faitanar": { coords: [39.4833, -0.4500], municipio: "Quart de Poblet", zoom: 15 },
-    "circuit ricardo tormo": { coords: [39.4833, -0.4500], municipio: "Cheste", zoom: 15 },
-    "circuito ricardo tormo": { coords: [39.4833, -0.4500], municipio: "Cheste", zoom: 15 },
-    "circuito de cheste": { coords: [39.4833, -0.4500], municipio: "Cheste", zoom: 15 },
-    
-    // ===== Playas y zonas costeras =====
-    "playa de puçol": { coords: [39.5750, -0.3000], municipio: "Puçol", zoom: 15 },
-    "playa de puzol": { coords: [39.5750, -0.3000], municipio: "Puçol", zoom: 15 },
-    "playa de canet": { coords: [39.6000, -0.2833], municipio: "Canet d'En Berenguer", zoom: 15 },
-    "la marina de el puig": { coords: [39.5667, -0.3000], municipio: "El Puig", zoom: 15 },
-    
-    // ===== Hospitales y puntos de interés =====
-    "hospital la fe": { coords: [39.4417, -0.3917], municipio: "Valencia", zoom: 16 },
-    "la fe": { coords: [39.4417, -0.3917], municipio: "Valencia", zoom: 16 },
-    "hospital general": { coords: [39.4750, -0.3917], municipio: "Valencia", zoom: 16 },
-    "hospital clínico": { coords: [39.4750, -0.3667], municipio: "Valencia", zoom: 16 },
-    "la peseta": { coords: [39.4333, -0.4083], municipio: "Valencia", zoom: 16 },
-    "hospital la peseta": { coords: [39.4333, -0.4083], municipio: "Valencia", zoom: 16 }
-};
-/* ============================================
    CONVERSIÓN UTM → LAT/LON (WGS84) - España (Comunidad Valenciana)
    ============================================ */
 function utmToLatLon(easting, northing, zoneNumber, northernHemisphere = true) {
@@ -936,109 +776,68 @@ function buscarOCoordenadas(raw) {
     buscarDireccionConPrioridad(raw);
 }
 
-// ✅ FUNCIÓN MEJORADA: Con detección de localidades locales + municipios + calles
+// ✅ FUNCIÓN MEJORADA: Con detección parcial de municipios y selección múltiple
 async function buscarDireccionConPrioridad(query) {
     const queryEncoded = encodeURIComponent(query);
     
     // Normalizar query (sin acentos, minúsculas)
     const queryNormalizado = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
     
-    // ✅ 1. BUSCAR EN LOCALIDADES LOCALES (pedanías, barrios, partidas)
-    if (localidadesLocales[queryNormalizado]) {
-        const localidad = localidadesLocales[queryNormalizado];
-        console.log(`🏘️ Localidad local encontrada: "${query}" → ${localidad.municipio}`);
-        
-        const [lat, lng] = localidad.coords;
-        
-        detenerSeguimiento();
-        if (marker) marker.setLatLng([lat, lng]);
-        else marker = L.marker([lat, lng]).addTo(map);
-        map.setView([lat, lng], localidad.zoom || 15);
-        
-        // Mostrar popup
-        const popupContent = `
-            <div style="font-family:sans-serif; font-size:14px;">
-                <strong>📍 Coordenadas:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}<br>
-                <strong>🏘️ Localidad:</strong> ${query}<br>
-                <strong>🏙️ Municipio:</strong> ${localidad.municipio}<br>
-                <small style="color:#666;">Datos locales</small>
-            </div>
-        `;
-        
-        if (marker.getPopup()) {
-            marker.setPopupContent(popupContent);
-        } else {
-            marker.bindPopup(popupContent);
-        }
-        marker.openPopup();
-        
-        // Establecer el municipio en el campo
-        const municipioInput = document.getElementById('municipio');
-        if (municipioInput) {
-            municipioInput.value = localidad.municipio;
-            municipioInput.dispatchEvent(new Event('input'));
-        }
-        
-        document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-        
-        return;
-    }
-    
-    // ✅ 2. BUSCAR MUNICIPIO (exacto o parcial)
+    // ✅ 1. BUSCAR MUNICIPIO (exacto o parcial)
     const resultadoMunicipio = await buscarMunicipio(query, queryNormalizado);
     
-    if (resultadoMunicipio) {
-        console.log(`🏙️ Municipio seleccionado: "${resultadoMunicipio}"`);
-        const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(resultadoMunicipio)}, Comunitat Valenciana`;
-        
-        try {
-            const response = await fetch(urlMunicipio);
-            const data = await response.json();
-            
-            if (data && data.length > 0) {
-                const lat = parseFloat(data[0].lat);
-                const lng = parseFloat(data[0].lon);
-                
-                detenerSeguimiento();
-                if (marker) marker.setLatLng([lat, lng]);
-                else marker = L.marker([lat, lng]).addTo(map);
-                map.setView([lat, lng], 14);
-                
-                // ✅ Mostrar popup manualmente con el nombre correcto
-                const popupContent = `
-                    <div style="font-family:sans-serif; font-size:14px;">
-                        <strong>📍 Coordenadas:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}<br>
-                        <strong>🏙️ Municipio:</strong> ${resultadoMunicipio}<br>
-                        <small style="color:#666;">Datos de OpenStreetMap</small>
-                    </div>
-                `;
-                
-                if (marker.getPopup()) {
-                    marker.setPopupContent(popupContent);
-                } else {
-                    marker.bindPopup(popupContent);
-                }
-                marker.openPopup();
-                
-                // ✅ Establecer el nombre correcto directamente en el campo
-                const municipioInput = document.getElementById('municipio');
-                if (municipioInput) {
-                    municipioInput.value = resultadoMunicipio;
-                    municipioInput.dispatchEvent(new Event('input'));
-                }
-                
-                document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-                
-                return;
-            }
-        } catch (err) {
-            console.warn(`Error buscando municipio ${resultadoMunicipio}:`, err);
-        }
-    }
+if (resultadoMunicipio) {
+    // Si encontramos municipio, buscarlo en Nominatim
+    console.log(`🏙️ Municipio seleccionado: "${resultadoMunicipio}"`);
+    const urlMunicipio = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${encodeURIComponent(resultadoMunicipio)}, Comunitat Valenciana`;
     
-    // ✅ 3. Detectar si contiene palabra de vía
+    try {
+        const response = await fetch(urlMunicipio);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+            
+            detenerSeguimiento();
+            if (marker) marker.setLatLng([lat, lng]);
+            else marker = L.marker([lat, lng]).addTo(map);
+            map.setView([lat, lng], 14);
+            
+            // ✅ Mostrar popup manualmente con el nombre correcto
+            const popupContent = `
+                <div style="font-family:sans-serif; font-size:14px;">
+                    <strong>📍 Coordenadas:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}<br>
+                    <strong>🏙️ Municipio:</strong> ${resultadoMunicipio}<br>
+                    <small style="color:#666;">Datos de OpenStreetMap</small>
+                </div>
+            `;
+            
+            if (marker.getPopup()) {
+                marker.setPopupContent(popupContent);
+            } else {
+                marker.bindPopup(popupContent);
+            }
+            marker.openPopup();
+            
+            // ✅ Establecer el nombre correcto directamente en el campo
+            const municipioInput = document.getElementById('municipio');
+            if (municipioInput) {
+                municipioInput.value = resultadoMunicipio;
+                municipioInput.dispatchEvent(new Event('input'));
+            }
+            
+            document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
+            
+            return;
+        }
+    } catch (err) {
+        console.warn(`Error buscando municipio ${resultadoMunicipio}:`, err);
+    }
+}
+    
+    // ✅ 2. Detectar si contiene palabra de vía
     const palabrasVia = [
         'calle', 'c/', 'cl/', 'carrer', 'av.', 'avda', 'avenida', 'avinguda',
         'plaza', 'plaça', 'placa', 'placeta', 'camino', 'cno', 'carretera', 'ctra',
@@ -1082,54 +881,6 @@ async function buscarDireccionConPrioridad(query) {
         alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
         return;
     }
-    
-    // ✅ 4. Búsqueda de calles por prioridades
-    console.log(`🛣️ Buscando calle con prioridades: "${query}"`);
-    
-    const BBOX_VALENCIA_CIUDAD = "-0.40,39.45,-0.35,39.48";
-    const BBOX_PROVINCIA_VALENCIA = "-1.5,38.7,0.2,40.0";
-    const BBOX_PROVINCIA_ALICANTE = "-1.0,37.8,0.2,38.9";
-    const BBOX_PROVINCIA_CASTELLON = "-0.5,39.5,0.5,40.8";
-    const BBOX_COMUNITAT_VALENCIANA = "-1.5,37.8,0.5,40.8";
-    
-    const intentos = [
-        { nombre: "Valencia ciudad", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_VALENCIA_CIUDAD}&bounded=1&q=${queryEncoded}` },
-        { nombre: "Provincia de Valencia", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_VALENCIA}&bounded=1&q=${queryEncoded}` },
-        { nombre: "Provincia de Alicante", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_ALICANTE}&bounded=1&q=${queryEncoded}` },
-        { nombre: "Provincia de Castellón", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_PROVINCIA_CASTELLON}&bounded=1&q=${queryEncoded}` },
-        { nombre: "Comunitat Valenciana", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&viewbox=${BBOX_COMUNITAT_VALENCIANA}&bounded=1&q=${queryEncoded}` },
-        { nombre: "España", url: `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ES&accept-language=ca&q=${queryEncoded}` }
-    ];
-    
-    for (const intento of intentos) {
-        try {
-            const response = await fetch(intento.url);
-            const data = await response.json();
-            
-            if (data && data.length > 0) {
-                console.log(`✅ Encontrado en: ${intento.nombre}`);
-                const lat = parseFloat(data[0].lat);
-                const lng = parseFloat(data[0].lon);
-                
-                detenerSeguimiento();
-                if (marker) marker.setLatLng([lat, lng]);
-                else marker = L.marker([lat, lng]).addTo(map);
-                map.setView([lat, lng], 16);
-                
-                mostrarPopupYActualizarMunicipio(lat, lng);
-                
-                document.getElementById("coordenadas").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-                document.getElementById("coordenadas_mapa").value = lat.toFixed(5) + ", " + lng.toFixed(5);
-                
-                return;
-            }
-        } catch (err) {
-            console.warn(`Error en búsqueda ${intento.nombre}:`, err);
-        }
-    }
-    
-    alert("No se ha encontrado la dirección ni se reconocieron coordenadas válidas.");
-}
     
     // ✅ 3. Búsqueda de calles por prioridades
     console.log(`🛣️ Buscando calle con prioridades: "${query}"`);
@@ -2215,7 +1966,6 @@ document.addEventListener('visibilitychange', () => {
 
 // 3. ✅ CUANDO LA VENTANA RECIBE FOCO
 window.addEventListener('focus', actualizarFechaSiEsAnterior);
-
 
 
 

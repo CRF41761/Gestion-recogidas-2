@@ -13,6 +13,166 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 /* ============================================ */
 /* ============================================
+   LOCALIDADES LOCALES (pedanías, barrios, partidas, playas)
+   Coordenadas exactas para evitar confusiones con otros lugares de España
+   ============================================ */
+const localidadesLocales = {
+    // ===== VALENCIA CIUDAD - Pedanías =====
+    "la torre": { coords: [39.4119, -0.4117], municipio: "Valencia", zoom: 15 },
+    "benimamet": { coords: [39.4972, -0.4089], municipio: "Valencia", zoom: 15 },
+    "benimàmet": { coords: [39.4972, -0.4089], municipio: "Valencia", zoom: 15 },
+    "beniferri": { coords: [39.4833, -0.4000], municipio: "Valencia", zoom: 15 },
+    "pinedo": { coords: [39.4083, -0.3417], municipio: "Valencia", zoom: 15 },
+    "el saler": { coords: [39.3750, -0.3333], municipio: "Valencia", zoom: 15 },
+    "saler": { coords: [39.3750, -0.3333], municipio: "Valencia", zoom: 15 },
+    "el palmar": { coords: [39.3500, -0.3333], municipio: "Valencia", zoom: 15 },
+    "palmar": { coords: [39.3500, -0.3333], municipio: "Valencia", zoom: 15 },
+    "el perellonet": { coords: [39.3333, -0.3333], municipio: "Valencia", zoom: 15 },
+    "perellonet": { coords: [39.3333, -0.3333], municipio: "Valencia", zoom: 15 },
+    "benicalap": { coords: [39.4917, -0.4083], municipio: "Valencia", zoom: 15 },
+    "torrefiel": { coords: [39.4917, -0.3750], municipio: "Valencia", zoom: 15 },
+    "orriols": { coords: [39.4917, -0.3667], municipio: "Valencia", zoom: 15 },
+    "la punta": { coords: [39.4250, -0.3500], municipio: "Valencia", zoom: 15 },
+    "nazaret": { coords: [39.4417, -0.3417], municipio: "Valencia", zoom: 15 },
+    "el grao": { coords: [39.4500, -0.3333], municipio: "Valencia", zoom: 15 },
+    "grao": { coords: [39.4500, -0.3333], municipio: "Valencia", zoom: 15 },
+    "el cabanyal": { coords: [39.4667, -0.3333], municipio: "Valencia", zoom: 15 },
+    "cabanyal": { coords: [39.4667, -0.3333], municipio: "Valencia", zoom: 15 },
+    "cabañal": { coords: [39.4667, -0.3333], municipio: "Valencia", zoom: 15 },
+    "la malvarrosa": { coords: [39.4750, -0.3333], municipio: "Valencia", zoom: 15 },
+    "malvarrosa": { coords: [39.4750, -0.3333], municipio: "Valencia", zoom: 15 },
+    "ayora": { coords: [39.5500, -0.4167], municipio: "Valencia", zoom: 15 },
+    "la luz": { coords: [39.4583, -0.4000], municipio: "Valencia", zoom: 15 },
+    "tres forques": { coords: [39.4583, -0.4083], municipio: "Valencia", zoom: 15 },
+    "la petxina": { coords: [39.4750, -0.3917], municipio: "Valencia", zoom: 15 },
+    "petxina": { coords: [39.4750, -0.3917], municipio: "Valencia", zoom: 15 },
+    "nou moles": { coords: [39.4750, -0.4000], municipio: "Valencia", zoom: 15 },
+    "arrancapins": { coords: [39.4667, -0.3917], municipio: "Valencia", zoom: 15 },
+    "patraix": { coords: [39.4500, -0.4083], municipio: "Valencia", zoom: 15 },
+    "vara de quart": { coords: [39.4583, -0.4167], municipio: "Valencia", zoom: 15 },
+    "la fontsanta": { coords: [39.4417, -0.4083], municipio: "Valencia", zoom: 15 },
+    "monteolivete": { coords: [39.4500, -0.3583], municipio: "Valencia", zoom: 15 },
+    "en corts": { coords: [39.4500, -0.3667], municipio: "Valencia", zoom: 15 },
+    "borboto": { coords: [39.5000, -0.3833], municipio: "Valencia", zoom: 15 },
+    "carpesa": { coords: [39.4917, -0.3750], municipio: "Valencia", zoom: 15 },
+    "masarrochos": { coords: [39.5083, -0.3833], municipio: "Valencia", zoom: 15 },
+    "massarrojos": { coords: [39.5083, -0.3833], municipio: "Valencia", zoom: 15 },
+    "poble nou": { coords: [39.4833, -0.3417], municipio: "Valencia", zoom: 15 },
+    "ciutat jardí": { coords: [39.4750, -0.3583], municipio: "Valencia", zoom: 15 },
+    "ciutat jardin": { coords: [39.4750, -0.3583], municipio: "Valencia", zoom: 15 },
+    "canyamelar": { coords: [39.4667, -0.3333], municipio: "Valencia", zoom: 15 },
+    "castellar-oliveral": { coords: [39.4250, -0.3583], municipio: "Valencia", zoom: 15 },
+    "castellar": { coords: [39.4250, -0.3583], municipio: "Valencia", zoom: 15 },
+    "horno de alcedo": { coords: [39.4167, -0.3500], municipio: "Valencia", zoom: 15 },
+    "poblados del sur": { coords: [39.4250, -0.3583], municipio: "Valencia", zoom: 14 },
+    
+    // ===== Barrios de Valencia (nombres compartidos con Cataluña) =====
+    "la seu": { coords: [39.4767, -0.3750], municipio: "Valencia", zoom: 16 },
+    "el carme": { coords: [39.4767, -0.3833], municipio: "Valencia", zoom: 16 },
+    "el carmen": { coords: [39.4767, -0.3833], municipio: "Valencia", zoom: 16 },
+    "ruzafa": { coords: [39.4617, -0.3717], municipio: "Valencia", zoom: 16 },
+    "russafa": { coords: [39.4617, -0.3717], municipio: "Valencia", zoom: 16 },
+    "el botànic": { coords: [39.4717, -0.3883], municipio: "Valencia", zoom: 16 },
+    "botanic": { coords: [39.4717, -0.3883], municipio: "Valencia", zoom: 16 },
+    "la xerea": { coords: [39.4783, -0.3733], municipio: "Valencia", zoom: 16 },
+    "el mercat": { coords: [39.4750, -0.3783], municipio: "Valencia", zoom: 16 },
+    "sant francesc": { coords: [39.4700, -0.3767], municipio: "Valencia", zoom: 16 },
+    "la roqueta": { coords: [39.4683, -0.3817], municipio: "Valencia", zoom: 16 },
+    "el calvari": { coords: [39.4883, -0.3717], municipio: "Valencia", zoom: 16 },
+    "sant pau": { coords: [39.4833, -0.3667], municipio: "Valencia", zoom: 16 },
+    "el port": { coords: [39.4500, -0.3333], municipio: "Valencia", zoom: 16 },
+    "la marina": { coords: [39.4500, -0.3333], municipio: "Valencia", zoom: 16 },
+    
+    // ===== Albufera - Devesa =====
+    "la devesa": { coords: [39.3667, -0.3333], municipio: "Valencia", zoom: 14 },
+    "devesa": { coords: [39.3667, -0.3333], municipio: "Valencia", zoom: 14 },
+    "devesa del saler": { coords: [39.3667, -0.3333], municipio: "Valencia", zoom: 14 },
+    "el estany": { coords: [39.3500, -0.3417], municipio: "Valencia", zoom: 14 },
+    "la albufera": { coords: [39.3500, -0.3500], municipio: "Valencia", zoom: 14 },
+    "albufera": { coords: [39.3500, -0.3500], municipio: "Valencia", zoom: 14 },
+    
+    // ===== Paterna - Pedanías =====
+    "la cañada": { coords: [39.5017, -0.4267], municipio: "Paterna", zoom: 15 },
+    "cañada": { coords: [39.5017, -0.4267], municipio: "Paterna", zoom: 15 },
+    "la canyada": { coords: [39.5017, -0.4267], municipio: "Paterna", zoom: 15 },
+    "canyada": { coords: [39.5017, -0.4267], municipio: "Paterna", zoom: 15 },
+    "mas del rosari": { coords: [39.5083, -0.4417], municipio: "Paterna", zoom: 15 },
+    "mas del rosario": { coords: [39.5083, -0.4417], municipio: "Paterna", zoom: 15 },
+    "la coma": { coords: [39.5139, -0.4500], municipio: "Paterna", zoom: 15 },
+    "bovalar": { coords: [39.5167, -0.4333], municipio: "Paterna", zoom: 15 },
+    "la font": { coords: [39.5000, -0.4167], municipio: "Paterna", zoom: 15 },
+    "font del jarro": { coords: [39.5167, -0.4417], municipio: "Paterna", zoom: 15 },
+    "font del gerro": { coords: [39.5167, -0.4417], municipio: "Paterna", zoom: 15 },
+    "la granja": { coords: [39.5083, -0.4500], municipio: "Paterna", zoom: 15 },
+    "lloma llarga": { coords: [39.5167, -0.4583], municipio: "Paterna", zoom: 15 },
+    "parc tecnològic": { coords: [39.5250, -0.4583], municipio: "Paterna", zoom: 15 },
+    "parque tecnologico": { coords: [39.5250, -0.4583], municipio: "Paterna", zoom: 15 },
+    "campamento": { coords: [39.5000, -0.4167], municipio: "Paterna", zoom: 15 },
+    
+    // ===== Torrent =====
+    "el vedat": { coords: [39.4250, -0.4667], municipio: "Torrent", zoom: 15 },
+    "vedat": { coords: [39.4250, -0.4667], municipio: "Torrent", zoom: 15 },
+    "calicanto": { coords: [39.4167, -0.4833], municipio: "Torrent", zoom: 15 },
+    
+    // ===== Sollana =====
+    "el romani": { coords: [39.2833, -0.3833], municipio: "Sollana", zoom: 15 },
+    "romani": { coords: [39.2833, -0.3833], municipio: "Sollana", zoom: 15 },
+    
+    // ===== Sueca - Marenys =====
+    "el perelló": { coords: [39.3000, -0.3167], municipio: "Sueca", zoom: 15 },
+    "el perello": { coords: [39.3000, -0.3167], municipio: "Sueca", zoom: 15 },
+    "perello": { coords: [39.3000, -0.3167], municipio: "Sueca", zoom: 15 },
+    "perelló": { coords: [39.3000, -0.3167], municipio: "Sueca", zoom: 15 },
+    "mareny blau": { coords: [39.3167, -0.3167], municipio: "Sueca", zoom: 15 },
+    "mareny de barraquetes": { coords: [39.3333, -0.3333], municipio: "Sueca", zoom: 15 },
+    "les palmeres": { coords: [39.2583, -0.3333], municipio: "Sueca", zoom: 15 },
+    "palmeres": { coords: [39.2583, -0.3333], municipio: "Sueca", zoom: 15 },
+    "palmeretes": { coords: [39.2500, -0.3417], municipio: "Sueca", zoom: 15 },
+    
+    // ===== Cullera =====
+    "mareny de sant llorenç": { coords: [39.1667, -0.2667], municipio: "Cullera", zoom: 15 },
+    "mareny de sant llorenc": { coords: [39.1667, -0.2667], municipio: "Cullera", zoom: 15 },
+    "el raco": { coords: [39.1667, -0.2500], municipio: "Cullera", zoom: 15 },
+    "el racó": { coords: [39.1667, -0.2500], municipio: "Cullera", zoom: 15 },
+    "raco de cullera": { coords: [39.1667, -0.2500], municipio: "Cullera", zoom: 15 },
+    
+    // ===== Sagunto =====
+    "puerto de sagunto": { coords: [39.6500, -0.2167], municipio: "Sagunto", zoom: 15 },
+    
+    // ===== Godella =====
+    "campo olivar": { coords: [39.5333, -0.4167], municipio: "Godella", zoom: 15 },
+    
+    // ===== Gandia =====
+    "grao de gandia": { coords: [38.9833, -0.1500], municipio: "Gandia", zoom: 15 },
+    "grao de gandía": { coords: [38.9833, -0.1500], municipio: "Gandia", zoom: 15 },
+    "alqueria del duc": { coords: [38.9833, -0.1833], municipio: "Gandia", zoom: 15 },
+    "alquería del duc": { coords: [38.9833, -0.1833], municipio: "Gandia", zoom: 15 },
+    
+    // ===== Xàtiva =====
+    "alboy": { coords: [39.0056, -0.5033], municipio: "Xàtiva", zoom: 15 },
+    
+    // ===== Otras localidades =====
+    "mas camarena": { coords: [39.5333, -0.4667], municipio: "Bétera", zoom: 15 },
+    "faitanar": { coords: [39.4833, -0.4500], municipio: "Quart de Poblet", zoom: 15 },
+    "circuit ricardo tormo": { coords: [39.4833, -0.4500], municipio: "Cheste", zoom: 15 },
+    "circuito ricardo tormo": { coords: [39.4833, -0.4500], municipio: "Cheste", zoom: 15 },
+    "circuito de cheste": { coords: [39.4833, -0.4500], municipio: "Cheste", zoom: 15 },
+    
+    // ===== Playas y zonas costeras =====
+    "playa de puçol": { coords: [39.5750, -0.3000], municipio: "Puçol", zoom: 15 },
+    "playa de puzol": { coords: [39.5750, -0.3000], municipio: "Puçol", zoom: 15 },
+    "playa de canet": { coords: [39.6000, -0.2833], municipio: "Canet d'En Berenguer", zoom: 15 },
+    "la marina de el puig": { coords: [39.5667, -0.3000], municipio: "El Puig", zoom: 15 },
+    
+    // ===== Hospitales y puntos de interés =====
+    "hospital la fe": { coords: [39.4417, -0.3917], municipio: "Valencia", zoom: 16 },
+    "la fe": { coords: [39.4417, -0.3917], municipio: "Valencia", zoom: 16 },
+    "hospital general": { coords: [39.4750, -0.3917], municipio: "Valencia", zoom: 16 },
+    "hospital clínico": { coords: [39.4750, -0.3667], municipio: "Valencia", zoom: 16 },
+    "la peseta": { coords: [39.4333, -0.4083], municipio: "Valencia", zoom: 16 },
+    "hospital la peseta": { coords: [39.4333, -0.4083], municipio: "Valencia", zoom: 16 }
+};
+/* ============================================
    CONVERSIÓN UTM → LAT/LON (WGS84) - España (Comunidad Valenciana)
    ============================================ */
 function utmToLatLon(easting, northing, zoneNumber, northernHemisphere = true) {

@@ -351,22 +351,58 @@ window.cargarRegistroEnFormulario = async function(id) {
             // Activar autocompletado
             document.getElementById('especie_comun').dispatchEvent(new Event('input'));
 
-            // Rellenar checkboxes de posible_causa
-            document.querySelectorAll('input[name="posible_causa"]').forEach(cb => cb.checked = false);
-            if (Array.isArray(registro.posible_causa)) {
-                registro.posible_causa.forEach(valor => {
-                    const cb = document.querySelector(`input[name="posible_causa"][value="${valor}"]`);
-                    if (cb) cb.checked = true;
-                });
+                       // ✅ CORRECCIÓN POSIBLE CAUSA (Se guarda como String, no como Array)
+            document.querySelectorAll('input[name="posible_causa"]').forEach(rb => rb.checked = false);
+            const otrasCausaSelect = document.getElementById('otrasCausaSelect');
+            const chkOtrasCausa = document.getElementById('otras');
+            const wrapperOtrasCausa = document.getElementById('otrasCausaWrapper');
+            
+            if (registro.posible_causa) {
+                const valorCausa = registro.posible_causa;
+                // 1. Buscar si existe un radio button con ese valor exacto
+                const rbCausa = document.querySelector(`input[name="posible_causa"][value="${valorCausa}"]`);
+                
+                if (rbCausa) {
+                    rbCausa.checked = true;
+                    // Si es el radio "Otras", asegurar que el wrapper se muestre
+                    if (rbCausa.value === 'Otras' || rbCausa.id === 'otras') {
+                        if (chkOtrasCausa) chkOtrasCausa.checked = true;
+                        if (wrapperOtrasCausa) wrapperOtrasCausa.style.display = 'block';
+                    }
+                } else if (otrasCausaSelect) {
+                    // 2. Si no hay radio button, es porque era una opción del desplegable "Otras"
+                    otrasCausaSelect.value = valorCausa;
+                    if (chkOtrasCausa) {
+                        chkOtrasCausa.checked = true;
+                        chkOtrasCausa.dispatchEvent(new Event('change')); // Dispara el evento para mostrar el wrapper
+                    }
+                }
+            } else {
+                if (wrapperOtrasCausa) wrapperOtrasCausa.style.display = 'none';
+                if (chkOtrasCausa) chkOtrasCausa.checked = false;
             }
 
-            // Rellenar checkboxes de remitente
-            document.querySelectorAll('input[name="remitente"]').forEach(cb => cb.checked = false);
-            if (Array.isArray(registro.remitente)) {
-                registro.remitente.forEach(valor => {
-                    const cb = document.querySelector(`input[name="remitente"][value="${valor}"]`);
-                    if (cb) cb.checked = true;
-                });
+            // ✅ CORRECCIÓN REMITENTE (Se guarda como String, no como Array)
+            document.querySelectorAll('input[name="remitente"]').forEach(rb => rb.checked = false);
+            const remitenteSelect = document.querySelector('select[name="remitente"]');
+            
+            if (registro.remitente) {
+                if (remitenteSelect) {
+                    // Si en tu HTML remitente es un desplegable <select>
+                    remitenteSelect.value = registro.remitente;
+                } else {
+                    // Si son radio buttons o un input de texto
+                    const rbRemitente = document.querySelector(`input[name="remitente"][value="${registro.remitente}"]`);
+                    if (rbRemitente && rbRemitente.type === 'radio') {
+                        rbRemitente.checked = true;
+                    } else {
+                        // Fallback para input de texto
+                        const inputRemitente = document.querySelector('input[name="remitente"]');
+                        if (inputRemitente && inputRemitente.type !== 'radio') {
+                            inputRemitente.value = registro.remitente;
+                        }
+                    }
+                }
             }
 
             // Rellenar estado_animal

@@ -1607,8 +1607,8 @@ if (telefonoInput) {
       <li>✅ <strong>Bien:</strong> <code>Urbanizacion la cañada</code></li>
       <li>✅ <strong>Bien:</strong> <code>Plaza Mayor, Xàtiva</code></li>
       <li>✅ <strong>Bien:</strong> <code>Avenida Elche, Alicante</code></li>
-            <li>❌ <strong>Evita:</strong> <code>Calle Colón, Valencia</code> → puede ir a Alicante</li>
-      <li>❌ <strong>Evita:</strong> <code>Calle Colón</code> → puede ir a otro municipio</li>
+      <li>❌ <strong>Evita:</strong> <code>La cañada</code> → no es un Municipio, el sistema puede que lo busque en otro lugar de España</li>
+      <li>❌ <strong>Evita:</strong> <code>La Torre</code> → es una pedanía de Valencia, pero el sistema busca por defecto un Municipio con ese nombre y lo encuentra en otra Provincia</li>
     </ul>
     <p style="margin-top:12px; font-weight:bold; color:#27ae60;">
       💡 Consejo: usa "Valencia ciudad", "Alicante ciudad" o el nombre exacto del pueblo.

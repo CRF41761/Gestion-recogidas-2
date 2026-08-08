@@ -1621,7 +1621,7 @@ if (telefonoInput) {
       <li>❌ <strong>Evita:</strong> <code>La Torre</code> → es una pedanía de Valencia, pero el sistema busca por defecto un Municipio con ese nombre y lo encuentra en otra Provincia</li>
     </ul>
     <p style="margin-top:12px; font-weight:bold; color:#27ae60;">
-      💡 Consejo: usa "Valencia ciudad", "Alicante ciudad" o el nombre exacto del pueblo.
+      💡 Las calles y los Municipios, el sistema los busca por defecto en Valencia.
     </p>
   `,
   coordsFormat: `

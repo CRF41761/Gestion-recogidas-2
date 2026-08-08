@@ -351,30 +351,40 @@ window.cargarRegistroEnFormulario = async function(id) {
             // Activar autocompletado
             document.getElementById('especie_comun').dispatchEvent(new Event('input'));
 
-                       // ✅ CORRECCIÓN POSIBLE CAUSA (Se guarda como String, no como Array)
+                                  // ✅ CORRECCIÓN POSIBLE CAUSA (búsqueda case-insensitive)
             document.querySelectorAll('input[name="posible_causa"]').forEach(rb => rb.checked = false);
             const otrasCausaSelect = document.getElementById('otrasCausaSelect');
             const chkOtrasCausa = document.getElementById('otras');
             const wrapperOtrasCausa = document.getElementById('otrasCausaWrapper');
             
             if (registro.posible_causa) {
-                const valorCausa = registro.posible_causa;
-                // 1. Buscar si existe un radio button con ese valor exacto
-                const rbCausa = document.querySelector(`input[name="posible_causa"][value="${valorCausa}"]`);
+                const valorCausa = registro.posible_causa.trim();
+                const valorCausaUpper = valorCausa.toUpperCase();
                 
-                if (rbCausa) {
-                    rbCausa.checked = true;
-                    // Si es el radio "Otras", asegurar que el wrapper se muestre
-                    if (rbCausa.value === 'Otras' || rbCausa.id === 'otras') {
+                // Buscar el radio button comparando en MAYÚSCULAS (case-insensitive)
+                let rbEncontrado = null;
+                document.querySelectorAll('input[name="posible_causa"]').forEach(rb => {
+                    if (rb.value.toUpperCase() === valorCausaUpper) {
+                        rbEncontrado = rb;
+                    }
+                });
+                
+                if (rbEncontrado) {
+                    // ✅ Encontró el radio button correcto (ej. "Cría")
+                    rbEncontrado.checked = true;
+                    
+                    // Si es el radio "Otras", mostrar el wrapper
+                    if (rbEncontrado.value === 'Otras' || rbEncontrado.id === 'otras') {
                         if (chkOtrasCausa) chkOtrasCausa.checked = true;
                         if (wrapperOtrasCausa) wrapperOtrasCausa.style.display = 'block';
                     }
                 } else if (otrasCausaSelect) {
-                    // 2. Si no hay radio button, es porque era una opción del desplegable "Otras"
+                    // Solo llega aquí si NO hay ningún radio button que coincida
+                    // (es decir, realmente era una opción del desplegable "Otras")
                     otrasCausaSelect.value = valorCausa;
                     if (chkOtrasCausa) {
                         chkOtrasCausa.checked = true;
-                        chkOtrasCausa.dispatchEvent(new Event('change')); // Dispara el evento para mostrar el wrapper
+                        chkOtrasCausa.dispatchEvent(new Event('change'));
                     }
                 }
             } else {

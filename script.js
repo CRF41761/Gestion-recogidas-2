@@ -1271,16 +1271,6 @@ const posibleCausaMayusculas = posibleCausaValue.toUpperCase();
 // Detectar tipo de salida desde Observaciones
 const observacionesTexto = (() => {
     let txt = fd.get("observaciones")?.trim() || "";
-    // Añadir texto de "Especificar causa"
-    const especificarCausa = document.getElementById('otras_texto')?.value?.trim();
-    if (especificarCausa) {
-        txt += (txt ? " | " : "") + especificarCausa;
-    }
-    // Añadir texto de "Especificar remitente"
-    const especificarRemitente = document.getElementById('otras_remitente_texto')?.value?.trim();
-    if (especificarRemitente) {
-        txt += (txt ? " | " : "") + especificarRemitente;
-    }
     // Añadir anilla si aplica
     const anillaInput = document.getElementById('anilla');
     const recuperacionChecked = document.getElementById('recuperacion')?.checked;

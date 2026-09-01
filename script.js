@@ -633,29 +633,20 @@ if (chkOtrasCausa && wrapperOtrasCausa) {
     // Función para ocultar el desplegable y limpiar selección
     function ocultarDesplegableOtras() {
         wrapperOtrasCausa.style.display = 'none';
-        document.getElementById('otrasCausaSelect').value = '';
-        chkOtrasCausa.checked = false;
+        const select = document.getElementById('otrasCausaSelect');
+        if (select) select.value = '';
     }
 
-    // Evento para mostrar/ocultar al hacer clic en "Otras"
-    chkOtrasCausa.addEventListener('change', function() {
-        if (this.checked) {
-            wrapperOtrasCausa.style.display = 'block';
-        } else {
-            ocultarDesplegableOtras();
-        }
-    });
-
-    // Evento para ocultar el desplegable cuando se marca cualquier otra causa
-    const todasCausasCheckboxes = document.querySelectorAll('input[name="posible_causa"]');
-    todasCausasCheckboxes.forEach(checkbox => {
-        if (checkbox.id !== 'otras') { // Excluir el checkbox "Otras" mismo
-            checkbox.addEventListener('change', function() {
-                if (this.checked) {
-                    ocultarDesplegableOtras();
-                }
-            });
-        }
+    // Evento para mostrar/ocultar cuando cambia CUALQUIER radio de posible_causa
+    const todasCausasRadios = document.querySelectorAll('input[name="posible_causa"]');
+    todasCausasRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.id === 'otras' && this.checked) {
+                wrapperOtrasCausa.style.display = 'block';
+            } else {
+                ocultarDesplegableOtras();
+            }
+        });
     });
 }
         function iniciarSeguimiento() {

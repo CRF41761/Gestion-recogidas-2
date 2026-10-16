@@ -260,8 +260,3 @@ input[list] {
     font-size: 1.2rem !important; /* Texto descriptivo normal */
     line-height: 1.5;
 }
-
-/* SweetAlert2 visible por encima del panel «Registros Guardados» (#modalRegistros, z-index:2000) */
-.swal2-container {
-    z-index: 2100 !important;
-}

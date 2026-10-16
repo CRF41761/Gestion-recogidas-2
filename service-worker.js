@@ -1,14 +1,15 @@
-const CACHE_NAME = "gestion-recogidas-v1";
+const CACHE_NAME = "gestion-recogidas-v13";
 const urlsToCache = [
-    "/Gestion-recogidas-2/",  // Asegura que coincide con tu repositorio
-    "/Gestion-recogidas-2/index.html",
-    "/Gestion-recogidas-2/styles.css",
-    "/Gestion-recogidas-2/script.js",
-    "/Gestion-recogidas-2/manifest.json",
-    "/Gestion-recogidas-2/icons/icon-192x192.png",
-    "/Gestion-recogidas-2/icons/icon-512x512.png",
-    "/Gestion-recogidas-2/municipios.json", // Archivo de municipios
-    "/Gestion-recogidas-2/especies.json"
+    "./",  // Asegura que coincide con tu repositorio
+    "index.html",
+    "styles.css",
+    "script.js?v=13",
+    "manifest.json",
+    "icons/icon-192x192.png",
+    "icons/icon-512x512.png",
+    "municipios.json", // Archivo de municipios
+    "especies.json",
+    "./vendor/sweetalert2.all.min.js"
 ];
 
 // Instalar el Service Worker y cachear archivos
@@ -19,6 +20,8 @@ self.addEventListener("install", event => {
             return cache.addAll(urlsToCache);
         })
     );
+    // ✅ Activar inmediatamente sin esperar
+    self.skipWaiting();
 });
 
 // Interceptar solicitudes y servir desde el caché si están disponibles
@@ -39,4 +42,6 @@ self.addEventListener("activate", event => {
             );
         })
     );
+    // ✅ Tomar el control de todos los clientes inmediatamente
+    self.clients.claim();
 });

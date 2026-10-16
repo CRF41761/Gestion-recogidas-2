@@ -144,6 +144,12 @@ const initDB = () => {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
         request.onerror = () => reject(request.error);
+        // Bloqueo por otra pestaña con versión anterior: avisar sin rechazar,
+        // para que la apertura se complete sola al liberarse el bloqueo.
+        request.onblocked = () => {
+            console.warn('Apertura de IndexedDB bloqueada: otra pestaña usa una versión anterior. Ciérrela y recargue.');
+            alert('⚠️ La base de datos local está bloqueada por otra pestaña abierta. Cierre las demás pestañas de la aplicación y recargue la página.');
+        };
         request.onsuccess = () => {
             db = request.result;
             resolve(db);
@@ -170,7 +176,8 @@ function generarEnvioId() {
 }
 
 // Guardar registro en IndexedDB (sin número de entrada al guardar localmente antes del envío)
-const guardarRegistroLocal = (datos) => {
+const guardarRegistroLocal = async (datos) => {
+    await obtenerDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
@@ -189,7 +196,8 @@ const guardarRegistroLocal = (datos) => {
 };
 
 // Nueva función auxiliar para guardar con número (solo usada tras el envío)
-const guardarRegistroLocalConNumero = (datos) => {
+const guardarRegistroLocalConNumero = async (datos) => {
+    await obtenerDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
@@ -207,7 +215,8 @@ const guardarRegistroLocalConNumero = (datos) => {
 };
 
 // Guardar registro con estado (guardado, pendiente_confirmacion, enviado)
-const guardarRegistroLocalConEstado = (datos, estado = "guardado") => {
+const guardarRegistroLocalConEstado = async (datos, estado = "guardado") => {
+    await obtenerDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
@@ -225,7 +234,8 @@ const guardarRegistroLocalConEstado = (datos, estado = "guardado") => {
 };
 
 // Obtener todos los registros
-const obtenerRegistros = () => {
+const obtenerRegistros = async () => {
+    await obtenerDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readonly');
         const store = transaction.objectStore(STORE_NAME);
@@ -236,7 +246,8 @@ const obtenerRegistros = () => {
 };
 
 // Buscar registro por envio_id
-const buscarRegistroPorEnvioId = (envioId) => {
+const buscarRegistroPorEnvioId = async (envioId) => {
+    await obtenerDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readonly');
         const store = transaction.objectStore(STORE_NAME);
@@ -248,7 +259,8 @@ const buscarRegistroPorEnvioId = (envioId) => {
 };
 
 // Actualizar estado de un registro
-const actualizarEstadoRegistro = (id, estado, numerosAsignados = null) => {
+const actualizarEstadoRegistro = async (id, estado, numerosAsignados = null) => {
+    await obtenerDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
@@ -274,7 +286,8 @@ const actualizarEstadoRegistro = (id, estado, numerosAsignados = null) => {
 
 // Actualizar datos de un registro EXISTENTE conservando su id local (reenvíos sin duplicar)
 // Espera a que la transacción termine (oncomplete) antes de resolver
-const actualizarDatosRegistro = (id, datos) => {
+const actualizarDatosRegistro = async (id, datos) => {
+    await obtenerDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
@@ -290,7 +303,8 @@ const actualizarDatosRegistro = (id, datos) => {
 };
 
 // Eliminar registro
-const eliminarRegistro = (id) => {
+const eliminarRegistro = async (id) => {
+    await obtenerDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
@@ -360,7 +374,14 @@ const formatearFechaHora = (fechaISO) => {
 
 // Mostrar registros en el modal (con botón CARGAR y diferenciación de estados)
 const mostrarRegistros = async () => {
-    const registros = await obtenerRegistros();
+    let registros;
+    try {
+        registros = await obtenerRegistros();
+    } catch (errDB) {
+        console.error('Error al leer registros locales:', errDB);
+        alert('⚠️ No se pudieron cargar los registros locales (base de datos no disponible).');
+        return;
+    }
     const contenedor = document.getElementById('contenidoRegistros');
     const importarEnModal = document.getElementById('importarEnModal');
     const btnExportar = document.getElementById('btnExportarRegistros');
@@ -470,7 +491,15 @@ ${reg.especie_comun || 'Sin especie'}
 
 // Función auxiliar para comprobar por ID (usada en mostrarRegistros)
 window.comprobarSiFueRegistradaPorId = async function(id) {
-    const transaction = db.transaction([STORE_NAME], 'readonly');
+    let transaction;
+    try {
+        await obtenerDB();
+        transaction = db.transaction([STORE_NAME], 'readonly');
+    } catch (errDB) {
+        console.error('Error al acceder a registros locales:', errDB);
+        alert('⚠️ No se pudo acceder a los registros locales (base de datos no disponible).');
+        return;
+    }
     const store = transaction.objectStore(STORE_NAME);
     const request = store.get(id);
     request.onsuccess = async () => {
@@ -497,7 +526,8 @@ window.eliminarYActualizar = async function(id) {
 // Función para cargar un registro guardado en el formulario
 window.cargarRegistroEnFormulario = async function(id) {
     try {
-        // Obtener registro de IndexedDB
+        // Obtener registro de IndexedDB (espera conexión válida)
+        await obtenerDB();
         const transaction = db.transaction([STORE_NAME], 'readonly');
         const store = transaction.objectStore(STORE_NAME);
         const request = store.get(id);
@@ -658,13 +688,32 @@ window.cargarRegistroEnFormulario = async function(id) {
     }
 };
 
-// Inicializar DB al cargar
-initDB().then(() => {
+// Inicializar DB al cargar (promesa compartida: todo acceso a IndexedDB la espera)
+const dbLista = initDB();
+dbLista.then(() => {
     console.log('IndexedDB inicializada correctamente');
 }).catch(err => {
     console.error('Error inicializando IndexedDB:', err);
     alert('Error al inicializar base de datos local. Los registros no se guardarán.');
 });
+
+// Espera a que la apertura termine y devuelve una conexión válida.
+// Lanza un error explícito si la base no pudo abrirse (nunca devuelve undefined).
+async function obtenerDB() {
+    try {
+        await dbLista;
+    } catch (errApertura) {
+        const e = new Error('Base de datos local no disponible: ' + (errApertura && errApertura.message ? errApertura.message : errApertura));
+        e.baseLocalNoDisponible = true; // Marca para mensaje específico (sin comparar textos)
+        throw e;
+    }
+    if (!db) {
+        const e2 = new Error('Base de datos local no disponible (conexión sin inicializar).');
+        e2.baseLocalNoDisponible = true;
+        throw e2;
+    }
+    return db;
+}
 /* ============================================ */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -1838,6 +1887,12 @@ async function enviarDatos(data, btn, existingEnvioId = null, registroLocalId = 
 
   } catch (err) {
     console.error("Error al enviar:", err);
+    if (err && err.baseLocalNoDisponible) {
+      // Fallo del guardado local obligatorio: no se continúa con el POST,
+      // no se afirma guardado ni envío, y no se usa localStorage como sustituto.
+      alert("No se ha podido guardar el registro en este dispositivo porque la base de datos local no está disponible. El registro no se ha enviado. Copia los datos del formulario antes de cerrar o recargar la página y vuelve a intentarlo cuando el almacenamiento funcione.");
+      return;
+    }
     if (registroPendienteId) {
       await actualizarEstadoRegistro(registroPendienteId, "pendiente_confirmacion");
     }
